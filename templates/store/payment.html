@@ -1,0 +1,101 @@
+{% extends 'user_checkout_base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<section class="section-content padding-y bg">
+<div class="container">
+  
+
+<!-- ============================ COMPONENT 1 ================================= -->
+<div class="row">
+	<main class="col-lg-8">
+        <article class="filter-group">
+      
+      <div class="filter-content " id="collapse_4">
+        <div class="card-body">
+          
+          <article class="accordion" id="accordion_pay">
+            
+            <div class="card">
+              <header class="card-header">
+                <img src="./images/misc/payment-paypal.png" class="float-right" height="24"> 
+                <label class="form-check collapsed" data-toggle="collapse" data-target="#pay_paypal">
+                  <input class="form-check-input" name="payment-option" checked type="radio" value="option2">
+                  <h6 class="form-check-label"> 
+                    Paypal 
+                  </h6>
+                </label>
+              </header>
+              <div id="pay_paypal" class="collapse show" data-parent="#accordion_pay">
+              <div class="card-body">
+                <p class="text-center text-muted"></p>
+                <p class="text-center">
+                  <a href="#"><img src="{% static './images/misc/btn-paypal.png' %}" height="32"></a>
+                  <br><br>
+                </p>
+              </div> <!-- card body .// -->
+              </div> <!-- collapse .// -->
+            </div> <!-- card.// -->
+
+            <div class="card">
+                <header class="card-header">
+                  <img src="./images/misc/payment-paypal.png" class="float-right" height="24"> 
+                  <label class="form-check collapsed" data-toggle="collapse" data-target="#pay_razorpay">
+                    <input class="form-check-input" name="payment-option" checked type="radio" value="option2">
+                    <h6 class="form-check-label"> 
+                        Razorpay 
+                    </h6>
+                  </label>
+                </header>
+                <div id="pay_razorpay" class="collapse show" data-parent="#accordion_pay">
+                <div class="card-body">
+                  <p class="text-center text-muted">Connect your PayPal account and use it to pay your bills. You'll be redirected to PayPal to add your billing information.</p>
+                  <p class="text-center">
+                    <a href="#"><img src="{% static './images/misc/btn-paypal.png' %}" height="32"></a>
+                    <br><br>
+                  </p>
+                </div> <!-- card body .// -->
+                </div> <!-- collapse .// -->
+              </div> <!-- card.// -->
+
+            <div class="card">
+            <header class="card-header">
+              <img src="./images/misc/payment-card.png" class="float-right" height="24">  
+              <label class="form-check" data-toggle="collapse" data-target="#pay_credit">
+                <input class="form-check-input" name="payment-option" type="radio" value="option2">
+                <h6 class="form-check-label"> Credit Card  </h6>
+              </label>
+            </header>
+            <div id="pay_credit" class="collapse" data-parent="#accordion_pay">
+              <div class="card-body">
+                <p class="alert alert-success">Some information or instruction</p>
+                <form class="form-inline">
+                  <input type="text" class="form-control mr-2" placeholder="xxxx-xxxx-xxxx-xxxx" name="">
+                  <input type="text" class="form-control mr-2" style="width: 100px"  placeholder="dd/yy" name="">
+                  <input type="number" maxlength="3" class="form-control mr-2"  style="width: 100px"  placeholder="cvc" name="">
+                  <button class="btn btn btn-success">Button</button>
+                </form>
+              </div> <!-- card body .// -->
+            </div> <!-- collapse .// -->
+            </div> <!-- card.// -->
+            
+          </article>
+        </div><!-- card-body.// -->
+
+      </div>
+    </article><!-- filter-group  .// --> 
+
+</main> <!-- col.// -->
+
+
+</div> <!-- row.// -->
+
+<!-- ============================ COMPONENT 1 END .// ================================= -->
+
+</div> <!-- container .//  -->
+</section>
+<!-- ========================= SECTION CONTENT END// ========================= -->
+
+{% endblock %}

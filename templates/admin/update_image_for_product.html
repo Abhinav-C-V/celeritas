@@ -1,0 +1,53 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="messages-container">
+        {% if messages %}
+          <div class="messages">
+            {% for message in messages %}
+              <div class="alert alert-warning">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+    </div>
+
+<section class="section-content padding-y">
+  <!-- COMPONENT REGISTER -->
+  <div class="card mx-auto" style="max-width:520px; margin-top:40px;">
+    <article class="card-body">
+      {% include 'includes/alerts.html' %}
+      <header class="mb-4">
+        <h4 class="card-title">Update Image</h4>
+      </header>
+      <form id="update_product" action="{% url 'update_productimage' id=prod.id %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="form-row">
+          <div class="col form-group">
+            <label for="product_name">{{ form.product.label }}</label>
+            {{ form.product }}
+            <small class="text-danger">{{ form.errors.product }}</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="normal_price">{{ form.image.label }}</label>
+            {{ form.image }}
+            <small class="text-danger">{{ form.errors.image }}</small>
+          </div>
+          
+        </div>
+        
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary btn-block">Submit</button>
+        </div>
+      </form>
+    </article>
+  </div>
+</section>
+
+{% endblock %}

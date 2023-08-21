@@ -1,0 +1,64 @@
+{% extends 'user_dashboard_base.html' %}
+
+{% block content %}
+
+{% comment %} <section class="section-conten padding-y bg"> {% endcomment %}
+<main class="col-md-9">
+	
+        <!-- Content for the main section goes here -->
+        <!-- You can add your content here -->
+
+		
+
+		{% comment %} {% include 'includes/alerts.html' %} {% endcomment %}
+		<div class="container">
+		  <div class="row">
+			<main class="col-md-9">
+			  <article class="card">
+                <div class="card-body">
+						<strong class="card-title" >Manage Address</strong>
+						{% include 'includes/alerts.html' %}
+							<div style="margin-top: 20px; ">
+								<div class="card" style=" margin-bottom: 20px;">
+									<div class="card-header" >
+										<a class="" href="{% url 'add_address' %}"><i class="fa fa-plus"></i> ADD A NEW ADDRESS</a>
+										
+									</div>
+								</div>
+
+								{% for address in adrs %}
+								<div class="card" style="position: relative;">
+									<div class="card-header">
+										<strong class="card-title">{{address.name}} <small>{{address.phone}}</small></strong>
+										<div>
+											<small>{{address.housename}}, {{address.locality}}, {{address.city}}, {{address.state}}-{{address.zipcode}}</small>
+										</div>
+										<div class="dropdown" style="position: absolute; top: 5px; right: 10px;">
+												<i  aria-hidden="true" class="fa fa-ellipsis-v btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></i>
+											<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+												<a class="dropdown-item" href="{% url 'edit_address' id=address.id %}">Edit</a>
+												<a class="dropdown-item" href="{% url 'delete_address' %}?aid={{ address }}">Delete</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								{% endfor %}
+									
+							</div>
+
+                </div> <!-- card-body .// -->
+			  </article> <!-- order-group.// -->
+			</main>
+		  </div> <!-- row.// -->
+		</div>
+
+
+</section>
+</main>
+
+</div> <!-- row.// -->
+</div> <!-- container.// -->
+</body>
+</html>
+
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'user_dashboard_base.html' %}
+
+
+{% block content %}
+
+{% comment %} <section class="section-conten padding-y bg"> {% endcomment %}
+<main class="col-md-9">
+	
+        <!-- Content for the main section goes here -->
+        <!-- You can add your content here -->
+
+{% include 'includes/alerts.html' %}
+<div class="container">
+	<div class="row">
+	<main class="col-md-9">
+		<article class="card">
+		<header class="card-header">
+			<strong class="d-inline-block mr-3">Logged in as:</strong>
+			<span>{{user.user_firstname}} {{user.user_lastname}}</span>
+		</header>
+		<div class="card-body">
+			<div class="row">
+
+			<div class="col-md-6">
+				<div class="card" style="text-align:center;">
+					<div class="card-body">
+						<h5 class="card-title">Total Orders</h5>
+						<h4>{{orders_count}}</h4>
+						<a href="#">View Orders</a>
+						{% comment %} <a href="{% url 'my_orders' %}">View Orders</a> {% endcomment %}
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="card" style="text-align:center;">
+					<div class="card-body">
+						<img src="{{ user.user_image.url }}" alt="User Profile Picture" width="89" height="89" >
+						<p class="mb-0">{{user.user_email}}</p>
+						<p>{{user.user_phone}}</p>
+					</div>
+				</div>
+			</div>
+
+			</div> <!-- row.// -->
+		</div> <!-- card-body .// -->
+
+		</article> <!-- order-group.// -->
+	</main>
+</div> <!-- row.// -->
+</div>
+
+
+
+
+</section>
+</main>
+
+</div> <!-- row.// -->
+</div> <!-- container.// -->
+
+</body>
+</html>
+
+{% endblock %}

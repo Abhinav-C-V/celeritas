@@ -1,0 +1,63 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+
+<section class="section-content padding-y">
+  <!-- COMPONENT REGISTER -->
+  <div class="card mx-auto" style="max-width:520px; margin-top:40px;">
+    <article class="card-body">
+      {% include 'includes/alerts.html' %}
+      <header class="mb-4">
+        <h4 class="card-title">Update Product</h4>
+      </header>
+      <form id="update_product" action="{% url 'admin_updateproduct' id=prod.id %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="form-row">
+          <div class="col form-group">
+            <label for="product_name">{{ form.product_name.label }}</label>
+            {{ form.product_name }}
+            <small class="text-danger">{{ form.errors.product_name }}</small>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="normal_price">{{ form.normal_price.label }}</label>
+            {{ form.normal_price }}
+            <small class="text-danger">{{ form.errors.normal_price }}</small>
+          </div>
+          
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="image">{{ form.image.label }}</label>
+            {{ form.image }}
+            <small class="text-danger">{{ form.errors.image }}</small>
+          </div>
+          <div class="col form-group">
+            <label for="description">{{ form.description.label }}</label>
+            {{ form.description }}
+            <small class="text-danger">{{ form.errors.description }}</small>
+          </div>
+        </div>
+
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="user_password">{{ form.category.label }}</label>
+            {{ form.category }}
+            <small class="text-danger">{{ form.errors.category }}</small>
+          </div>
+        </div>
+
+        
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary btn-block">Submit</button>
+        </div>
+      </form>
+    </article>
+  </div>
+  {% comment %} <p class="text-center mt-4">Have an account? <a href="{% url 'user_login' %}">Log In</a></p> {% endcomment %}
+</section>
+
+{% endblock %}

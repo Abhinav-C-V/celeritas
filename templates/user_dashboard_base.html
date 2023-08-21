@@ -1,0 +1,376 @@
+{% load static %}
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="cache-control" content="max-age=604800" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<title>celeritas</title>
+
+<link href="{% static 'images/LOGO-1.jpg' %}" rel="shortcut icon" type="image/x-icon">
+
+<!-- Bootstrap 4 CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- Font Awesome 5 -->
+<link href="{% static 'fonts/fontawesome/css/all.min.css' %}" rel="stylesheet" type="text/css">
+
+<link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+<!-- Add the link to the Bootstrap CSS file here -->
+<link rel="stylesheet" href="path/to/bootstrap/css/bootstrap.min.css">
+
+<!-- Custom styles -->
+<link href="{% static 'css/ui.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css/responsive.css' %}" rel="stylesheet" media="only screen and (max-width: 1200px)">
+
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Custom JavaScript -->
+<script type="text/javascript">
+  
+    // Slick carousel
+    $('.thumb li').slick({
+      slidesToShow: 4,
+      slidesToScroll: 1,
+      arrows: true,
+      dots: false,
+      responsive: [
+        {
+          breakpoint: 768,
+          settings: {
+            slidesToShow: 3
+          }
+        },
+        {
+          breakpoint: 576,
+          settings: {
+            slidesToShow: 2
+          }
+        }
+      ]
+    });
+    $(document).ready(function() {
+      // Hide messages after a certain time (in milliseconds)
+      var messageTimeout = 5000; // Adjust the timeout as needed (e.g., 5000ms = 5 seconds)
+  
+      // Find all alert elements and set a timeout to hide them
+      $('.messages .alert').each(function() {
+        var alert = $(this);
+        setTimeout(function() {
+          alert.slideUp();
+        }, messageTimeout);
+      });
+    });
+
+
+  </script>   
+
+
+<style>
+  /* Hide the up and down symbols in number input */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .intro-banner-wrap {
+    height: 500px; /* Adjust the height as needed */
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  .carousel-control-prev,
+  .carousel-control-next {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    width: 30px;
+    height: 30px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    color: #ffffff;
+  }
+
+  .img-big-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .img-big-wrap img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .img-big-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .img-big-wrap img {
+    max-width: 100%;
+    max-height: 100%;
+    margin: auto;
+  }
+
+  .rate {
+    display: flex;
+    align-items: center;
+  }
+
+  .rate input[type="radio"] {
+    display: none;
+  }
+
+  .rate label {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 5px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .rate label span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .rate input[type="radio"]:checked + label {
+    background-color: #3377ff; /* Add your desired background color for selected radio button */
+    color: #fff; /* Add your desired text color for selected radio button */
+  }
+ 
+/* Add flex display to the second class div to align first and second in the same horizontal line */
+/* CSS for the Edit Details button */
+.edit-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.back-btn {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+}
+.address_view{
+  margin-top:10px;
+}
+
+
+
+</style>
+
+</head>
+<body>
+
+  <!-- Navbar -->
+  {% include 'includes/user_dashboard_navbar.html' %}
+
+  {% block content %}
+  <!-- Content -->
+  {% endblock %}
+
+  <!-- Footer -->
+  {% include 'includes/user_footer.html' %}
+
+  <script src="path/to/bootstrap/js/bootstrap.min.js"></script>
+
+  <script>
+
+    function toggleEdit(fieldId) {
+        var field = document.getElementById(fieldId);
+        if (field.hasAttribute('readonly')) {
+            field.removeAttribute('readonly');
+        } else {
+            field.setAttribute('readonly', 'readonly');
+        }
+    }
+
+    function toggleImageUploadArea() {
+      var imageDisplayArea = document.getElementById('imageDisplayArea');
+      var imageUploadArea = document.getElementById('imageUploadArea');
+      var editSaveButtons = document.getElementById('editSaveButtons');
+      var saveImageButton = document.getElementById('saveImageButton');
+
+      if (imageDisplayArea.style.display === 'none') {
+          imageDisplayArea.style.display = 'block';
+          imageUploadArea.style.display = 'none';
+          editSaveButtons.style.display = 'block';
+          saveImageButton.style.display = 'none';
+      } else {
+          imageDisplayArea.style.display = 'none';
+          imageUploadArea.style.display = 'block';
+          editSaveButtons.style.display = 'block';
+          saveImageButton.style.display = 'inline-block';
+      }
+  }
+
+</script>
+<script>
+  var isPersonalInfoEditing = false;
+  var isImageEditing = false;
+  var isMobileEditing = false;
+  var isEmailEditing = false;
+
+
+  function togglePersonalInfoEdit(event) {
+    event.preventDefault();
+    var firstNameField = document.getElementById('user_firstname');
+    var lastNameField = document.getElementById('user_lastname');
+    var personalInfoEditButton = document.getElementById('personalInfoEditButton');
+    var personalInfoCancelButton = document.getElementById('personalInfoCancelButton');
+    var personalInfoSaveButton = document.getElementById('personalInfoSaveButton');
+
+    if (!isPersonalInfoEditing) {
+        // Switch to Edit mode
+        firstNameField.removeAttribute('readonly');
+        lastNameField.removeAttribute('readonly');
+        personalInfoEditButton.style.display = 'none';
+        personalInfoCancelButton.style.display = 'inline-block';
+        personalInfoSaveButton.style.display = 'inline-block';
+        isPersonalInfoEditing = true;
+    } else {
+        // Switch back to View mode (Cancel)
+        firstNameField.setAttribute('readonly', 'readonly');
+        lastNameField.setAttribute('readonly', 'readonly');
+        personalInfoEditButton.style.display = 'inline-block';
+        personalInfoCancelButton.style.display = 'none';
+        personalInfoSaveButton.style.display = 'none';
+        isPersonalInfoEditing = false;
+    }
+}
+
+function cancelPersonalInfoEdit() {
+    var firstNameField = document.getElementById('user_firstname');
+    var lastNameField = document.getElementById('user_lastname');
+    var personalInfoEditButton = document.getElementById('personalInfoEditButton');
+    var personalInfoCancelButton = document.getElementById('personalInfoCancelButton');
+    var personalInfoSaveButton = document.getElementById('personalInfoSaveButton');
+    var personalInfoForm = document.getElementById('personalInfoForm');
+
+    // Switch back to View mode (Cancel)
+    firstNameField.setAttribute('readonly', 'readonly');
+    lastNameField.setAttribute('readonly', 'readonly');
+    personalInfoEditButton.style.display = 'inline-block';
+    personalInfoCancelButton.style.display = 'none';
+    personalInfoSaveButton.style.display = 'none';
+    isPersonalInfoEditing = false;
+    personalInfoForm.reset(); // Optional: Reset form fields if needed
+}
+
+function toggleMobileEdit() {
+    var mobileField = document.getElementById('user_phone');
+    var mobileEditButton = document.getElementById('mobileEditButton');
+    var mobileCancelButton = document.getElementById('mobileCancelButton');
+    var mobileSaveButton = document.getElementById('mobileSaveButton');
+
+    if (!isMobileEditing) {
+        // Switch to Edit mode
+        mobileField.removeAttribute('readonly');
+        mobileEditButton.style.display = 'none';
+        mobileCancelButton.style.display = 'inline-block';
+        mobileSaveButton.style.display = 'inline-block';
+        isMobileEditing = true;
+    } else {
+        // Switch back to View mode (Cancel)
+        mobileField.setAttribute('readonly', 'readonly');
+        mobileEditButton.style.display = 'inline-block';
+        mobileCancelButton.style.display = 'none';
+        mobileSaveButton.style.display = 'none';
+        isMobileEditing = false;
+    }
+}
+
+function toggleEmailEdit() {
+    var emailField = document.getElementById('user_email');
+    var emailEditButton = document.getElementById('emailEditButton');
+    var emailCancelButton = document.getElementById('emailCancelButton');
+    var emailSaveButton = document.getElementById('emailSaveButton');
+
+    if (!isEmailEditing) {
+        // Switch to Edit mode
+        emailField.removeAttribute('readonly');
+        emailEditButton.style.display = 'none';
+        emailCancelButton.style.display = 'inline-block';
+        emailSaveButton.style.display = 'inline-block';
+        isEmailEditing = true;
+    } else {
+        // Switch back to View mode (Cancel)
+        emailField.setAttribute('readonly', 'readonly');
+        emailEditButton.style.display = 'inline-block';
+        emailCancelButton.style.display = 'none';
+        emailSaveButton.style.display = 'none';
+        isEmailEditing = false;
+    }
+}
+
+
+var isImageEditing = false;
+
+function toggleImageUploadArea() {
+  var imageDisplayArea = document.getElementById('imageDisplayArea');
+  var imageUploadArea = document.getElementById('imageUploadArea');
+  var editSaveButtons = document.getElementById('editSaveButtons');
+  var saveImageButton = document.getElementById('saveImageButton');
+  var cancelImageButton = document.getElementById('cancelImageButton');
+
+  if (!isImageEditing) {
+      // Switch to Edit mode
+      imageDisplayArea.style.display = 'none';
+      imageUploadArea.style.display = 'block';
+      editImageButton.style.display = 'none';
+      saveImageButton.style.display = 'inline-block';
+      cancelImageButton.style.display = 'inline-block';
+      isImageEditing = true;
+  } else {
+      // Switch back to View mode (Cancel)
+      imageDisplayArea.style.display = 'block';
+      imageUploadArea.style.display = 'none';
+      editImageButton.style.display = 'inline-block';
+      saveImageButton.style.display = 'none';
+      cancelImageButton.style.display = 'none';
+      isImageEditing = false;
+  }
+}
+
+function cancelImageUploadArea() {
+  var imageDisplayArea = document.getElementById('imageDisplayArea');
+  var imageUploadArea = document.getElementById('imageUploadArea');
+  var editSaveButtons = document.getElementById('editSaveButtons');
+  var saveImageButton = document.getElementById('saveImageButton');
+  var cancelImageButton = document.getElementById('cancelImageButton');
+
+  // Switch back to View mode (Cancel)
+  imageDisplayArea.style.display = 'block';
+  imageUploadArea.style.display = 'none';
+  editImageButton.style.display = 'block';
+  saveImageButton.style.display = 'none';
+  cancelImageButton.style.display = 'none';
+  isImageEditing = false;
+}
+
+  // Optional: Handle the form submission if needed
+  
+</script>
+
+</body>
+</html>

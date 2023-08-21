@@ -1,0 +1,163 @@
+{% extends 'user_dashboard_base.html' %}
+{% load static %}
+{% block content %}
+
+{% comment %} <section class="section-conten padding-y bg"> {% endcomment %}
+<main class="col-md-9">
+	
+        <!-- Content for the main section goes here -->
+        <!-- You can add your content here -->
+
+		
+
+		
+		<div class="container">
+		  <div class="row">
+			{% comment %} {% include 'includes/dashboard_sidebar.html' %} {% endcomment %}
+			<main class="col-md-9">
+			  <article class="card">
+                <div class="card-body">
+                    <div class="card">
+                        {% comment %} <div class="card-header"> {% endcomment %}
+                            
+                        {% comment %} </div> {% endcomment %}
+                        <div class="card-body card-block">
+                            {% include 'includes/alerts.html' %}
+                            
+                            <div class="form-label d-flex align-items-center">
+                                <strong>Personal Information</strong><br><br>
+                                <a href="#" class="pl-2" id="personalInfoEditButton" onclick="togglePersonalInfoEdit(event)">Edit</a>
+                                <a href="#" class="pl-2" id="personalInfoCancelButton" style="display: none;" onclick="cancelPersonalInfoEdit()">Cancel</a>
+                            </div>
+                            <form action="{% url 'edit_personal_info' %}" method="post" class="form-inline" id="personalInfoForm">
+                                {% csrf_token %}
+                                <div class="form-inline d-flex align-items-center">
+                                    <div class="form-group">
+                                        <input type="text" id="user_firstname" name="firstname" placeholder="" required class="pr-1 form-control user_name" value="{{ user.user_firstname }}" readonly>
+                                    </div>
+                                    <div class="form-group" style="margin-left: 10px;">
+                                        <input type="text" id="user_lastname" name="lastname" placeholder="" required class="pr-1 form-control user_name" value="{{ user.user_lastname }}" readonly>
+                                    </div>
+                            
+                                    <div class="ml-2" style="">
+                                        <button type="submit" class="btn btn-primary btn-sm" id="personalInfoSaveButton" style="display: none;">
+                                            <i class="fa fa-dot-circle-o"></i> Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="form-label d-flex align-items-center" style="margin-top: 17px;">
+                                <br><br><strong>Email Address</strong><br><br>
+                                <a href="#" class="pl-2" id="emailEditButton" onclick="toggleEmailEdit()">Edit</a>
+                                <a href="#" class="pl-2" id="emailCancelButton" style="display: none;" onclick="toggleEmailEdit()">Cancel</a>
+                            </div>
+                            <form action="{% url 'edit_email' %}" method="post" class="form-inline" id="emailForm">
+                                {% csrf_token %}
+                                <div class="form-inline d-flex align-items-center">
+                                    <div class="form-group ml-2">
+                                        <input type="email" id="user_email" name="email" placeholder="" required class="pr-1 form-control" value="{{ user.user_email }}" readonly>
+                                    </div>
+
+                                    <div class="ml-2" id="emailButtons">
+                                        <button type="submit" class="btn btn-primary btn-sm" style="display: none;" id="emailSaveButton">
+                                            <i class="fa fa-dot-circle-o"></i> Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="form-label d-flex align-items-center" style="margin-top: 17px;">
+                                <br><br><strong>Mobile Number</strong><br><br>
+                                <a href="#" class="pl-2" id="mobileEditButton" onclick="toggleMobileEdit()">Edit</a>
+                                <a href="#" class="pl-2" id="mobileCancelButton" style="display: none;" onclick="toggleMobileEdit()">Cancel</a>
+                            </div>
+                            <form action="{% url 'edit_phone' %}" method="post" class="form-inline" id="mobileForm">
+                                {% csrf_token %}
+                                <div class="form-inline d-flex align-items-center">
+                                    <div class="form-group ml-2">
+                                        <input type="phone" id="user_phone" name="phone" required class="pr-1 form-control" value="{{ user.user_phone }}" readonly>
+                                    </div>
+
+                                    <div class="ml-2" id="mobileButtons">
+                                        <button type="submit" class="btn btn-primary btn-sm" style="display: none;" id="mobileSaveButton">
+                                            <i class="fa fa-dot-circle-o"></i> Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+
+                            <div class="form-label d-flex align-items-center" style="margin-top: 17px;">
+                                <br><br><strong>User Image</strong><br><br>
+                                <a href="#" class="pl-2" id="cancelImageButton" style="display: none;" onclick="cancelImageUploadArea()">Cancel</a>
+                            </div>
+                            <form action="{% url 'edit_image' %}" method="post" class="form-inline" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="form-inline d-flex align-items-center">
+                                    <div class="form-group ml-2">
+                                        <div id="imageDisplayArea">
+                                            {% if user.user_image %}
+                                                <a href=""><img src="{{ user.user_image.url }}" alt="" class="rounded-circle" width="40" height="40"></a>
+                                            {% else %}
+                                                <a href=""><img src="{% static 'images/profile.png' %}" alt="" class="rounded-circle" width="40" height="40"></a>
+                                            {% endif %}
+                                        </div>
+                            
+                                        <div id="imageUploadArea" style="display: none;">
+                                            <input type="file" id="new_user_image" name="image" accept="image/*" class="ml-2 form-control" required>
+                                        </div>
+                                    </div>
+                            
+                                    <div class="ml-2" id="">
+                                        <a href="#" class="pl-2"  id="editImageButton" onclick="toggleImageUploadArea()">
+                                            <i class="fa fa-edit"></i> Edit
+                                        </a>
+                                        <button type="submit" class="btn btn-primary btn-sm"  style="display: none;" id="saveImageButton" onclick="toggleImageUploadArea()">
+                                            <i class="fa fa-dot-circle-o"></i> Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <p class="text-center mt-4"> <a href="{% url 'change_password' %}">Change Password</a></p>
+                            
+                        </div>
+                        
+                    </div>
+                    <small>
+                        <small>
+                            FAQs
+                            <br>
+                            <br>
+                            * What happens when I update my email address (or mobile number)?<br>
+                            Your login email id (or mobile number) changes, likewise. You'll receive all your account related communication on your updated email address (or mobile number).<br>
+                            <br>
+                            * When will my Celeritas account be updated with the new email address (or mobile number)?<br>
+                            It happens as soon as you save the changes.<br>
+                            <br>
+                            * What happens to my existing Celeritas account when I update my mobile number ?<br>
+                            Updating your mobile number doesn't invalidate your account. Your account remains fully functional. You'll continue seeing your Order history, saved information and personal details.<br>
+                            <br>
+                            * What happens to my existing Celeritas account when I update my email address ?<br>
+                            Updating your email address you need to login again. Your account remains fully functional. You'll continue seeing your Order history, saved information and personal details.<br>
+                            <br>                       
+                        </small>
+                    </small>
+                </div> <!-- card-body .// -->
+			  </article> <!-- order-group.// -->
+			</main>
+		  </div> <!-- row.// -->
+		</div>
+
+
+</section>
+</main>
+
+</div> <!-- row.// -->
+</div> <!-- container.// -->
+
+</body>
+</html>
+
+{% endblock %}

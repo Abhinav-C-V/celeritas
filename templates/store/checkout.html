@@ -1,0 +1,313 @@
+{% extends 'user_checkout_base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<section class="section-content padding-y bg">
+<div class="container">
+  
+  {% comment %} {% include 'includes/alerts.html' %} {% endcomment %}
+<!-- ============================ COMPONENT 1 ================================= -->
+<div class="row">
+
+	<aside class="col-lg-8">
+
+
+    <article class="filter-group">
+      <header class="card-header" style=" margin-bottom: 20px;">
+        {% comment %} <div style="position: relative; float: right;">
+          <a class="btn btn-light btn-sm" type="button" aria-expanded="false">CHANGE</a>
+      </div> {% endcomment %}
+          <strong class="card-title" style=""><h6 class="title">LOGIN {% if 'user_email' in request.session  %}<i class="fas fa-check-circle"></i>{% endif %}</h6> </strong>
+          <p class="mb-0">{{user.user_firstname}} {{user.user_phone}}</p>
+      </header>
+  </article>
+  
+    
+
+      <div class="filter-content collapse" id="collapse_1">
+        <div class="card-body">
+
+          <div class="col-md-6">
+            <div class="card" style="text-align:center;">
+              
+            </div>
+          </div>
+
+        </div><!-- card-body.// -->
+      </div>
+    </article><!-- filter-group  .// -->
+
+    <article class="filter-group"> {{ total_item }}
+      <header class="card-header">
+        <a href="#" data-toggle="collapse" data-target="#collapse_2" aria-expanded="true" class="collapse-toggle">
+          <i class="icon-control fa fa-chevron-down"></i>
+          <h6 class="title">DELIVERY ADDRESS </h6>
+          {% for address in adrs %}
+          {% if address.selected %}<strong class="text-muted">{{address.name}}  <small><span class="text-muted">{{address.phone}}</span></small></strong><br>
+          <small><span class="text-muted">{{address.housename }}, {{address.locality}}, {{address.city}}, {{address.state}}- {{address.zipcode}}</span></small>{% endif %}
+          {% endfor %}
+
+        </a>
+      </header>
+      <div class="filter-content collapse" id="collapse_2">
+        <div class="card-body">
+          <div class="card">
+            <div class="card-body">
+              {% comment %} <h4 class="card-title mb-4">Billing Address</h4> {% endcomment %}
+              <div style="margin-top: 20px; ">
+								<div class="card" style=" margin-bottom: 20px;">
+									<div class="card-header" >
+										<a class="" href="{% url 'add_address' %}"><i class="fa fa-plus"></i> ADD A NEW ADDRESS</a>										
+									</div>
+								</div>
+                  {% for address in adrs %}
+                  
+                  <div class="card" style="position: relative; {% if address.selected %} background-color: #E8E8E8; {% endif %} " onclick="handleCardClick(event)">
+                      <div class="card-header">
+                        <input class="form-check-input" style=" top: 5px; right: 10px;" name="address_option" type="radio" value="{{ address.id }}">
+                        <strong class="card-title">{{address.name}} <small>{{address.phone}}</small></strong>
+                        <div>
+                          <small>{{address.housename}}, {{address.locality}}, {{address.city}}, {{address.state}}-{{address.zipcode}}</small>
+                        </div>
+                        <div class="card-body" style="position: absolute; top: 5px; right: 10px;">
+                          <a class="btn btn-light btn-sm" type="button" aria-expanded="false" href="{% url 'edit_address' id=address.id %}">EDIT</a>
+                        </div>
+                        <a class="btn btn-primary btn-sm-1" href="{% url 'select_address' %}?ad_id={{ address.id }}" style="margin-top: 7px; display: none;" onclick="">
+                          <i class="fa fa-dot-circle-o"></i> DELIVER HERE
+                      </a>
+                      </div>
+                  </div>
+                  {% endfor %}
+
+							</div>
+          
+          
+            </div>
+          </div> <!-- card.// -->
+
+        </div><!-- card-body.// -->
+      </div>
+    </article><!-- filter-group  .// -->
+
+    <article class="filter-group">
+      <header class="card-header">
+        <a href="#"  data-toggle="collapse" data-target="#collapse_3" aria-expanded="true" class="collapse-toggle">
+          <i class="icon-control fa fa-chevron-down"></i>
+          <h6 class="title">ORDER SUMMERY </h6>
+          <small><span class="text-muted"> {{ quantity }} items</span></small>
+        </a>
+      </header>
+      <div class="filter-content collapse" id="collapse_3">
+        <div class="card-body">
+
+          <article class="card mb-4">
+            <div class="card-body">
+              {% comment %} <h4 class="card-title mb-4">Review cart </h4> {% endcomment %}
+              <div class="row">
+                {% for item in cart %}
+                <div class="col-md-6">
+                  <figure class="itemside  mb-4">
+                    <div class="aside"><img src="{{ item.product.product.image.url }}" class="border img-sm"></div>
+                    <figcaption class="info">
+                      <p>{{ item.product.product.product_name }}</p>
+                      <small>
+                      <span class="text-muted">Size : {{ item.product.size }}</span><br>
+                      <span class="text-muted">Colour : {{ item.product.color }}</span><br>
+                      <span class="text-muted">Quantity : {{ item.quantity }}</span><br>
+                      <span class="text-muted">Price : ₹ {{ item.product.product.price }}</span>
+                      </small>
+                    </figcaption>
+                  </figure>
+                </div> <!-- col.// -->
+                {% endfor %}
+              </div> <!-- row.// -->
+            </div> <!-- card-body.// -->
+            </article> <!-- card.// -->
+
+        </div><!-- card-body.// -->
+      </div>
+    </article><!-- filter-group  .// -->
+
+
+
+    {% comment %} <main class="col-lg-8"> {% endcomment %}
+    <article class="filter-group">
+      
+    <div class="filter-content " id="collapse_4">
+      <div class="card-body">
+        
+        <article class="accordion" id="accordion_pay">
+          
+          <div class="card">
+            <header class="card-header">
+              <img src="./images/misc/payment-paypal.png" class="float-right" height="24"> 
+              <label class="form-check collapsed" data-toggle="collapse" data-target="#pay_paypal">
+                <input class="form-check-input" name="payment-option" checked type="radio" value="option1">
+                <h6 class="form-check-label"> 
+                  Paypal 
+                </h6>
+              </label>
+            </header>
+            <div id="pay_paypal" class="collapse show" data-parent="#accordion_pay">
+            <div class="card-body">
+              <p class="text-center text-muted"></p>
+              <p class="text-center">
+                <a href="#"><img src="{% static './images/misc/btn-paypal.png' %}" height="32"></a>
+                <br><br>
+              </p>
+            </div> <!-- card body .// -->
+            </div> <!-- collapse .// -->
+          </div> <!-- card.// -->
+
+          <div class="card">
+              <header class="card-header">
+                <img src="./images/misc/payment-paypal.png" class="float-right" height="24"> 
+                <label class="form-check collapsed" data-toggle="collapse" data-target="#pay_razorpay">
+                  <input class="form-check-input" name="payment-option" checked type="radio" value="option2">
+                  <h6 class="form-check-label"> 
+                      Razorpay 
+                  </h6>
+                </label>
+              </header>
+              <div id="pay_razorpay" class="collapse show" data-parent="#accordion_pay">
+              <div class="card-body">
+                <p class="text-center text-muted">Connect your PayPal account and use it to pay your bills. You'll be redirected to PayPal to add your billing information.</p>
+                <p class="text-center">
+                  <a href="#"><img src="{% static './images/misc/btn-paypal.png' %}" height="32"></a>
+                  <br><br>
+                </p>
+              </div> <!-- card body .// -->
+              </div> <!-- collapse .// -->
+            </div> <!-- card.// -->
+
+          <div class="card">
+          <header class="card-header">
+            <img src="./images/misc/payment-card.png" class="float-right" height="24">  
+            <label class="form-check" data-toggle="collapse" data-target="#pay_credit">
+              <input class="form-check-input" name="payment-option" type="radio" value="option3">
+              <h6 class="form-check-label"> Cash on Delivery </h6>
+            </label>
+          </header>
+          <div id="pay_credit" class="collapse" data-parent="#accordion_pay">
+            <div class="card-body">
+              {% comment %} <p class="alert alert-success">Some information or instruction</p> {% endcomment %}
+              <form action="{% url 'cash_on_delivery' %}" class="form-inline" method="post" >
+                {% csrf_token %}
+                {% comment %} <input type="text" class="form-control mr-2" placeholder="xxxx-xxxx-xxxx-xxxx" name=""> {% endcomment %}
+                <input type="text" class="form-control mr-2" style="width: 100px"   value="{{captcha}}" name="captcha" readonly>
+                <input type="text" maxlength="6" class="form-control mr-2"  style="width: 100px"  placeholder="" name="c_captcha">
+                <button class="btn btn btn-success">CONFIRM ORDER</button>
+              </form>
+            </div> <!-- card body .// -->
+          </div> <!-- collapse .// -->
+          </div> <!-- card.// -->
+          
+        </article>
+      </div><!-- card-body.// -->
+
+    </div>
+  </article><!-- filter-group  .// --> 
+
+{% comment %} </main> <!-- col.// --> {% endcomment %}
+
+	</aside> <!-- col.// -->
+  
+	<aside class="col-lg-4 price" >
+  {% include 'includes/alerts.html' %}
+
+		<div class="card">
+		<div class="card-body">
+      <table class="table table-borderless table-shopping-cart">
+      <thead class="text-muted">
+      <tr class="small text-uppercase">
+        
+        <th scope="col" width="120">Price Details</th>
+        <th scope="col" width="120"></th>
+
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>
+      		<div class="price-wrap">
+      			<var class="price">Price ({{quantity}} items) </var>
+      		</div> <!-- price-wrap .// -->
+      	</td>
+      	<td>
+      		<!-- col.// -->
+      				<label for="">₹{{ total }}</label>
+      	</td>
+      </tr>
+      <tr>
+        <td>
+      		<div class="price-wrap">
+      			<var class="price">Delivery Charges</var>
+      		</div> <!-- price-wrap .// -->
+      	</td>
+      	<td>
+      		<!-- col.// -->
+      				<label for=""> FREE </label>
+      	</td>
+      </tr>
+      {% comment %} <tr>
+        <td>
+      		<!-- col.// -->
+      		<div class="price-wrap">
+            <var class="price">Tax</var>
+          </div> 
+      	</td>
+        <td>
+      		<!-- col.// -->
+      				<label for="">₹ {{tax}}</label>
+      	</td>
+      </tr> {% endcomment %}
+      <tr>
+        <td>
+      		<!-- col.// -->
+      		<div class="price-wrap">
+            <var class="price">Grand Total</var>
+            </div> 
+      	</td>
+        <td>
+      		<!-- col.// -->
+      				<label for="">₹ {{grand_total}}</label>
+      	</td>
+      </tr>
+      </tbody>
+      </table>
+      <div class="d-flex justify-content-center ">
+        <a href="" id="apply-coupon">Have Coupon ?</a>
+      </div>
+      <div class="d-flex justify-content-center" style="margin-top:10px; margin-bottom:10px;">
+        <form action="{% url 'apply_coupon' %}" class="form-inline" method="post" id="coupon-form">
+          {% csrf_token %}
+          <input type="text" maxlength="10" class="form-control mr-2" {% if usercoupon %} {% if usercoupon.applied %} value="{{usercoupon.coupon.coupon_code}}" readonly {% endif %} {% endif %} style="width: 170px" placeholder="Coupon Code" name="c_code" id="couponInput">
+          <button type="submit" class="btn btn-primary" id="submit-coupon-Button" name="couponform">Apply</button>
+      </form>
+        </div>
+        {% if usercoupon %}
+        {% if usercoupon.applied %}
+        <div class="d-flex justify-content-center">
+            <a href="{% url 'cancel_coupon' %}" id="cancel-coupon">Remove Coupon</a>
+        </div>
+        {% endif %}
+        {% endif %}
+      {% comment %} <button type="submit" name="submit" class="btn btn-primary btn-sm mr-1">Place Order</button> {% endcomment %}
+        {% comment %} <a href="{% url 'continue_payment' %}" class="btn btn-primary btn-sm">Continue to Payment</a> {% endcomment %}
+      {% comment %} </form> {% endcomment %}
+		</div> <!-- card-body.// -->
+		</div> <!-- card.// -->
+</aside> <!-- col.// -->
+
+
+</div> <!-- row.// -->
+
+<!-- ============================ COMPONENT 1 END .// ================================= -->
+
+</div> <!-- container .//  -->
+</section>
+<!-- ========================= SECTION CONTENT END// ========================= -->
+
+{% endblock %}

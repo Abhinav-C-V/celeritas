@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- ========================= SECTION PAGETOP ========================= -->
+<div class="messages-container">
+	{% if messages %}
+	  <div class="messages">
+		{% for message in messages %}
+		  <div class="alert alert-warning">{{ message }}</div>
+		{% endfor %}
+	  </div>
+	{% endif %}
+</div>
+<section class="section-pagetop bg">	
+<div class="container">
+	{% if 'search' in request.path %}
+		<h2 class="title-page">Search Result</h2>
+	{% else %}
+		<h2 class="title-page">Our Store</h2>
+	{% endif %}
+
+</div> <!-- container //  -->
+</section>
+<!-- ========================= SECTION INTRO END// ========================= -->
+
+<!-- ========================= SECTION CONTENT ========================= -->
+<section class="section-content padding-y">
+<div class="container">
+
+<div class="row">
+
+	<aside class="col-md-3">
+		<div class="card">
+			<form action="{% url 'user_store' %}" method="post">
+				{% csrf_token %}
+				<article class="filter-group">
+					<header class="card-header">
+						 <a href="#" data-toggle="collapse" data-target="#collapse_1" aria-expanded="true" class="collapse-toggle">
+							<i class="icon-control fa fa-chevron-down"></i>
+							<h6 class="title">Categories</h6>
+						</a> 
+					</header>
+					<div class="filter-content collapse" id="collapse_1">
+						<div class="form-group text-right col-md-6">
+							{% comment %} <label>Categories</label> {% endcomment %}
+							<select class="mr-2 form-control" name="cat_id">
+								<option value="" disabled selected>Select</option>
+								{% for category in cat %}
+								<option value="{{ category.id }}">{{ category.category_name }}</option>
+								{% endfor %}
+							</select>
+							
+						</div>
+					</div> 
+					{% comment %} <div class="filter-content collapse" id="collapse_1">
+						<div class="card-body">
+							<select class="form-control" name="cat_id">
+								<option value="">All</option>
+								
+								<option value=""></option>
+								{% endfor %}
+							</select>
+						</div><!-- card-body.// -->
+					</div> {% endcomment %}
+				</article><!-- filter-group  .// -->
+	
+				<article class="filter-group">
+					<header class="card-header">
+						<a href="#" data-toggle="collapse" data-target="#collapse_2" aria-expanded="true" class="collapse-toggle">
+							<i class="icon-control fa fa-chevron-down"></i>
+							<h6 class="title">Sizes</h6>
+						</a>
+					</header>
+					{% comment %} <div class="filter-content collapse" id="collapse_2">
+						<div class="card-body">
+							{% for size in sizes %}
+							<label class="checkbox-btn">
+								<input type="checkbox" name="size" value="{{ size.id }}">
+								<span  class="btn btn-light">{{size}}</span>
+							</label>
+							{% endfor %}
+							
+						</div><!-- card-body.// -->
+					</div> {% endcomment %}
+					<div class="filter-content collapse" id="collapse_2">
+						<div class="form-group text-right col-md-6">
+							{% comment %} <label>Categories</label> {% endcomment %}
+							<select class="mr-2 form-control" name="size">
+								<option value="" disabled selected>Select</option>
+								{% for size in sizes %}
+								<option value="{{ size.id }}">{{size.size}}</option>
+								{% endfor %}
+							</select>
+							
+						</div>
+					</div> 
+				</article><!-- filter-group .// -->
+	
+	
+				<article class="filter-group">
+					<header class="card-header">
+						<a href="#" data-toggle="collapse" data-target="#collapse_3" aria-expanded="true" class="collapse-toggle">
+							<i class="icon-control fa fa-chevron-down"></i>
+							<h6 class="title">Price range</h6>
+						</a>
+					</header>
+					<div class="filter-content collapse" id="collapse_3">
+						<div class="card-body">
+							<div class="form-row">
+								<div class="form-group col-md-6">
+									<label>Min</label>
+									<select class="mr-2 form-control" name="min_price">
+										<option value="" disabled selected>Select</option>
+										<option value="0">0</option>
+										<option value="500">500</option>
+										<option value="1000">1000</option>
+										<option value="1500">1500</option>
+										<option value="2000">2000</option>
+										<option value="5000">5000</option>
+										<option value="10000">10000</option>
+									</select>
+								</div>
+								<div class="form-group text-right col-md-6">
+									<label>Max</label>
+									<select class="mr-2 form-control" name="max_price">
+										{% comment %} <option >Select</option> {% endcomment %}
+										<option value="" disabled selected>Select</option>
+										<option value="500">500</option>
+										<option value="1000">1000</option>
+										<option value="1500">1500</option>
+										<option value="2000">2000</option>
+										<option value="5000">5000</option>
+										<option value="10000">10000</option>
+										<option value="20000">20000</option>
+									</select>
+								</div>
+							</div> <!-- form-row.// -->
+						</div><!-- card-body.// -->
+					</div>
+				</article> <!-- filter-group .// -->
+				<div class="card-body">
+					<button type="submit" class="btn btn-block btn-primary" name="filter">Apply</button>
+				</div><!-- card-body.// -->
+
+			</form>
+		</div> <!-- card.// -->
+	</aside> <!-- col.// -->
+	
+
+
+ <main class="col-md-9">
+
+	<div class="row">
+		{% if page_obj %}
+			{% for product in page_obj %}
+			<div class="col-md-4">
+				<figure class="card card-product-grid">
+					<div class="img-wrap">
+						<a href="{% url 'product_detail' id=product.product.id %}" class="img-wrap">
+							<img src="{{product.product.image.url}}" alt="Image placeholder">
+						</a>
+					</div> <!-- img-wrap.// -->
+					<figcaption class="info-wrap">
+						<div class="fix-height"style="height: 50%; overflow: auto;">
+							<a href="{% url 'product_detail' id=product.product.id %}" class="title">{{product.product.product_name}}</a>
+							<small>( {{product.product.category}}<br>Colour: {{product.color}}, Size: {{product.size}} )</small>
+							<div class="rating-wrap">
+								<ul class="rating-stars">
+									<li style="width:70%" class="stars-active"> 
+										<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
+									</li>
+									<li>
+										<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i> 
+									</li>
+								</ul>
+								{% comment %} <span class="label-rating text-muted">34 reviews</span> {% endcomment %}
+							</div>
+							<div class="price mt-1">
+								{% if product.product.category.offer_active %}
+									<p class="font-weight-bold">Price: <s>₹ {{product.product.normal_price}}</s></p>
+									<p class="text-primary font-weight-bold">Offer Price ₹ {{product.product.price}}</p>
+								{% else %}
+									<p class="text-primary font-weight-bold">Price: ₹ {{product.product.price}}</p>
+								{% endif %}
+							</div> <!-- price-wrap.// -->
+						</div>
+						<!-- <a href="{% url 'product_detail' id=product.id %}" class="btn btn-block btn-primary">View Details</a> -->
+					</figcaption>
+				</figure>
+			</div> <!-- col.// -->
+			{% endfor %}
+		{% else %}
+			<div>
+				<h2>No results found. Please try again.</h2>
+			</div>
+		{% endif %}
+	</div> <!-- row end.// -->
+
+
+
+<nav class="mt-4" aria-label="Page navigation sample">
+	{% if page_obj.has_other_pages %}
+	  <ul class="pagination">
+			{% if page_obj.has_previous %}
+	    <li class="page-item"><a class="page-link" href="?page={{page_obj.previous_page_number}}">Previous</a></li>
+			{% else %}
+			<li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+			{% endif %}
+
+			{% for i in page_obj.paginator.page_range %}
+				{% if page_obj.number == i %}
+	    		<li class="page-item active"><a class="page-link" href="#">{{i}}</a></li>
+				{% else %}
+					<li class="page-item"><a class="page-link" href="?page={{i}}">{{i}}</a></li>
+				{% endif %}
+	    {% endfor %}
+
+			{% if page_obj.has_next %}
+	    	<li class="page-item"><a class="page-link" href="?page={{page_obj.next_page_number}}">Next</a></li>
+			{% else %}
+				<li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+			{% endif %}
+	  </ul>
+	{% endif %}
+</nav>
+
+	</main> <!-- col.// -->
+
+</div>
+
+</div> <!-- container .//  -->
+</section>
+
+<!-- ========================= SECTION CONTENT END// ========================= -->
+
+   
+
+{% endblock %}

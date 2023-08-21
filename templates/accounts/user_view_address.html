@@ -1,0 +1,78 @@
+{% extends 'user_dashboard_base.html' %}
+
+
+{% block content %}
+
+{% comment %} <section class="section-conten padding-y bg"> {% endcomment %}
+<main class="col-md-9">
+	
+        <!-- Content for the main section goes here -->
+        <!-- You can add your content here -->
+
+{% include 'includes/alerts.html' %}
+<div class="container">
+	<div class="row">
+	{% comment %} {% include 'includes/dashboard_sidebar.html' %} {% endcomment %}
+	<main class="col-md-9">
+		<article class="card">
+		<header class="card-header">
+            <div class="d-flex align-items-center">
+                <img src="{{user.user_image.url}}" alt="Profile Picture" width="50" style="border-radius: 50px; margin-right: 15px;">
+                <strong class="mr-3">Address Details</strong>
+              </div>
+
+		</header>
+		<div class="card-body">
+			{% comment %} <div class="text-right">
+				<img src="{{user.user_image.url}}" alt="Profile Picture" width="50" style="border-radius:50px;">
+			</div> {% endcomment %}
+			<div class="row">
+			<div class="col-md-12">
+				<div class="second_first" style="padding-right: 10px;">
+                    <div>
+                      <small class="address-info"><label>Name:</label> {{ adrs.name }}  </small>
+                    </div>
+                    <div>
+                      <small class="address-info"><label>House Name:</label> {{ adrs.housename }}  </small>
+                    </div>
+                    <div>
+                      <small class="address-info"><label>Locality:</label> {{ adrs.locality }}  </small>
+                    </div>
+                  </div>
+                
+                  <div class="second_second">
+                    <div>
+                      <small class="address-info"><label>City:</label> {{ adrs.city }}  </small>
+                    </div>
+                    <div>
+                      <small class="address-info"><label>PIN:</label> {{ adrs.zipcode }}  </small>
+                    </div>
+                    <div>
+                      <small class="address-info"><label>State:</label> {{ adrs.state }}  </small>
+                    </div>
+                    <a href="{% url 'edit_profile' id=user.id %}" class="btn btn-primary back-btn" ><i class=""></i> Back</a>
+                    <a href="{% url 'edit_address' id=user.id %}" class="btn btn-primary edit-btn" ><i class="fas fa-pencil-alt"></i> Edit</a>
+                  </div>
+
+                </div>
+			</div>
+
+			</div> <!-- row.// -->
+		</div> <!-- card-body .// -->
+
+		</article> <!-- order-group.// -->
+	</main>
+</div> <!-- row.// -->
+</div>
+
+
+</section>
+</main>
+
+</div> <!-- row.// -->
+</div> <!-- container.// -->
+
+</body>
+</html>
+
+{% endblock %}

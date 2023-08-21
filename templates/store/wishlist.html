@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="section-content padding-y bg">
+    <div class="container">
+        {% comment %} <h2>Your Wishlist</h2> {% endcomment %}
+        <div class="messages-container">
+            {% if messages %}
+              <div class="messages">
+                {% for message in messages %}
+                  <div class="alert alert-warning">{{ message }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+        </div>
+          
+
+        <!-- ============================ COMPONENT 1 ================================= -->
+        {% if not wish_items %}
+            <h2 class="text-center">Your Wishlist is Empty</h2>
+            <br>
+            <div class="text-center">
+                <a href="{% url 'user_home' %}" class="btn btn-primary">Continue Shopping</a>
+            </div>
+        {% else %}
+        <h2>Your Wishlist</h2>
+            <div class="row">
+                <aside class="col-lg-9">
+                    <div class="card">
+                        <table class="table table-borderless table-shopping-cart">
+                            <thead class="text-muted">
+                                <tr class="small text-uppercase">
+                                    <th scope="col">Product</th>
+                                    <th scope="col" width="120"></th>
+                                    <th scope="col" width="120">Price</th>
+                                    <th scope="col" class="text-right" width="200"> </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for wish_item in wish_items %}
+                                    <tr>
+                                        <td>
+                                            <figure class="itemside align-items-center">
+                                                <div class="aside">
+                                                    <a href="{{ wish_item.product.get_url }}" ><img  src="{{ wish_item.product.image.url }}" class="img-sm"></a>
+                                                </div>
+                                                <figcaption class="info">
+                                                    <a href="{{ wish_item.product.get_url }}" class="title text-dark">{{ wish_item.product.product_name }}</a>
+                                                </figcaption>
+                                            </figure>
+                                        </td>
+                                        <td>
+                                        </td>
+                                        <td>
+                                            <div class="price mt-1">
+                                                {% if wish_item.product.category.offer_active %}
+                                                    <p class=""><small class="text-muted">Price: <s>₹ {{wish_item.product.normal_price}}</s></small></p>
+                                                    <p class=""><small class="text-muted">Offer Price ₹ {{wish_item.product.price}}</small></p>
+                                                {% else %}
+                                                    <p class=""><small class="text-muted">₹ {{wish_item.product.price}}</small></p>
+                                                {% endif %}
+                                            </div> <!-- price-wrap.// -->
+                                        </td>
+                                        <td class="text-right">
+                                            <a href="{{ wish_item.product.get_url }}"  class="btn btn-primary">View Details</a>
+                                        </td>                                          
+                                        <td class="text-right">
+                                            <a href="{% url 'remove_wishlist_item' id=wish_item.id %}" onclick="return confirm('Are you sure you want to remove this item from your wishlist?')" class="btn btn-danger"> Remove</a>
+                                        </td>
+
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div> <!-- card.// -->
+                </aside>
+            </div> <!-- row.// -->
+        {% endif %}
+        <!-- ============================ COMPONENT 1 END .// ================================= -->
+
+    </div> <!-- container .//  -->
+</section>
+<!-- ========================= SECTION CONTENT END// ========================= -->
+
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap 4 JS -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Custom JavaScript -->
+<script type="text/javascript">
+  $(document).ready(function() {
+    // Dropdown toggle
+    $('.dropdown-toggle').on('click', function() {
+      $(this).next('.dropdown-menu').toggleClass('show');
+    });
+
+    // Collapse toggle
+    $('.collapse-toggle').on('click', function() {
+      $(this).toggleClass('active');
+      var target = $(this).data('target');
+      $(target).toggleClass('hide');
+    });
+
+    // Hide messages after a certain time (in milliseconds)
+    var messageTimeout = 5000; // Adjust the timeout as needed (e.g., 5000ms = 5 seconds)
+
+    // Find all alert elements and set a timeout to hide them
+    $('.messages .alert').each(function() {
+      var alert = $(this);
+      setTimeout(function() {
+        alert.slideUp();
+      }, messageTimeout);
+    });
+  });
+</script>
+
+{% endblock %}
+

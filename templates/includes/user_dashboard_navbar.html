@@ -1,0 +1,185 @@
+{% load static %}
+<head>
+  <!-- Include Bootstrap CSS -->
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+  <!-- Include jQuery -->
+  <script src="{% static 'js/jquery.min.js' %}"></script>
+
+  <!-- Include Bootstrap JS -->
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  
+  <link href="{% static 'images/LOGO-1.jpg' %}" rel="shortcut icon" type="image/x-icon">
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      // Dropdown toggle
+      $('.dropdown-toggle').on('click', function(){
+        var dropdownMenu = $(this).next('.dropdown-menu');
+        if (dropdownMenu.is(':hidden')) {
+          dropdownMenu.slideDown(0);
+        } else {
+          dropdownMenu.slideUp(0);
+        }
+      });
+
+      // Collapse toggle
+      $('.collapse-toggle').on('click', function(){
+        $(this).toggleClass('active');
+        var target = $(this).data('target');
+        var collapseElement = $(target);
+        if (collapseElement.is(':hidden')) {
+          collapseElement.slideDown(0);
+        } else {
+          collapseElement.slideUp(0);
+        }
+      });
+    });
+  </script>
+
+</head>
+
+<body>
+
+  <header class="section-header">
+    <section class="header-main border-bottom">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-2 col-md-3 col-6">
+            <a href="{% url 'user_home' %}" class="brand-wrap">
+              <img class="logo" src="{% static 'images/clogo.png' %}">
+            </a> <!-- brand-wrap.// -->
+          </div>
+          <div class="col-lg col-sm col-md col-6 flex-grow-0">
+            <div class="category-wrap dropdown d-inline-flex float-right">
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> 
+                <i class="fa fa-bars"></i> All category 
+              </button>
+              <div class="dropdown-menu">
+                <div class="dropdown-item">
+                  <a href="{% url 'user_store' %}">All</a>
+                </div>
+                {% for category in cat %}
+                <a class="dropdown-item" href="{% url 'user_store' %}?cat_id={{category.id}}">{{ category.category_name }}</a>
+                {% endfor %}
+              </div>
+              <a href="{% url 'user_store' %}" class="btn btn-primary btn-store ml-2">Store</a>
+            </div>  <!-- category-wrap.// -->
+          </div> <!-- col.// -->
+  
+          <div class="col-lg-4 col-md-4 col-sm-12">
+            <form action="{% url 'user_store' %}" class="search" method="GET">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search" name="prod_id" required>
+                <div class="input-group-append">
+                  <button class="btn btn-primary" type="submit">
+                    <i class="fa fa-search"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+          
+          <div class="col-lg-3 col-md-6 col-sm-12 col ">
+            <div class="d-flex justify-content-end mb-3 mb-lg-0">
+  
+              <div class="widget-header">
+                {% if 'user_email' in request.session %}
+                    <div class="user-profile d-flex align-items-center" style="margin-right: 10px;">
+                      <div class="user-info ml-2" style="margin-right: 7px;">
+                        <a href="{% url 'user_dashboard' %}"><small class="title text-muted">{{ user_firstname }}</small></a>
+                      </div>
+                      {% if user_image %}
+                      <a href="{% url 'user_dashboard' %}"><img src="{{ user_image.url }}" alt="" class="rounded-circle" width="40" height="40"></a>
+                      {% else %}
+                      <a href="{% url 'user_dashboard' %}"><img src="{% static 'images/profile.png' %}" alt="" class="rounded-circle" width="40" height="40"></a>
+                      {% endif %}
+                      {% comment %} <div class="user-info ml-2">
+                          <a href="{% url 'user_dashboard' %}"><small class="title text-muted">{{ user_firstname }}</small></a>
+                      </div> {% endcomment %}
+                    </div>
+              
+                  <div style="margin-right: 10px;">
+                    {% comment %} <div>
+                      <a href="{% url 'user_dashboard' %}">Dashboard</a> <span class="dark-transp"> | </span>
+                    </div> {% endcomment %}
+                    <a href="{% url 'user_logout' %}">Logout</a> <span class="dark-transp"> | </span>
+                    <a href="{% url 'user_index' %}">Home</a>
+                  </div>
+                {% else %}
+                <div style="margin-right: 10px;">
+                  <a href="{% url 'user_index' %}">Home</a>
+                  <img src="{% static 'images/profile.png' %}" alt="User Photo" class="rounded-circle" width="40" height="40"> 
+                  <small class="title text-muted" style="margin-right: 10px;">Welcome guest!</small>
+                </div>
+  
+                  <div style="margin-right: 10px;">
+                    <a href="{% url 'user_login' %}">Sign in</a> <span class="dark-transp"> | </span>
+                    <a href="{% url 'user_signup' %}">Register</a> <span class="dark-transp"></span>
+                  </div>
+                {% endif %}
+              </div>
+              
+              
+              
+              <a href="{% url 'cart' %}" class="widget-header" style="margin-right: 10px;">
+                <div class="icon icon-sm rounded-circle border"><i class="fa fa-shopping-cart"></i></div>
+                <span class="badge badge-pill badge-danger notify">{{ cart_count }}</span>
+              </a>
+
+              <a href="{% url 'wishlist' %}" class="widget-header">
+                <div class="icon icon-sm rounded-circle border"><i class="fa fa-heart"></i></div>
+                <span class="badge badge-pill badge-danger notify">{{ wishlist_count }}</span>
+                
+              </a>
+            </div> <!-- widgets-wrap.// -->
+          </div> <!-- col.// -->
+        </div> <!-- row.// -->
+      </div> <!-- container.// -->
+    </section> <!-- header-main .// -->
+  </header> <!-- section-header.// -->
+  <section class="section-conten padding-y bg">
+
+  <div class="container">
+    <div class="row">
+      <aside class="col-md-3">
+        <!--   SIDEBAR   -->
+        <ul class="list-group">
+          <a class="list-group-item {% if '/accounts/' == request.path %}active{% endif %}" href="{% url 'user_dashboard' %}"><i class="fa fa-columns"></i> DASHBOARD </a>
+          <a class="list-group-item {% if '/my_orders/' in request.path %}active{% endif %}" href="{% url 'orders' %}"><i class="fa fa-receipt"></i> MY ORDERS </a>
+          
+          <li class="list-group-item menu-item-has-children dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-user"></i> ACCOUNT SETTINGS</a>
+            <ul class="sub-menu children dropdown-menu">
+                <li><a href="{% url 'user_profile_info' %}" class="list-group-item" >  Profile Information</a></li>
+                <li></i><a href="{% url 'user_manage_address' %}" class="list-group-item" >  Manage Addresses</a></li>
+            </ul>
+          </li>
+          <li class="list-group-item menu-item-has-children dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-wallet"></i> PAYMENTS</a>
+            <ul class="sub-menu children dropdown-menu">
+                <li><a href="" class="list-group-item" >  Saved UPI</a></li>
+                <li></i><a href="" class="list-group-item" >  Saved Cards</a></li>
+            </ul>
+          </li>
+          <li class="list-group-item menu-item-has-children dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="fa fa-briefcase"></i> MY STUFF</a>
+            <ul class="sub-menu children dropdown-menu">
+                <li><a href="" class="list-group-item" >  My Coupons</a></li>
+                <li></i><a href="{% url 'wishlist' %}" class="list-group-item" >  My Wishlist</a></li>
+            </ul>
+          </li>
+        </ul>
+        <br>
+        <a class="btn btn-light btn-block" href="{% url 'user_logout' %}"> <i class="fa fa-power-off"></i> <span class="text">Log out</span> </a>
+        <!--   SIDEBAR .//END   -->
+      </aside>
+
+{% comment %} <main class="col-md-9">
+        <!-- Content for the main section goes here -->
+        <!-- You can add your content here --> {% endcomment %}
+      
+

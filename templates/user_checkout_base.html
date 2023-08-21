@@ -1,0 +1,249 @@
+{% load static %}
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="cache-control" content="max-age=604800" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<title>celeritas</title>
+
+<link href="{% static 'images/LOGO-1.jpg' %}" rel="shortcut icon" type="image/x-icon">
+
+<!-- Bootstrap 4 CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- Font Awesome 5 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-KXetPDoE1U5K8/ljwQvHcG/ZBXrNHfroWviqfr7Rfr7ULjECkQYNpl7Ylj3ASGfTyXoqNki2DjLbJP3ZPeRwg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link href="{% static 'fonts/fontawesome/css/all.min.css' %}" rel="stylesheet" type="text/css">
+
+<!-- Custom styles -->
+<link href="{% static 'css/ui.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css/responsive.css' %}" rel="stylesheet" media="only screen and (max-width: 1200px)">
+
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+<!-- Include jQuery -->
+<script src="{% static 'js/jquery.min.js' %}"></script>
+
+<!-- Include Bootstrap JS -->
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+<link href="{% static 'images/LOGO-1.jpg' %}" rel="shortcut icon" type="image/x-icon">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
+<!-- Custom JavaScript -->
+<script type="text/javascript">
+  
+    // Slick carousel
+    $('.thumb li').slick({
+      slidesToShow: 4,
+      slidesToScroll: 1,
+      arrows: true,
+      dots: false,
+      responsive: [
+        {
+          breakpoint: 768,
+          settings: {
+            slidesToShow: 3
+          }
+        },
+        {
+          breakpoint: 576,
+          settings: {
+            slidesToShow: 2
+          }
+        }
+      ]
+    });
+   
+
+
+  </script>  
+
+
+<style>
+  
+  /* Hide the up and down symbols in number input */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .intro-banner-wrap {
+    height: 500px; /* Adjust the height as needed */
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  .carousel-control-prev,
+  .carousel-control-next {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    width: 30px;
+    height: 30px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    color: #ffffff;
+  }
+
+  .img-big-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .img-big-wrap img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .img-big-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .img-big-wrap img {
+    max-width: 100%;
+    max-height: 100%;
+    margin: auto;
+  }
+
+  .rate {
+    display: flex;
+    align-items: center;
+  }
+
+  .rate input[type="radio"] {
+    display: none;
+  }
+
+  .rate label {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 5px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .rate label span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .rate input[type="radio"]:checked + label {
+    background-color: #3377ff; /* Add your desired background color for selected radio button */
+    color: #fff; /* Add your desired text color for selected radio button */
+  }
+  
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+	  // Dropdown toggle
+	  $('.dropdown-toggle').on('click', function(){
+		var dropdownMenu = $(this).next('.dropdown-menu');
+		if (dropdownMenu.is(':hidden')) {
+		  dropdownMenu.slideDown(0);
+		} else {
+		  dropdownMenu.slideUp(0);
+		}
+	  });
+	
+	  // Collapse toggle
+	  $('.collapse-toggle').on('click', function(){
+		$(this).toggleClass('active');
+		var target = $(this).data('target');
+		var collapseElement = $(target);
+		if (collapseElement.is(':hidden')) {
+		  collapseElement.slideDown(0);
+		} else {
+		  collapseElement.slideUp(0);
+		}
+	  });
+	});
+
+  </script>
+
+</head>
+<body>
+
+  <!-- Navbar -->
+  {% include 'includes/user_checkout_navbar.html' %}
+
+  {% block content %}
+  <!-- Content -->
+  {% endblock %}
+
+  <!-- Footer -->
+  {% include 'includes/user_footer.html' %}
+
+
+  <script src="path/to/bootstrap/js/bootstrap.min.js"></script>
+  
+<script>
+  function handleCardClick(event) {
+    // Get the associated radio button inside the clicked card
+    const radioButton = event.currentTarget.querySelector('input[name="address_option"]');
+    // Get all "DELIVER HERE" anchor tags
+    const deliverButtons = document.querySelectorAll('.btn.btn-primary.btn-sm-1');
+
+    // Hide all "DELIVER HERE" buttons
+    deliverButtons.forEach(button => {
+      button.style.display = 'none';
+    });
+
+    // Check if the clicked card's radio button is already selected
+    const isAlreadySelected = radioButton.checked;
+
+    // Uncheck all radio buttons if the clicked card's radio button is not already selected
+    if (!isAlreadySelected) {
+      const radioButtons = document.querySelectorAll('input[name="address_option"]');
+      radioButtons.forEach(button => {
+        button.checked = false;
+      });
+    }
+
+    // Toggle the radio button's checked state
+    radioButton.checked = !isAlreadySelected;
+
+    // Show the "DELIVER HERE" button for the selected address
+    if (radioButton.checked) {
+      const deliverButton = event.currentTarget.querySelector('.btn.btn-primary.btn-sm-1');
+      deliverButton.style.display = 'inline-block';
+    }
+  }
+
+  // Get the address form and add an event listener to clear the selection when clicking "CANCEL"
+
+  
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+{% extends 'user_dashboard_base.html' %}
+
+{% block content %}
+
+{% comment %} <section class="section-conten padding-y bg"> {% endcomment %}
+<main class="col-md-9">
+	
+        <!-- Content for the main section goes here -->
+        <!-- You can add your content here -->
+		<div class="container">
+		  <div class="row">
+			<main class="col-md-9">
+			  <article class="card">
+                <div class="card-body">
+						<strong class="card-title" >Edit Address</strong>
+						{% include 'includes/alerts.html' %}
+							
+						<div style="margin-top: 20px; margin-bottom: 20px;">
+								{% include 'includes/alerts.html' %}
+							<form action="{% url 'add_address' %}" method="POST">
+								{% csrf_token %}
+								<div class="form-row">
+									<div class="col form-group">
+									  <label for="user_firstname">{{ form.name.label }}</label>
+									  {{ form.name }}
+									  <small class="text-danger">{{ form.errors.name }}</small>
+									</div>
+									<div class="col form-group">
+									  <label for="user_lastname">{{ form.phone.label }}</label>
+									  {{ form.phone }}
+									  <small class="text-danger">{{ form.errors.phone }}</small>
+									</div>
+
+								  </div>
+								  <div class="form-row">
+									<div class="col form-group">
+									  <label for="user_firstname">{{ form.housename.label }}</label>
+									  {{ form.housename }}
+									  <small class="text-danger">{{ form.errors.housename }}</small>
+									</div>
+									<div class="col form-group">
+									  <label for="user_lastname">{{ form.locality.label }}</label>
+									  {{ form.locality }}
+									  <small class="text-danger">{{ form.errors.locality }}</small>
+									</div>
+								  </div>
+
+								  <div class="form-row">
+									<div class="col form-group">
+									  <label for="user_firstname">{{ form.city.label }}</label>
+									  {{ form.city }}
+									  <small class="text-danger">{{ form.errors.city }}</small>
+									</div>
+									<div class="col form-group">
+									  <label for="user_lastname">{{ form.state.label }}</label>
+									  {{ form.state }}
+									  <small class="text-danger">{{ form.errors.state }}</small>
+									</div>
+								  </div>
+
+								  <div class="form-row">
+									<div class="col form-group">
+									  <label for="user_firstname">{{ form.zipcode.label }}</label>
+									  {{ form.zipcode }}
+									  <small class="text-danger">{{ form.errors.zipcode }}</small>
+									</div>
+									<div class="col form-group">
+									  
+									</div>
+								  </div>
+								  <div class="form-group d-flex justify-content-end" style="padding-right:17px;">
+									<button type="submit" class="btn btn-primary btn-block col-md-4 text-center"> Save  </button>
+								</div> <!-- form-group// -->
+							</form>
+									
+						</div>
+
+                </div> <!-- card-body .// -->
+			  </article> <!-- order-group.// -->
+			</main>
+		  </div> <!-- row.// -->
+		</div>
+
+
+</section>
+</main>
+
+</div> <!-- row.// -->
+</div> <!-- container.// -->
+</body>
+</html>
+
+{% endblock %}

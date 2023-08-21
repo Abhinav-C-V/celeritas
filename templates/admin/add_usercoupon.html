@@ -1,0 +1,42 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+
+<section class="section-content padding-y">
+  <!-- COMPONENT REGISTER -->
+  <div class="card mx-auto" style="max-width:520px; margin-top:40px;">
+    <article class="card-body">
+      {% include 'includes/alerts.html' %}
+      <header class="mb-4">
+        <h4 class="card-title">Add User Caoupon</h4>
+      </header>
+      <form id="add_coupon" action="{% url 'add_user_coupon' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="form-row">
+          <div class="col form-group">
+            <label for="Coupon">{{ form.coupon.label }}</label>
+            {{ form.coupon }}
+            <small class="text-danger">{{ form.errors.coupon }}</small>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="user">{{ form.user.label }}</label>
+            {{ form.user }}
+            <small class="text-danger">{{ form.errors.user }}</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary btn-block">Submit</button>
+        </div>
+      </form>
+    </article>
+  </div>
+  {% comment %} <p class="text-center mt-4">Have an account? <a href="{% url 'user_login' %}">Log In</a></p> {% endcomment %}
+</section>
+
+{% endblock %}
