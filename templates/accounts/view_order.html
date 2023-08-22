@@ -1,0 +1,145 @@
+{% extends 'user_dashboard_base.html' %}
+
+
+{% block content %}
+
+{% comment %} <section class="section-conten padding-y bg"> {% endcomment %}
+<main class="col-md-9">
+	
+        <!-- Content for the main section goes here -->
+        <!-- You can add your content here -->
+
+{% include 'includes/alerts.html' %}
+<div class="container">
+	<div class="row">
+	<main class="col-md-9">
+		<article class="card">
+			<div class="card-body">
+				<strong class="card-title" >My Orders/</strong><small class="text-muted">ORDID{{order_pdt.id}}</small>
+				<div class="site-blocks-table">
+                        {% if order_pdt %}
+                        <div class="card display-inline" >
+							<div class="card-header">
+								<div class=" align-items-center">
+                                    <div class=" align-items-center " >
+									    <strong class="card-title">Delivery Address</strong>
+                                    </div><br>
+                                    <div class=" align-items-center " >
+									    <strong class="text-muted" >{{order_pdt.address.name}} </strong>
+                                    </div>
+                                    <div>
+                                        <small>{{order_pdt.address.housename}}, {{order_pdt.address.locality}}, {{order_pdt.address.city}}<br> 
+                                            {{order_pdt.address.state}}-{{order_pdt.address.zipcode}}</small>
+                                    </div>
+                                    <div >
+                                        <small><strong class="text-muted" >Phone Number : </strong>{{ order_pdt.address.phone }}</small>
+                                    </div>
+                                    <br>
+								</div>
+							</div>
+						</div>
+                        <div class="card display-inline" >
+							<div class="card-header">
+								<div class=" align-items-center">
+                                    <div class=" align-items-center " >
+                                        <div class="col-md-8">
+                                            <figure class="itemside  mb-4">
+                                              <div class="aside"><img src="{{ order_pdt.product.product.image.url }}" class="border img-sm"></div>
+                                              <figcaption class="info">
+                                                <p>{{ order_pdt.product.product.product_name }}</p>
+                                                <small>
+                                                <span class="text-muted">Size : {{order_pdt.product.size}}</span><br>
+                                                <span class="text-muted">Colour : {{ order_pdt.product.color }}</span><br>
+                                                <span class="text-muted">Quantity : {{ order_pdt.quantity }}</span><br>
+                                                <span class="text-muted">Price : ₹ {{ order_pdt.amount }}</span>
+                                                </small>
+                                              </figcaption>
+                                            </figure>
+                                          </div> <!-- col.// -->
+                          
+                                          <small><p>Status : {{order_pdt.status}}</p></small>
+                                        {% if order_pdt.status == "Accepted" %}
+                                        <!-- Add this inside your loop to print the value of order_pdt.status -->
+                                        {% comment %} <p>Status: {{ order_pdt.status }}</p> {% endcomment %}
+                                            <div class="progress">
+                                                <div class="progress-bar" role="progressbar" style="width: 20%" aria-valuenow="20"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                    
+                                        {% elif order_pdt.status == "Packed" %}
+                                            <div class="progress">
+                                                <div class="progress-bar bg-info" role="progressbar" style="width: 40%" aria-valuenow="40"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                    
+                                        {% elif order_pdt.status == "On the way" %}
+                                            <div class="progress">
+                                                <div class="progress-bar bg-warning" role="progressbar" style="width: 70%" aria-valuenow="70"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                    
+                                        {% elif order_pdt.status == "Delivered" %}
+                                            <div class="progress">
+                                                <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                    
+                                        {% elif order_pdt.status == "Cancel Requested" %}
+                                            <div class="progress">
+                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 100%" aria-valuenow="100"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                
+                                        {% elif order_pdt.status == "Return Requested" %}
+                                            <div class="progress">
+                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 100%" aria-valuenow="100"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        {% elif order_pdt.status == "Returned" %}
+                                            <div class="progress">
+                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 100%" aria-valuenow="100"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        {% elif order_pdt.status == "Cancelled" %}
+                                            <div class="progress">
+                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 100%" aria-valuenow="100"
+                                                    aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        {% endif %}
+      
+                       
+      
+                                        {% if order_pdt.status == "Pending" or order_pdt.status == "Packed" or order_pdt.status == "Accepted" or order_pdt.status == "On the way" %}
+                                            <a href="{% url 'cancel_order' id=order_pdt.id %}"  class="btn btn-sm btn-secondary mr-3 mt-2"><b>Cancel</b></a>
+                                        {% elif order_pdt.status == "Delivered" %}
+                                        <div class="form-inline" >
+                                            <a href="{% url 'return_order' id=order_pdt.id %}" class="btn btn-sm btn-secondary mr-3 mt-2 "><b>Return</b></a><br>
+                                            <b class="text-black">or </b><br>
+                                            <a href="#" class="btn btn-sm btn-secondary ml-3 mr-3 mt-2 " ><b>Download Invoice</b></a>
+                                        </div>
+                                        {% elif order_pdt.status == "Return Requested" %}
+                                            <p><b>Requested.</b></p>
+                                        {% elif order_pdt.status == "Cancel Requested" %}
+                                            <p><b>Requested.</b></p>
+                                        {% elif order_pdt.status == "Cancelled" or order_pdt.status == "Returned"  %}
+                                            <p><b>---</b></p>
+                                        {% else %}
+                                            <p><b>---</b></p>
+                                        {% endif %}
+                  
+                        
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+      
+		    </div> <!-- card-body .// -->
+
+		</article> <!-- order-group.// -->
+	</main>
+</div> <!-- row.// -->
+</div>
+{% endblock %}
+
+

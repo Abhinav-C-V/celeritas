@@ -32,7 +32,7 @@
 
 	<aside class="col-md-3">
 		<div class="card">
-			<form action="{% url 'user_store' %}" method="post">
+			<form action="#" method="post">
 				{% csrf_token %}
 				<article class="filter-group">
 					<header class="card-header">
@@ -50,20 +50,29 @@
 								<option value="{{ category.id }}">{{ category.category_name }}</option>
 								{% endfor %}
 							</select>
-							
 						</div>
 					</div> 
-					{% comment %} <div class="filter-content collapse" id="collapse_1">
-						<div class="card-body">
-							<select class="form-control" name="cat_id">
-								<option value="">All</option>
-								
-								<option value=""></option>
+				</article><!-- filter-group  .// -->
+
+				<article class="filter-group">
+					<header class="card-header">
+						<a href="#" data-toggle="collapse" data-target="#collapse_2" aria-expanded="true" class="collapse-toggle">
+							<i class="icon-control fa fa-chevron-down"></i>
+							<h6 class="title">Colors</h6>
+						</a>
+					</header>
+					<div class="filter-content collapse" id="collapse_2">
+						<div class="form-group text-right col-md-6">
+							{% comment %} <label>Categories</label> {% endcomment %}
+							<select class="mr-2 form-control" name="color_id">
+								<option value="" disabled selected>Select</option>
+								{% for color in colors %}
+								<option value="{{ color.id }}">{{color.color}}</option>
 								{% endfor %}
 							</select>
-						</div><!-- card-body.// -->
-					</div> {% endcomment %}
-				</article><!-- filter-group  .// -->
+						</div>
+					</div> 
+				</article><!-- filter-group .// -->
 	
 				<article class="filter-group">
 					<header class="card-header">
@@ -72,21 +81,10 @@
 							<h6 class="title">Sizes</h6>
 						</a>
 					</header>
-					{% comment %} <div class="filter-content collapse" id="collapse_2">
-						<div class="card-body">
-							{% for size in sizes %}
-							<label class="checkbox-btn">
-								<input type="checkbox" name="size" value="{{ size.id }}">
-								<span  class="btn btn-light">{{size}}</span>
-							</label>
-							{% endfor %}
-							
-						</div><!-- card-body.// -->
-					</div> {% endcomment %}
 					<div class="filter-content collapse" id="collapse_2">
 						<div class="form-group text-right col-md-6">
 							{% comment %} <label>Categories</label> {% endcomment %}
-							<select class="mr-2 form-control" name="size">
+							<select class="mr-2 form-control" name="size_id">
 								<option value="" disabled selected>Select</option>
 								{% for size in sizes %}
 								<option value="{{ size.id }}">{{size.size}}</option>
@@ -110,7 +108,7 @@
 							<div class="form-row">
 								<div class="form-group col-md-6">
 									<label>Min</label>
-									<select class="mr-2 form-control" name="min_price">
+									<select class="mr-2 form-control" name="min_prize">
 										<option value="" disabled selected>Select</option>
 										<option value="0">0</option>
 										<option value="500">500</option>
@@ -123,7 +121,7 @@
 								</div>
 								<div class="form-group text-right col-md-6">
 									<label>Max</label>
-									<select class="mr-2 form-control" name="max_price">
+									<select class="mr-2 form-control" name="max_prize">
 										{% comment %} <option >Select</option> {% endcomment %}
 										<option value="" disabled selected>Select</option>
 										<option value="500">500</option>
@@ -199,31 +197,33 @@
 
 
 
-<nav class="mt-4" aria-label="Page navigation sample">
-	{% if page_obj.has_other_pages %}
-	  <ul class="pagination">
+	<nav class="mt-4" aria-label="Page navigation sample">
+		{% if page_obj.has_other_pages %}
+		<ul class="pagination">
 			{% if page_obj.has_previous %}
-	    <li class="page-item"><a class="page-link" href="?page={{page_obj.previous_page_number}}">Previous</a></li>
+			<li class="page-item"><a class="page-link" href="?page={{page_obj.previous_page_number}}{% if cat_id %}&cat_id={{cat_id}}{% endif %}{% if color_id %}&color_id={{color_id}}{% endif %}{% if size_id %}&size_id={{size_id}}{% endif %}{% if min_prize %}&min_prize={{min_prize}}{% endif %}{% if max_prize %}&max_prize={{max_prize}}{% endif %}">Previous</a></li>
 			{% else %}
 			<li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
 			{% endif %}
-
+	
 			{% for i in page_obj.paginator.page_range %}
 				{% if page_obj.number == i %}
-	    		<li class="page-item active"><a class="page-link" href="#">{{i}}</a></li>
+				<li class="page-item active"><a class="page-link" href="#">{{i}}</a></li>
 				{% else %}
-					<li class="page-item"><a class="page-link" href="?page={{i}}">{{i}}</a></li>
+					<li class="page-item"><a class="page-link" href="?page={{i}}{% if cat_id %}&cat_id={{cat_id}}{% endif %}{% if color_id %}&color_id={{color_id}}{% endif %}{% if size_id %}&size_id={{size_id}}{% endif %}{% if min_prize %}&min_prize={{min_prize}}{% endif %}{% if max_prize %}&max_prize={{max_prize}}{% endif %}">{{i}}</a></li>
 				{% endif %}
-	    {% endfor %}
-
+			{% endfor %}
+	
 			{% if page_obj.has_next %}
-	    	<li class="page-item"><a class="page-link" href="?page={{page_obj.next_page_number}}">Next</a></li>
+			<li class="page-item"><a class="page-link" href="?page={{page_obj.next_page_number}}{% if cat_id %}&cat_id={{cat_id}}{% endif %}{% if color_id %}&color_id={{color_id}}{% endif %}{% if size_id %}&size_id={{size_id}}{% endif %}{% if min_prize %}&min_prize={{min_prize}}{% endif %}{% if max_prize %}&max_prize={{max_prize}}{% endif %}">Next</a></li>
 			{% else %}
-				<li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+			<li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
 			{% endif %}
-	  </ul>
-	{% endif %}
-</nav>
+		</ul>
+		{% endif %}
+	</nav>
+	
+	
 
 	</main> <!-- col.// -->
 

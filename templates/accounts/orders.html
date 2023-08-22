@@ -14,7 +14,62 @@
 	<div class="row">
 	<main class="col-md-9">
 		<article class="card">
-		<h2>Orders</h2>
+			<div class="card-body">
+				<strong class="card-title" >Your Orders</strong>
+				{% include 'includes/alerts.html' %}
+				{% if page_obj %}
+					<div style="margin-top: 20px; ">
+						{% for order in page_obj %}
+						<a class="orders" href="{% url 'view_order' id=order.id %}">
+							<div class="card" style="position: relative;">
+								<div class="card-header">
+									<div class="d-flex justify-content-between align-items-center">
+										<img src="{{ order.product.product.image.url }}" alt="Product Image" width="71" height="71">
+										<strong class="card-title">{{ order.product.product.product_name }} <small>{{ order.phone }}</small></strong>
+										<small>Price: {{ order.amount }}</small>
+										<small>Status: {{ order.status }}</small>
+									</div>
+								</div>
+							</div>
+						</a>
+						{% endfor %}
+					</div>
+					<!-- Display pagination links -->
+					<div class="pagination">
+						<ul class="pagination justify-content-center">
+							{% if page_obj.has_previous %}
+								<li class="page-item">
+									<a class="page-link" href="?page=1">&laquo; First</a>
+								</li>
+								<li class="page-item">
+									<a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+								</li>
+							{% endif %}
+
+							<li class="page-item active">
+								<span class="page-link">
+									Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+								</span>
+							</li>
+
+							{% if page_obj.has_next %}
+								<li class="page-item">
+									<a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+								</li>
+								<li class="page-item">
+									<a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+								</li>
+							{% endif %}
+						</ul>
+					</div> <!-- .paginator -->
+					{% else %}
+					<div style="margin-top: 20px; ">
+						<strong class="card-title" >No Orders Yet</strong>
+					</div>
+
+					{% endif %}
+
+		</div> <!-- card-body .// -->
 
 		</article> <!-- order-group.// -->
 	</main>

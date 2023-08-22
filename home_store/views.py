@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.views.generic import View
 from celeritas.forms.user_form import UserSignupForm, UserLoginForm, UserAddressForm
 from category.models import Category
-from product.models import Product, ProductGallery, Variation, Size
+from product.models import Product, ProductGallery, Variation, Size, Color
 from cart.models import Wishlist, Cart, CartItem
 from .models import UserDetail, Banner, Address
 from django.db.models import Q, F
@@ -243,30 +243,9 @@ def userstore(request):
         cat=Category.objects.all()
         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
         sizes = Size.objects.all()
+        colors = Color.objects.all()
         cat_id = request.GET.get('cat_id')
         prod = request.GET.get('prod_id')
-        
-        try:
-            if request.method=='POST':
-                if 'filter' in request.POST:
-                    cat_name = request.POST.get('cat_id')
-                    size_id = request.POST.get('size_id')
-                    min_prize = request.POST.get('min_prize')
-                    max_prize = request.POST.get('max_prize ')
-                    if cat_name is not None and size_id is not None and min_prize is not None and max_prize is not None:
-                        details= Variation.objects.filter(product__category__id=cat_name, size__id=size_id).order_by('id')
-                        details3=[]
-                        for d in details:
-                            if d.product.normal_price > min_prize and d.product.normal_price < max_prize:
-                                details3.append(d)
-                        print(details3)
-                    else:
-                        details3=Variation.objects.all().order_by('id')
-                    # print(details3)
-                else:
-                    pass
-        except Product.DoesNotExist:
-                raise Http404("Product does not exist")
         if cat_id is not None and prod is None:
             details3= Variation.objects.filter(product__category__id=cat_id).order_by('id')
         elif prod is not None and cat_id is None:
@@ -284,7 +263,7 @@ def userstore(request):
             'page_obj': page_obj,
             'cat':cat,
             'sizes':sizes,
-            # 'product_count': product_count,
+            'colors': colors,
             'user_firstname': user_detail.user_firstname,
             'user_image': user_detail.user_image,
             'user':user_detail,
@@ -294,6 +273,8 @@ def userstore(request):
          return redirect('user_login')
      
 
+    
+    
 @never_cache
 def product_detail(request, id):
     # if 'user_email' in request.session:
@@ -314,14 +295,7 @@ def product_detail(request, id):
         #     print(clr)
     except Product.DoesNotExist:
         raise Http404("Product does not exist")
-    product_gallery = []
-    for v in variants:
-        product_gallery.append( ProductGallery.objects.filter(product=v))
-    # for m in product_gallery:
-    #     print(m)
-    print(variants)
-    print(sizes)
-    print(colors)
+    product_gallery = ProductGallery.objects.filter(product__product=single_product)
     if 'user_email' in request.session:
         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
         context = {
@@ -344,7 +318,11 @@ def product_detail(request, id):
 def user_dashboard(request):
     if 'user_email' in request.session:
         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
+        order_pdt= Order.objects.all()
+        orders_count = order_pdt.count()
+            
         context = {
+            'orders_count':orders_count,
             'user':user_detail,
             'user_image': user_detail.user_image,
             'user_firstname': user_detail.user_firstname,
@@ -540,15 +518,43 @@ def orders(request):
     if 'user_email' in request.session:
         user_email = request.session['user_email']
         user = UserDetail.objects.get(user_email = user_email)
+        
         ord = Order.objects.filter(user=user).order_by('-id')
+        cat = Category.objects.all()
         paginator = Paginator(ord, 5)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
+        context = {
+                'page_obj': page_obj,
+                'cat':cat,
+                'user_firstname': user.user_firstname,
+                'user_image': user.user_image,
+                'user':user,
+            }
         if ord.exists():
-            return render(request,'accounts/orders.html',{'page_obj':page_obj})
+            return render(request,'accounts/orders.html',context)
         else:
             messages.warning(request,'No orders found')
             return redirect('orders')
+    else:
+        return redirect('user_login')
+    
+def view_order(request,id):
+    if 'user_email' in request.session:
+        try:
+            order_pdt = Order.objects.get(id=id)
+        except Order.DoesNotExist:
+            messages.error(request,"No Product found")
+            return redirect('orders')
+        cat = Category.objects.all()
+        context = {
+                'order_pdt': order_pdt,
+                'cat':cat,
+                'user_firstname': order_pdt.user.user_firstname,
+                'user_image': order_pdt.user.user_image,
+                'user':order_pdt.user,
+            }
+        return render(request,'accounts/view_order.html',context)
     else:
         return redirect('user_login')
     
