@@ -32,7 +32,7 @@
 
 	<aside class="col-md-3">
 		<div class="card">
-			<form action="#" method="post">
+			<form action="{% url 'userstore_filter' %}" method="post">
 				{% csrf_token %}
 				<article class="filter-group">
 					<header class="card-header">

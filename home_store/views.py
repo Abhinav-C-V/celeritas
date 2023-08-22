@@ -272,7 +272,56 @@ def userstore(request):
     else:
          return redirect('user_login')
      
+def userstore_filter(request):
+    if 'user_email' in request.session:
+        cat = Category.objects.all()
+        user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
+        sizes = Size.objects.all()
+        colors = Color.objects.all()
+        details3 = Variation.objects.all()
 
+        if request.method == 'POST':
+            cat_name = request.POST.get('cat_id')
+            size_id = request.POST.get('size_id')
+            color_id = request.POST.get('color_id')
+            min_prize = request.POST.get('min_prize')
+            max_prize = request.POST.get('max_prize')
+
+            if cat_name:
+                details3 = details3.filter(product__category__id=cat_name)
+            if size_id:
+                details3 = details3.filter(size__id=size_id)
+            if color_id:
+                details3 = details3.filter(color__id=color_id)
+
+            price_filter = Q()
+            if min_prize:
+                price_filter &= Q(product__normal_price__gt=min_prize)
+            if max_prize:
+                price_filter &= Q(product__normal_price__lte=max_prize)
+
+            if price_filter:
+                details3 = details3.filter(price_filter)
+
+            details3 = details3.order_by('id')
+        
+        paginator = Paginator(details3, 6)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        context = {
+            'details3':details3,
+            'page_obj': page_obj,
+            'cat': cat,
+            'sizes': sizes,
+            'colors': colors,
+            'user_firstname': user_detail.user_firstname,
+            'user_image': user_detail.user_image,
+            'user': user_detail,
+        }
+        return render(request, 'store/user_store.html', context)
+    else:
+        return redirect('user_login')
     
     
 @never_cache
@@ -318,7 +367,7 @@ def product_detail(request, id):
 def user_dashboard(request):
     if 'user_email' in request.session:
         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
-        order_pdt= Order.objects.all()
+        order_pdt= Order.objects.all(user=user_detail)
         orders_count = order_pdt.count()
             
         context = {
@@ -332,6 +381,8 @@ def user_dashboard(request):
     else:
         return redirect('user_login')
 
+def coupons(request):
+    return render(request, 'accounts/user_coupons.html')
 
 def user_profile_info(request):
     if 'user_email' in request.session:

@@ -314,13 +314,6 @@ def proceed_to_checkout(request):
         return redirect('user_login')
 
 
-def cancelcoupon(request):
-    user_email = request.session['user_email']
-    UserCoupon.objects.filter(user__user_email=user_email).update(applied=False)
-    messages.warning(request,'Coupon removed')
-    return redirect('proceed_to_checkout')
-
-
 def select_address(request):
     if 'user_email' in request.session:
         user =UserDetail.objects.get(user_email=request.session['user_email'])
@@ -380,6 +373,12 @@ def apply_coupon(request):
             
     else:
         return redirect('admin_login')
+    
+def cancelcoupon(request):
+    user_email = request.session['user_email']
+    UserCoupon.objects.filter(user__user_email=user_email).update(applied=False)
+    messages.warning(request,'Coupon removed')
+    return redirect('proceed_to_checkout')
 
     
 @never_cache

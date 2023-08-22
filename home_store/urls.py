@@ -18,7 +18,7 @@ urlpatterns = [
     
     path('user_home', views.userhome, name='user_home'),
     path('user_store', views.userstore, name='user_store'),
-    # path('userstore_filter', views.userstore_filter, name='userstore_filter'),
+    path('userstore_filter', views.userstore_filter, name='userstore_filter'),
     path('products/<int:id>/', views.product_detail, name='product_detail'),
     
     path('user_dashboard/', views.user_dashboard, name='user_dashboard'),
@@ -28,6 +28,7 @@ urlpatterns = [
     path('edit_email/', views.edit_email, name='edit_email'),
     path('edit_phone/', views.edit_phone, name='edit_phone'),
     path('edit_image/', views.edit_image, name='edit_image'),
+    
     path('user_manage_address/', views.user_manage_address, name='user_manage_address'),
     path('add_address/', views.add_address, name='add_address'),
     path('edit_address/<int:id>/', views.edit_address, name='edit_address'),
@@ -37,6 +38,9 @@ urlpatterns = [
     path('view_order/<int:id>/', views.view_order, name='view_order'),
     path('cancel_order/<int:id>/', views.cancel_order, name='cancel_order'),
     path('return_order/<int:id>/', views.return_order, name='return_order'),
+    
+    path('coupons/', views.coupons, name='coupons'),
+    
     
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
