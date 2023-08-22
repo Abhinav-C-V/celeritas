@@ -330,55 +330,6 @@ def select_address(request):
         return redirect('proceed_to_checkout')
     else:
         return redirect('user_login')
-    
-    
-@never_cache
-def apply_coupon(request):
-    if 'user_email' in request.session:     
-        if request.method == 'POST':
-            user_email = request.session['user_email']
-            try:
-                coup_code = request.POST.get('c_code')
-                coupon = Coupon.objects.get(coupon_code__iexact=coup_code, is_active=True)
-                cart = CartItem.objects.filter(cart__user__user_email=user_email)
-            except:
-                messages.warning(request, 'No coupon')
-                return redirect('proceed_to_checkout')
-            
-            if coup_code == coupon.coupon_code and coupon.is_active:
-                UserCoupon.objects.filter(user__user_email=user_email).update(applied=False)
-                UserCoupon.objects.filter(user__user_email=user_email, coupon__is_active=True, coupon=coupon).update(applied=True)
-                
-                try:
-                    coup = UserCoupon.objects.get(user__user_email=user_email, coupon__is_active=True, applied=True)
-                    discount = coup.coupon.discount_price
-                except UserCoupon.DoesNotExist:
-                    discount = 0
-                
-                cartcount = cart.count()
-                for c in cart:
-                    # Calculate new subtotal after applying discount to each cart item
-                    new_subtotal = c.subtotal - (discount / cartcount)
-                    print(new_subtotal)
-                
-                messages.success(request, 'Coupon Applied')
-            elif coup_code == coupon.coupon_code:
-                messages.warning(request, 'Coupon has expired')
-            else:
-                messages.warning(request, 'Coupon is not valid')
-            
-            return redirect('proceed_to_checkout')
-        else:
-            return redirect('proceed_to_checkout')
-            
-    else:
-        return redirect('admin_login')
-    
-def cancelcoupon(request):
-    user_email = request.session['user_email']
-    UserCoupon.objects.filter(user__user_email=user_email).update(applied=False)
-    messages.warning(request,'Coupon removed')
-    return redirect('proceed_to_checkout')
 
     
 @never_cache
@@ -398,22 +349,15 @@ def cash_on_delivery(request):
                 cart = CartItem.objects.filter(cart__user__user_email=user.user_email)
                 try:
                     coupon = UserCoupon.objects.get(user=user,coupon__is_active=True,applied=True)
-                    # user_coupon = UserCoupon.objects.get(coupon=coupon,applied=True)
-                    # print(coupon)
                     discount = coupon.coupon.discount_price
                 except:
                     discount = 0
                 cartcount = cart.count()
-                # print("hi",cartcount)
                 for c in cart:
-                    # amount=c.subtotal-(discount)/cartcount
-                    # print("hi",amount)
                     Order(user=user, address=user_1, product=c.product, amount=c.subtotal-(discount)/cartcount, quantity=c.quantity ).save()
-                    # print(Order)
                     c.delete()
                 UserCoupon.objects.filter(user__user_email=user_email,coupon__is_active=True,applied=True).delete()
                 return render(request,'store/confirm_order.html')
-                # return HttpResponseRedirect(reverse('confirm_order'))
             else:
                 messages.warning(request, 'please enter the digits carefully')
                 return redirect('proceed_to_checkout')
@@ -422,21 +366,3 @@ def cash_on_delivery(request):
     else:
         return redirect('user_login')
     
-
-# def confirm_order(request):
-#     return render(request, 'store/confirm_order.html')
-    
-# def continue_payment(request):
-#     if 'user_email' in request.session:
-#         user =UserDetail.objects.get(user_email=request.session['user_email'])
-#         adrs = Address.objects.filter(user=user).all()
-#         context = {
-#                 # 'cat':cat,
-#                 'user_firstname': user.user_firstname,
-#                 'user_image': user.user_image,
-#                 'user':user,
-#                 'adrs': adrs,
-#         }
-#         return render(request, 'store/payment.html',context)
-#     else:
-#         return redirect('user_login')

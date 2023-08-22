@@ -40,6 +40,10 @@ urlpatterns = [
     path('return_order/<int:id>/', views.return_order, name='return_order'),
     
     path('coupons/', views.coupons, name='coupons'),
+    path('apply_coupon/', views.apply_coupon, name='apply_coupon'),
+    path('cancel_coupon/', views.cancelcoupon, name='cancel_coupon'),
+    
+    
     
     
 

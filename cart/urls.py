@@ -12,9 +12,7 @@ urlpatterns = [
     path('decrement_cart_item/', views.decrement_cart_item, name='decrement_cart_item'),
     path('increment_cart_item/', views.increment_cart_item, name='increment_cart_item'),
     path('select_address/', views.select_address, name='select_address'),
-    path('apply_coupon/', views.apply_coupon, name='apply_coupon'),
     path('cash_on_delivery/', views.cash_on_delivery, name='cash_on_delivery'),
-    path('cancel_coupon/', views.cancelcoupon, name='cancel_coupon'),
     # path('confirm_order/', views.confirm_order, name='confirm_order'),
     
     

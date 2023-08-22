@@ -251,7 +251,9 @@ def add_user_coupon(request):
             form = UserCouponForm(request.POST,request.FILES)
             if form.is_valid():
                 coupon = form.cleaned_data['coupon']
-                dup = UserCoupon.objects.filter(coupon=coupon).first()
+                user = form.cleaned_data['user']
+                print(coupon)
+                dup = UserCoupon.objects.filter(coupon=coupon,user=user).first()
                 if dup:
                     messages.warning(request,'User Coupon already exists')
                     return redirect('add_user_coupon')

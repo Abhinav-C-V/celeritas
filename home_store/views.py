@@ -7,7 +7,7 @@ from django.views.generic import View
 from celeritas.forms.user_form import UserSignupForm, UserLoginForm, UserAddressForm
 from category.models import Category
 from product.models import Product, ProductGallery, Variation, Size, Color
-from cart.models import Wishlist, Cart, CartItem
+from cart.models import Wishlist, Cart, CartItem, Coupon, UserCoupon
 from .models import UserDetail, Banner, Address
 from django.db.models import Q, F
 from django.http import JsonResponse, HttpRequest
@@ -34,8 +34,6 @@ from cart.models import Order
 # from .models import UserDetail  # You need to import your UserDetail model
 import uuid  # Import the UUID module
 from .utils import generate_reset_token  # Import the function from step 1
-
-
 
 
 
@@ -367,7 +365,7 @@ def product_detail(request, id):
 def user_dashboard(request):
     if 'user_email' in request.session:
         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
-        order_pdt= Order.objects.all(user=user_detail)
+        order_pdt= Order.objects.filter(user=user_detail)
         orders_count = order_pdt.count()
             
         context = {
@@ -381,8 +379,7 @@ def user_dashboard(request):
     else:
         return redirect('user_login')
 
-def coupons(request):
-    return render(request, 'accounts/user_coupons.html')
+
 
 def user_profile_info(request):
     if 'user_email' in request.session:
@@ -622,3 +619,75 @@ def return_order(request,id):
         return redirect('orders')
     else:
         return redirect('user_login')
+    
+    
+def coupons(request):
+    if 'user_email' in request.session:
+        user_email = request.session['user_email']
+        user = UserDetail.objects.get(user_email = user_email)
+        cat = Category.objects.all()
+        coupons = UserCoupon.objects.filter(user=user)
+        paginator = Paginator(coupons, 5)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        context = {
+            'page_obj':page_obj,
+            # 'coupons': coupons,
+            'cat':cat,
+            'user_firstname': user.user_firstname,
+            'user_image': user.user_image,
+            'user':user,
+            }
+        return render(request, 'accounts/user_coupons.html',context)
+    else:
+        return redirect('user_login')
+
+
+@never_cache
+def apply_coupon(request):
+    if 'user_email' in request.session:     
+        if request.method == 'POST':
+            user_email = request.session['user_email']
+            try:
+                coup_code = request.POST.get('c_code')
+                coupon = Coupon.objects.get(coupon_code__iexact=coup_code, is_active=True)
+                cart = CartItem.objects.filter(cart__user__user_email=user_email)
+            except:
+                messages.warning(request, 'No coupon')
+                return redirect('proceed_to_checkout')
+            
+            if coup_code == coupon.coupon_code and coupon.is_active:
+                UserCoupon.objects.filter(user__user_email=user_email).update(applied=False)
+                UserCoupon.objects.filter(user__user_email=user_email, coupon__is_active=True, coupon=coupon).update(applied=True)
+                
+                try:
+                    coup = UserCoupon.objects.get(user__user_email=user_email, coupon__is_active=True, applied=True)
+                    discount = coup.coupon.discount_price
+                except UserCoupon.DoesNotExist:
+                    discount = 0
+                
+                cartcount = cart.count()
+                for c in cart:
+                    # Calculate new subtotal after applying discount to each cart item
+                    new_subtotal = c.subtotal - (discount / cartcount)
+                    print(new_subtotal)
+                
+                messages.success(request, 'Coupon Applied')
+            elif coup_code == coupon.coupon_code:
+                messages.warning(request, 'Coupon has expired')
+            else:
+                messages.warning(request, 'Coupon is not valid')
+            
+            return redirect('proceed_to_checkout')
+        else:
+            return redirect('proceed_to_checkout')
+            
+    else:
+        return redirect('admin_login')
+    
+    
+def cancelcoupon(request):
+    user_email = request.session['user_email']
+    UserCoupon.objects.filter(user__user_email=user_email).update(applied=False)
+    messages.warning(request,'Coupon removed')
+    return redirect('proceed_to_checkout')
