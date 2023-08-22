@@ -29,7 +29,12 @@ from django.utils.encoding import force_bytes
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
+
 from cart.models import Order
+from xhtml2pdf import pisa
+from django.db.models import Q
+import datetime
+# from .models import UserDetail, Order
 # from django.contrib import messages
 # from .models import UserDetail  # You need to import your UserDetail model
 import uuid  # Import the UUID module
@@ -691,3 +696,45 @@ def cancelcoupon(request):
     UserCoupon.objects.filter(user__user_email=user_email).update(applied=False)
     messages.warning(request,'Coupon removed')
     return redirect('proceed_to_checkout')
+
+
+
+def generate_invoice(request):
+    if 'user_email' in request.session:
+        user = UserDetail.objects.get(user_email=request.session['user_email'])
+        
+        ordered_product = Order.objects.get(Q(id=request.GET.get('ord_id')) & Q(user=user))
+        data = {
+            'date' : datetime.date.today(),
+            'orderid': ordered_product.id,
+            'ordered_date': ordered_product.ordered_date,
+            'name': ordered_product.address.name,
+            # 'email':ordered_product.user.user_email,
+            'housename': ordered_product.address.housename,
+            'locality': ordered_product.address.locality,
+            'city': ordered_product.address.city,
+            'state': ordered_product.address.state,
+            'zipcode': ordered_product.address.zipcode,
+            'phone': ordered_product.address.phone,
+            'product': ordered_product.product,
+            'quantity': ordered_product.quantity,
+            'amount': ordered_product.amount,
+            # 'single_amount': ordered_product.product.product.price,
+            'ordertype': ordered_product.order_type,
+        }
+        template_path = 'invoicepdf.html'
+        html = render_to_string(template_path, data)
+
+        # Create a Django response object with content type as PDF
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="Invoice_{data["orderid"]}.pdf"'
+
+        # Create a PDF
+        pisa_status = pisa.CreatePDF(html, dest=response)
+        
+        if pisa_status.err:
+            return HttpResponse('We had some errors generating the PDF')
+        
+        return response
+    else:
+        return redirect('user_login')

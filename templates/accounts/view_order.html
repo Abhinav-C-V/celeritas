@@ -115,7 +115,7 @@
                                         <div class="form-inline" >
                                             <a href="{% url 'return_order' id=order_pdt.id %}" class="btn btn-sm btn-secondary mr-3 mt-2 "><b>Return</b></a><br>
                                             <b class="text-black">or </b><br>
-                                            <a href="#" class="btn btn-sm btn-secondary ml-3 mr-3 mt-2 " ><b>Download Invoice</b></a>
+                                            <a href="{% url 'generate_invoice' %}?ord_id={{order_pdt.id}}" class="btn btn-sm btn-secondary ml-3 mr-3 mt-2 " ><b>Download Invoice</b></a>
                                         </div>
                                         {% elif order_pdt.status == "Return Requested" %}
                                             <p><b>Requested.</b></p>

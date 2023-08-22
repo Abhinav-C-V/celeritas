@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celeritas - Invoice</title>
+    {% comment %} <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .invoice {
+            width: 80%;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .invoice h6 {
+            color: #3498db;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ccc;
+            margin: 20px 0;
+        }
+        .customer-info p {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+        .customer-info p strong {
+            color: #3498db;
+        }
+        .product-info p {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+        .product-info p strong {
+            color: #3498db;
+        }
+    </style> {% endcomment %}
+</head>
+<body>
+<hr>
+<h6 style="text-align: center;">CELERITAS - Invoice</h6>
+<hr>
+<div class="container text-center">
+  <div class=" offset-sm-1 pt-5">
+      <div class="row text-center align-items-center justify-content-center text-black">
+          <h4 class="pb-3"></h4>
+          
+              <div class="col-sm-4 ">
+                
+                  <div class="card mb-3">
+                    
+                      <div class="card-body ">
+                        <h6><p><strong>Invoice Number:</strong> {{ product.id }}{{product.color.id}}{{product.size.id}}ORDID{{ orderid }}</p></h6>
+                          <h6>Bill-date : {{date}}</h6>
+                          <h6>Order id : ORDID{{ orderid }}</h6> 
+                          <h6>Ordered date : {{ ordered_date }}</h6>
+                          <hr>
+                          <h6 style="text-align: center;">Delivered to</h6>
+                          <hr>
+                          <p><h6>Name : {{name}}</h6></p>
+                          <p><h6>Address : {{housename}}, {{locality}}, {{city}}, {{state}} - {{zipcode}}</h6></p>
+                          <p><h6>Phone : {{phone}}</h6></p>
+                          <p><h6>Product : {{product.product}} ; {{product.color}} ; {{product.size}}</h6></p>
+                          <p><h6>Quantity : {{quantity}}</h6></p>
+                          <p><h6>Amount : ₹ {{amount}}</h6></p>
+                          <p><h6>Order Type : {{ordertype}}</h6></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <br>
+</body>
+</html>
