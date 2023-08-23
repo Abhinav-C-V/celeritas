@@ -160,3 +160,7 @@ EMAIL_HOST_USER = 'celeritasmain@gmail@gmail.com'
 EMAIL_HOST_PASSWORD = 'celevenv'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+
+
+razorpay_key_id = 'rzp_test_fN7V6HjR7GcOGl'
+razorpay_key_secret = '1SmIaLahFDLAgM3xj53clnyk'

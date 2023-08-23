@@ -590,8 +590,8 @@ def orders(request):
         if ord.exists():
             return render(request,'accounts/orders.html',context)
         else:
-            messages.warning(request,'No orders found')
-            return redirect('orders')
+            messages.warning(request,'No orders yet')
+            return render(request,'accounts/orders.html',context)
     else:
         return redirect('user_login')
     
@@ -646,7 +646,11 @@ def coupons(request):
             'user_image': user.user_image,
             'user':user,
             }
-        return render(request, 'accounts/user_coupons.html',context)
+        if coupons.exists():
+            return render(request, 'accounts/user_coupons.html',context)
+        else:
+            messages.warning(request,'No Coupons Found')
+            return render(request, 'accounts/user_coupons.html',context)
     else:
         return redirect('user_login')
 

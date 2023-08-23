@@ -62,11 +62,12 @@ def wishlist(request):
             }
             return render(request, 'store/wishlist.html', context)
         else:
-            messages.warning(request, 'No items in wishlist')
+            # messages.warning(request, 'No items in wishlist')
             context = {
                 'user_firstname': user_detail.user_firstname,
                 'user_image': user_detail.user_image,
                 'user': user_detail,
+                'cat':cat,
             }
             return render(request, 'store/wishlist.html', context)
 
@@ -152,7 +153,8 @@ def cart(request):
             for cart_item in cart_items:
                 total += cart_item.subtotal
                 quantity += cart_item.quantity
-            tax = (total*1.7)/100
+            # tax = (total*1.7)/100
+            tax = 0
             grand_total = total + tax
             
             context = {

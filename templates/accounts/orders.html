@@ -9,14 +9,12 @@
         <!-- Content for the main section goes here -->
         <!-- You can add your content here -->
 
-{% include 'includes/alerts.html' %}
 <div class="container">
 	<div class="row">
 	<main class="col-md-9">
 		<article class="card">
 			<div class="card-body">
 				<strong class="card-title" >Your Orders</strong>
-				{% include 'includes/alerts.html' %}
 				{% if page_obj %}
 					<div style="margin-top: 20px; ">
 						{% for order in page_obj %}
@@ -64,7 +62,7 @@
 					</div> <!-- .paginator -->
 					{% else %}
 					<div style="margin-top: 20px; ">
-						<strong class="card-title" >No Orders Yet</strong>
+						{% include 'includes/alerts.html' %}
 					</div>
 
 					{% endif %}
