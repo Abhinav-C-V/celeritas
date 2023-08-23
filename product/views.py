@@ -75,8 +75,15 @@ class AdminAddProductView(View):
     def post(self, request):
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            return redirect('admin_productlist')
+            prod = form.cleaned_data['product_name']
+            dup = Product.objects.filter(product_name=prod).first()
+            if dup:
+                messages.warning(request,'Product with same name already exists')
+                return redirect('admin_addproduct')
+            else:
+                form.save()
+                messages.success(request,'Product added successfully')
+                return redirect('admin_productlist')
         else:
             return render(request, 'admin/add_product.html', {'form': form})
 
@@ -92,6 +99,7 @@ class AdminAddProductImageView(View):
     def post(self, request):
         form = ProductGalleryForm(request.POST, request.FILES)
         if form.is_valid():
+            
             form.save()
             return redirect('admin_productgallery')
         else:

@@ -8,7 +8,8 @@ from celeritas.forms.user_form import UserSignupForm, UserLoginForm
 from category.models import Category
 from product.models import Product, ProductGallery, Variation
 from .models import Wishlist, Cart, CartItem, Order, Coupon, UserCoupon
-from home_store.models import UserDetail, Banner, Address
+from home_store.models import UserDetail, Address
+from admn.models import Banner
 from django.db.models import Q, F
 from django.http import JsonResponse, HttpRequest, HttpResponseRedirect
 from django.urls import reverse 

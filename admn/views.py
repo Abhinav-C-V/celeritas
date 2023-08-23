@@ -140,23 +140,47 @@ def update_banner(request):
     else:
         return redirect('admin_login')
 
-def admin_addbanner(request): 
-    if 'username' in request.session:
-        if request.method == 'POST':
-            form = BannerForm(request.POST, request.FILES)
-            print(form.cleaned_data['name'])
-            if form.is_valid():
-                form.save()
-                print(form.cleaned_data['name'])
-                messages.success(request,'Banner added successfully')
-                return redirect('admin_bannerlist')
-            else:
-                return render(request, 'admin/add_banner.html', {'form': form})
-        else:
+class AdminAddBannerView(View):
+    def get(self, request):
+        if 'username' in request.session:
             form = BannerForm()
             return render(request, 'admin/add_banner.html', {'form': form})
-    else:
-        return redirect('admin_login')
+        else:
+            return redirect('admin_login')
+           
+    def post(self, request):
+        form = BannerForm(request.POST, request.FILES)
+        if form.is_valid():
+            bann = form.cleaned_data['name'].upper()
+            dup = Banner.objects.filter(name=bann).first()
+            if dup:
+                messages.warning(request,'Banner with same name already exists')
+                return redirect('admin_addbanner')
+            else:
+                form.save()
+                messages.success(request,'Banner added successfully')
+                return redirect('admin_bannerlist')
+        else:
+            return render(request, 'admin/add_banner.html', {'form': form})
+
+
+# def admin_addbanner(request): 
+#     if 'username' in request.session:
+#         if request.method == 'POST':
+#             form = BannerForm(request.POST, request.FILES)
+#             print(form.cleaned_data['name'])
+#             if form.is_valid():
+#                 form.save()
+#                 print(form.cleaned_data['name'])
+#                 messages.success(request,'Banner added successfully')
+#                 return redirect('admin_bannerlist')
+#             else:
+#                 return render(request, 'admin/add_banner.html', {'form': form})
+#         else:
+#             form = BannerForm()
+#             return render(request, 'admin/add_banner.html', {'form': form})
+#     else:
+#         return redirect('admin_login')
 
   
 def delete_banner(request):

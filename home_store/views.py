@@ -8,7 +8,9 @@ from celeritas.forms.user_form import UserSignupForm, UserLoginForm, UserAddress
 from category.models import Category
 from product.models import Product, ProductGallery, Variation, Size, Color
 from cart.models import Wishlist, Cart, CartItem, Coupon, UserCoupon
-from .models import UserDetail, Banner, Address
+from .models import UserDetail, Address
+from admn.models import  Banner
+
 from django.db.models import Q, F
 from django.http import JsonResponse, HttpRequest
 from django.contrib.auth.hashers import make_password, check_password
@@ -239,6 +241,7 @@ def userhome(request):
         return render(request, 'store/user_home.html', context)
     else:
          return redirect('user_login')
+     
      
 @never_cache
 def userstore(request):

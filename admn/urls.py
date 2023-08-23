@@ -3,7 +3,7 @@ from django.urls import path,include
 from django.conf.urls.static import static
 from django.conf import settings
 from . import views
-from . views import AdminLoginView, OrderUpdateView
+from . views import AdminLoginView, OrderUpdateView, AdminAddBannerView
 
 urlpatterns = [
     
@@ -15,7 +15,7 @@ urlpatterns = [
     path('admin_deleteuser/', views.admin_deleteuser, name='admin_deleteuser'),
     
     path('update_banner/', views.update_banner, name='update_banner'),
-    path('admin_addbanner/', views.admin_addbanner, name='admin_addbanner'),
+    path('admin_addbanner/', AdminAddBannerView.as_view(), name='admin_addbanner'),
     path('admin_bannerlist/', views.admin_bannerlist, name='admin_bannerlist'),
     path('delete_banner/', views.delete_banner, name='delete_banner'),
     
