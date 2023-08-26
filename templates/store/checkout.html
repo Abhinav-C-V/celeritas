@@ -152,7 +152,7 @@
             </header>
             <div id="pay_paypal" class="collapse show" data-parent="#accordion_pay">
             <div class="card-body">
-              <p class="text-center text-muted"></p>
+              <p class="text-center text-muted">Connect your PayPal account and use it to pay your bills. You'll be redirected to PayPal to add your billing information.</p>
               <p class="text-center">
                 <a href="#"><img src="{% static './images/misc/btn-paypal.png' %}" height="32"></a>
                 <br><br>
@@ -166,17 +166,53 @@
                 <img src="./images/misc/payment-paypal.png" class="float-right" height="24"> 
                 <label class="form-check collapsed" data-toggle="collapse" data-target="#pay_razorpay">
                   <input class="form-check-input" name="payment-option" checked type="radio" value="option2">
-                  <h6 class="form-check-label"> 
-                      Razorpay 
-                  </h6>
+                  <h6 class="form-check-label"> Razorpay </h6>
                 </label>
+
               </header>
-              <div id="pay_razorpay" class="collapse show" data-parent="#accordion_pay">
-              <div class="card-body">
-                <p class="text-center text-muted">Connect your PayPal account and use it to pay your bills. You'll be redirected to PayPal to add your billing information.</p>
-                <p class="text-center">
-                  <a href="#"><img src="{% static './images/misc/btn-paypal.png' %}" height="32"></a>
-                  <br><br>
+              <div id="pay_razorpay" class="collapse" data-parent="#accordion_pay">
+              <div class="card-body d-flex justify-content-center">
+                <p class="text-center text-muted ">
+                <p class="text-center col-md-6">
+                  <small>Click here for continue with razorpay</small>
+
+                  {% comment %} <a href="#"><img src="{% static './images/misc/btn-paypal.png' %}" height="32"></a> {% endcomment %}
+                    <button id="rzp-button1" type="submit" class="btn btn-secondary btn-md py-3 btn-block l-f-o__create-link btn--e-transparent-brand-b-2" style="border: 2px solid #555555" href="">Razorpay</button>
+                    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+                    <script>
+                      var options = {
+                          "key": "rzp_test_fN7V6HjR7GcOGl", // Enter the Key ID generated from the Dashboard
+                          "amount": "100", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                          "currency": "INR",
+                          "name": "Celeritas Corp", //your business name
+                          "description": "Test Transaction",
+                          "image": "https://example.com/your_logo",
+                          "order_id": "{{payment.id}}", //     "callback_url": "" https://eneqd3r9zrjok.x.pipedream.net/     This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                          "callback_url": "https://eneqd3r9zrjok.x.pipedream.net/",
+                          "prefill": {
+                              "name": "Ajsal S", //your customer's name
+                              "email": "ajsal@gmail.com",
+                              "contact": "9000090000"
+                          },
+                          "notes": {
+                              "address": "Razorpay Corporate Office"
+                          },
+                          "theme": {
+                              "color": "#3399cc"
+                          },
+                          "handler": function(response) {
+                              // Redirect the user to another page after payment success
+                              window.location.href = "{% url 'orderconfirm' %}";
+                          }
+                      };
+                      var rzp1 = new Razorpay(options);
+                      document.getElementById('rzp-button1').onclick = function(e){
+                          rzp1.open();
+                          e.preventDefault();
+                      }
+                      
+                      </script>?
+                  <br>
                 </p>
               </div> <!-- card body .// -->
               </div> <!-- collapse .// -->
@@ -193,11 +229,12 @@
           <div id="pay_credit" class="collapse" data-parent="#accordion_pay">
             <div class="card-body">
               {% comment %} <p class="alert alert-success">Some information or instruction</p> {% endcomment %}
+              <small>Enter the given code for confirm your Order</small>
               <form action="{% url 'cash_on_delivery' %}" class="form-inline" method="post" >
                 {% csrf_token %}
                 {% comment %} <input type="text" class="form-control mr-2" placeholder="xxxx-xxxx-xxxx-xxxx" name=""> {% endcomment %}
                 <input type="text" class="form-control mr-2" style="width: 100px"   value="{{captcha}}" name="captcha" readonly>
-                <input type="text" maxlength="6" class="form-control mr-2"  style="width: 100px"  placeholder="" name="c_captcha">
+                <input type="text" maxlength="6" class="form-control mr-2"  style="width: 100px"  placeholder="Enter Code" name="c_captcha">
                 <button class="btn btn btn-success">CONFIRM ORDER</button>
               </form>
             </div> <!-- card body .// -->
@@ -251,6 +288,21 @@
       				<label for=""> FREE </label>
       	</td>
       </tr>
+      {% if usercoupon %}
+      {% if usercoupon.applied %}
+      <tr>
+        <td>
+      		<div class="price-wrap">
+      			<var class="price">Coupon Discount</var>
+      		</div> <!-- price-wrap .// -->
+      	</td>
+      	<td>
+      		<!-- col.// -->
+      				<label for="">₹{{ usercoupon.coupon.discount_price }}</label>
+      	</td>
+      </tr>
+      {% endif %}
+      {% endif %}
       {% comment %} <tr>
         <td>
       		<!-- col.// -->

@@ -36,11 +36,19 @@ from cart.models import Order
 from xhtml2pdf import pisa
 from django.db.models import Q
 import datetime
+import math, random
+from django.core.mail import send_mail
+import string
+from django.urls import reverse
+import os
+from twilio.rest import Client
+# from twilio.rest import Client
+
 # from .models import UserDetail, Order
 # from django.contrib import messages
 # from .models import UserDetail  # You need to import your UserDetail model
 import uuid  # Import the UUID module
-from .utils import generate_reset_token  # Import the function from step 1
+# from .utils import generate_reset_token  # Import the function from step 1
 
 
 
@@ -745,3 +753,82 @@ def generate_invoice(request):
         return response
     else:
         return redirect('user_login')
+    
+    
+
+def generateOTP() :
+    digits = "0123456789"
+    OTP = ""
+    for i in range(6) :
+        OTP += digits[math.floor(random.random() * 10)]
+    return OTP
+
+def otp_login(request):
+    if request.method == 'POST':
+        try:
+            phone = int(request.POST.get('phone'))
+            user = UserDetail.objects.get(user_phone=phone)
+            print(user)
+        except:
+            messages.warning(request,'No user is registered with this mobile number')
+            return redirect('otp_login')
+        # try:
+        # phone = int(request.POST.get('phone'))
+        # email=request.POST.get('email')
+        # except:
+            # messages.warning(request, 'please check both fields')
+        print(phone)
+        o=generateOTP()
+        request.session['otp'] = o
+        request.session['random _data'] = phone
+        print('otp is ',o)
+        # account_sid = 'AC7640975856745e4fbfeea44ce6a38a79'
+        # auth_token = '6f0a956dea470597f95e4177a1490c55'
+        # TWILIO_PHONE_NUMBER = +18775066252
+        
+        # client = Client(account_sid, auth_token)
+        # to_phone_number = phone
+        
+        # message = client.messages.create(
+        #     body=f'Your OTP for login Celeritas account is: {o}',
+        #     from_=TWILIO_PHONE_NUMBER,
+        #     to='+91' + str(to_phone_number)
+        # )
+        
+        """send otp code for mail"""
+        if user:
+            htmlgen =  f'<p>Your OTP for login Celeritas account is <strong>{o}</strong></p>'
+            send_mail('OTP request',o,'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
+        
+        return render(request, "accounts/otp.html", {'phone': phone})
+    else:
+        return render(request ,"accounts/user_otplogin.html")
+
+
+def otp_verification(request):
+    
+    if request.method == 'POST':
+        otp = request.POST.get('otp')
+        if otp == request.session["otp"]:
+            user_phone=request.session.get('random _data')
+            print(user_phone)
+            try:
+                user = UserDetail.objects.get(user_phone=user_phone)
+                print(user)
+            except:
+                messages.warning(request,'No user is registered with this mobile number')
+                return redirect('otp_login')
+            if user:
+                request.session['user_email'] = user.user_email
+                del request.session['random _data']
+                return redirect('user_home')
+            else:
+                messages.warning(request,'User not found')
+                return redirect('otp_login')
+        else:
+            messages.warning(request,'Entered OTP is wrong please try agin')
+            return redirect('otp_login')
+    else:
+        messages.warning(request,'Something wet wrong please try agin')
+        return redirect('otp_login')
+    

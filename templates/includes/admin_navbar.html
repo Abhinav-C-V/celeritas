@@ -30,7 +30,7 @@
                       </ul>
                   </li>
                   <li class="menu-item-has-children dropdown">
-                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-th"></i>Products</a>
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-shopping-cart"></i>Products</a>
                       <ul class="sub-menu children dropdown-menu">
                           <li><i class="fa fa-shopping-cart"></i><a href="{% url 'admin_productlist' %}">Product Details</a></li>
                           <li><i class="fa fa-image"></i><a href="{% url 'admin_productgallery' %}">Product Gallery</a></li>
@@ -40,19 +40,19 @@
                   </li>
 
                   <li class="menu-item-has-children dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-th"></i>Product Variations</a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-shopping-cart"></i>Product Variations</a>
                     <ul class="sub-menu children dropdown-menu">
-                        <li><i class="fa fa-shopping-cart"></i><a href="{% url 'admin_colorlist' %}">Colour List</a></li>
-                        <li><i class="fa fa-shopping-cart"></i><a href="{% url 'admin_sizelist' %}">Size List</a></li>
+                        <li><i class="fa fa-star "></i><a href="{% url 'admin_colorlist' %}">Colour List</a></li>
+                        <li><i class="fa fa-star "></i><a href="{% url 'admin_sizelist' %}">Size List</a></li>
                     </ul>
                     <ul class="sub-menu children dropdown-menu">
                   </ul>
                 </li>
 
                   <li class="menu-item-has-children dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-th"></i>Coupon</a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-tags "></i>Coupon</a>
                     <ul class="sub-menu children dropdown-menu">
-                        <li><i class="fa fa-shopping-cart"></i><a href="{% url 'admin_couponlist' %}">Coupon List</a></li>
+                        <li><i class="fa fa-tags"></i><a href="{% url 'admin_couponlist' %}">Coupon List</a></li>
                         {% comment %} <li><i class="fa fa-image"></i><a href="#">User Coupon</a></li> {% endcomment %}
                     </ul>
                     <ul class="sub-menu children dropdown-menu">
@@ -60,9 +60,9 @@
                 </li>
 
                 <li class="menu-item-has-children dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-th"></i>Orders</a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="menu-icon fa fa-truck"></i>Orders</a>
                     <ul class="sub-menu children dropdown-menu">
-                        <li><i class="fa fa-shopping-cart"></i><a href="{% url 'admin_orderlist' %}">All Orders</a></li>
+                        <li><i class="fa fa-truck"></i><a href="{% url 'admin_orderlist' %}">All Orders</a></li>
                         {% comment %} <li><i class="fa fa-image"></i><a href="#">User Coupon</a></li> {% endcomment %}
                     </ul>
                     <ul class="sub-menu children dropdown-menu">
@@ -129,7 +129,7 @@
                           </div>
                       </div>
 
-                      <div class="dropdown for-message">
+                      {% comment %} <div class="dropdown for-message">
                           <button class="btn btn-secondary dropdown-toggle" type="button" id="message" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                               <i class="fa fa-envelope"></i>
                               <span class="count bg-primary">4</span>
@@ -170,7 +170,7 @@
                               </a>
                           </div>
                       </div>
-                  </div>
+                  </div> {% endcomment %}
 
                   <div class="user-area dropdown float-right">
                       <a href="#" class="dropdown-toggle active" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -178,11 +178,11 @@
                       </a>
 
                       <div class="user-menu dropdown-menu">
-                          <a class="nav-link" href="#"><i class="fa fa- user"></i>My Profile</a>
+                          <a class="nav-link" href="{% url 'admin_dashboard' %}"><i class="fa fa- user"></i>Dashboard</a>
 
-                          <a class="nav-link" href="#"><i class="fa fa- user"></i>Notifications <span class="count">13</span></a>
+                          {% comment %} <a class="nav-link" href="#"><i class="fa fa- user"></i>Notifications <span class="count">13</span></a> {% endcomment %}
 
-                          <a class="nav-link" href="#"><i class="fa fa -cog"></i>Settings</a>
+                          {% comment %} <a class="nav-link" href="#"><i class="fa fa -cog"></i>Settings</a> {% endcomment %}
 
                           <a class="nav-link" href="{% url 'admin_logout' %}"><i class="fa fa-power -off"></i>Logout</a>
                       </div>

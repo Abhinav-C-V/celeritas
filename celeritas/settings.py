@@ -152,15 +152,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #SMTP CONFGURATION
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-SITE_ID = 1
+EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_FROM = 'celeritasmain2@gmail.com'
+EMAIL_HOST_USER = 'celeritasmain2@gmail.com'
+EMAIL_HOST_PASSWORD = 'gommurugmqgnwies'
 EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'celeritasmain@gmail@gmail.com'
-EMAIL_HOST_PASSWORD = 'celevenv'
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
+# SITE_ID = 1
+# EMAIL_USE_SSL = False
 
 
-razorpay_key_id = 'rzp_test_fN7V6HjR7GcOGl'
-razorpay_key_secret = '1SmIaLahFDLAgM3xj53clnyk'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' 
+# EMAIL_HOST_USER = 'ajeeshachu2019@gmail.com' 
+# EMAIL_FROM = 'ajeeshachu2019@gmail.com'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587 
+# EMAIL_USE_TLS = True 
+# EMAIL_HOST_PASSWORD = "ktoz fash jzqf gbew"
+

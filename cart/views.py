@@ -22,9 +22,9 @@ from django.views.decorators.cache import never_cache
 # from django.contrib import messages
 # from .forms import UserSignupForm
 # from django.contrib import messages
-# import razorpay
+import razorpay
 import random
-
+from django.conf import settings
 from django.shortcuts import render
 
 # Create your views here.
@@ -334,6 +334,30 @@ def select_address(request):
     else:
         return redirect('user_login')
 
+
+def confirm_order(request):
+    if 'user_email' in request.session:
+        user_email = request.session['user_email']
+        user = UserDetail.objects.get(user_email = user_email)
+        try:
+            use2 = Address.objects.get(user=user,selected=True)
+        except:
+            messages.warning(request,'No address specified')
+            return redirect('proceed_to_checkout')
+        cart = CartItem.objects.filter(cart__user=user)
+        try:
+            coupon = Coupon.objects.get(user=use1,is_active=True,applied=True)
+            discount = coupon.discount_price
+        except:
+            discount = 0
+        cartcount = cart.count()
+        for c in cart:
+            Order(user=user, address=use2, product=c.product, amount=c.subtotal-(discount)/cartcount).save()
+            c.delete()
+        return render(request,'store/confirm_order.html')
+    else:
+        return redirect('user_login')
+
     
 @never_cache
 def cash_on_delivery(request):
@@ -369,3 +393,45 @@ def cash_on_delivery(request):
     else:
         return redirect('user_login')
     
+
+
+def razorpay(request):
+    client = razorpay.Client(auth=(settings.razorpay_key_id, settings.key_secret))
+    DATA = {
+        "amount": 100 ,
+        "currency": "INR",
+        "receipt": "receipt#1",
+        "notes": {
+            "key1": "value3",
+            "key2": "value2"
+        }
+    }
+
+    razorpay_response=client.order.create(data=DATA)
+
+    reazorpay_status=razorpay_response['status']
+    if reazorpay_status == 'created':
+        if 'user_email' in request.session:
+            user_email = request.session['user_email']
+            user = UserDetail.objects.get(uname = user_email)
+            try:
+                user_ad = Address.objects.get(user=user,selected=True)
+            except:
+                messages.warning(request,'No address specified')
+                return redirect('proceed_to_checkout')
+            cart = CartItem.objects.filter(cart__user=user)
+            try:
+                coupon = UserCoupon.objects.get(user=user,coupon__is_active=True,applied=True)
+                discount = coupon.coupon.discount_price
+            except:
+                discount = 0
+            cartcount = cart.count()
+            for c in cart:
+                Order(user=user, address=user_ad, product=c.product, amount=c.subtotal-(discount)/cartcount, quantity=c.quantity, ordertype= 'Razorpay').save()
+                c.delete()
+            return render(request,'store/confirm_order.html')
+        else:
+            return redirect('user_login')
+    else:
+        messages.warning(request,'Something wrong')
+        return redirect('shop')

@@ -11,10 +11,14 @@ urlpatterns = [
     path('user_signup', UserSignupView.as_view(), name='user_signup'),
     # path('edit_profile_user', EditUserView.as_view(), name='edit_profile_user'),
     path('user_logout', views.userlogout, name='user_logout'),
+    path('otp_login', views.otp_login, name='otp_login'),
+    path('otp_verification', views.otp_verification, name='otp_verification'),
     
-    path('forgot_password', views.forgot_password, name='forgot_password'),
-    path('resetpassword_validate/<uidb64>/<token>/', views.resetpassword_validate, name='resetpassword_validate'),
-    path('reset_password', views.reset_password, name='reset_password'),
+    
+    
+    # path('forgot_password', views.forgot_password, name='forgot_password'),
+    # path('resetpassword_validate/<uidb64>/<token>/', views.resetpassword_validate, name='resetpassword_validate'),
+    # path('reset_password', views.reset_password, name='reset_password'),
     
     path('user_home', views.userhome, name='user_home'),
     path('user_store', views.userstore, name='user_store'),
