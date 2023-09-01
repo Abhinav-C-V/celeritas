@@ -32,7 +32,7 @@
 
 	<aside class="col-md-3">
 		<div class="card">
-			<form action="{% url 'userstore_filter' %}" method="post">
+			<form action="{% url 'user_store' %}" method="post">
 				{% csrf_token %}
 				<article class="filter-group">
 					<header class="card-header">
@@ -201,7 +201,7 @@
 		{% if page_obj.has_other_pages %}
 		<ul class="pagination">
 			{% if page_obj.has_previous %}
-			<li class="page-item"><a class="page-link" href="?page={{page_obj.previous_page_number}}{% if cat_id %}&cat_id={{cat_id}}{% endif %}{% if color_id %}&color_id={{color_id}}{% endif %}{% if size_id %}&size_id={{size_id}}{% endif %}{% if min_prize %}&min_prize={{min_prize}}{% endif %}{% if max_prize %}&max_prize={{max_prize}}{% endif %}">Previous</a></li>
+			<li class="page-item"><a class="page-link" href="?page={{page_obj.previous_page_number}}{% if cat_name %}&cat_id={{cat_name}}{% endif %}{% if color_id %}&color_id={{color_id}}{% endif %}{% if size_id %}&size_id={{size_id}}{% endif %}{% if min_prize %}&min_prize={{min_prize}}{% endif %}{% if max_prize %}&max_prize={{max_prize}}{% endif %}">Previous</a></li>
 			{% else %}
 			<li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
 			{% endif %}
@@ -210,12 +210,12 @@
 				{% if page_obj.number == i %}
 				<li class="page-item active"><a class="page-link" href="#">{{i}}</a></li>
 				{% else %}
-					<li class="page-item"><a class="page-link" href="?page={{i}}{% if cat_id %}&cat_id={{cat_id}}{% endif %}{% if color_id %}&color_id={{color_id}}{% endif %}{% if size_id %}&size_id={{size_id}}{% endif %}{% if min_prize %}&min_prize={{min_prize}}{% endif %}{% if max_prize %}&max_prize={{max_prize}}{% endif %}">{{i}}</a></li>
+					<li class="page-item"><a class="page-link" href="?page={{i}}{% if cat_name %}&cat_id={{cat_name}}{% endif %}{% if color_id %}&color_id={{color_id}}{% endif %}{% if size_id %}&size_id={{size_id}}{% endif %}{% if min_prize %}&min_prize={{min_prize}}{% endif %}{% if max_prize %}&max_prize={{max_prize}}{% endif %}">{{i}}</a></li>
 				{% endif %}
 			{% endfor %}
 	
 			{% if page_obj.has_next %}
-			<li class="page-item"><a class="page-link" href="?page={{page_obj.next_page_number}}{% if cat_id %}&cat_id={{cat_id}}{% endif %}{% if color_id %}&color_id={{color_id}}{% endif %}{% if size_id %}&size_id={{size_id}}{% endif %}{% if min_prize %}&min_prize={{min_prize}}{% endif %}{% if max_prize %}&max_prize={{max_prize}}{% endif %}">Next</a></li>
+			<li class="page-item"><a class="page-link" href="?page={{page_obj.next_page_number}}{% if cat_name %}&cat_id={{cat_name}}{% endif %}{% if color_id %}&color_id={{color_id}}{% endif %}{% if size_id %}&size_id={{size_id}}{% endif %}{% if min_prize %}&min_prize={{min_prize}}{% endif %}{% if max_prize %}&max_prize={{max_prize}}{% endif %}">Next</a></li>
 			{% else %}
 			<li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
 			{% endif %}

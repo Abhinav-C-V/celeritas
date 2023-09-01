@@ -14,6 +14,7 @@ class Product(models.Model):
     normal_price = models.IntegerField(default=0)
     image = models.ImageField(upload_to='product_gallery/')
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    # created_date = models.DateTimeField(auto_now_add=True)
     
     @property
     def price(self):

@@ -48,10 +48,9 @@
 <header class="section-heading">
 	<h3 class="section-title">Popular products</h3>
 </header><!-- sect-heading -->
-
 	
 <div class="row">
-	{% for i in page_obj %}
+	{% for i in popular_pdt %}
 
 	<div class="col-md-3">
 		<div href="{% url 'product_detail' id=i.product.id %}" class="card card-product-grid">
@@ -59,6 +58,7 @@
 
 			<figcaption class="info-wrap">
 				<a href="{{ i.get_url }}" class="title">{{i.product.product_name}}</a>
+				<small>( {{i.product.category}}<br>Colour: {{i.color}}, Size: {{i.size}} )</small>
 
 				{% comment %} <div class="fix-height"style="height: 50%; overflow: auto;">
 					<a href="{% url 'product_detail' id=product.id %}" class="title">{{product.product.product_name}}</a>
@@ -113,7 +113,7 @@
 </header><!-- sect-heading -->
 
 <div class="row">
-	{% for i in page_obj %}
+	{% for i in new_arivals %}
 
 	<div class="col-md-3">
 		<div href="#" class="card card-product-grid">
@@ -121,6 +121,7 @@
 
 			<figcaption class="info-wrap">
 				<a href="{{ i.get_url }}" class="title">{{i.product.product_name}}</a>
+				<small>( {{i.product.category}}<br>Colour: {{i.color}}, Size: {{i.size}} )</small>
 
 				{% comment %} <div class="fix-height"style="height: 50%; overflow: auto;">
 					<a href="{% url 'product_detail' id=product.id %}" class="title">{{product.product.product_name}}</a>
@@ -246,7 +247,7 @@
 </header><!-- sect-heading -->
 
 <div class="row">
-	{% for i in page_obj %}
+	{% for i in recommended %}
 
 	<div class="col-md-3">
 		<div href="#" class="card card-product-grid">
@@ -254,6 +255,7 @@
 
 			<figcaption class="info-wrap">
 				<a href="{{ i.get_url }}" class="title">{{i.product.product_name}}</a>
+				<small>( {{i.product.category}}<br>Colour: {{i.color}}, Size: {{i.size}} )</small>
 
 				{% comment %} <div class="fix-height"style="height: 50%; overflow: auto;">
 					<a href="{% url 'product_detail' id=product.id %}" class="title">{{product.product.product_name}}</a>

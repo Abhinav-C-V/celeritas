@@ -75,11 +75,23 @@ def index(request):
             details3= Product.objects.filter(name__icontains=prod,category__id=cat_id).order_by('id')
         else:
             details3=Product.objects.all().order_by('id')
-        paginator = Paginator(details3, 4)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+        popular_pdt=details3.order_by('id')[:4]
+        new_arivals=details3.order_by('-id')[:4]
+        recommended = details3.order_by('product_name')[:4]
+        
+        # paginator = Paginator(details3, 4)
+        # page_number = request.GET.get('page')
+        # page_obj = paginator.get_page(page_number)
         obj = Banner.objects.all()
-        return render(request, 'index.html',{ 'page_obj': page_obj, 'cat':cat, 'obj':obj})
+        context={ 
+                # 'page_obj': page_obj,
+                'cat':cat,
+                'obj':obj,
+                'new_arivals':new_arivals,
+                'popular_pdt':popular_pdt,
+                'recommended':recommended,
+            }
+        return render(request, 'index.html',context )
 
 def contact(request):
     return render(request, 'contact.html')
@@ -147,64 +159,64 @@ class UserSignupView(View):
 
 
         
-def forgot_password(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
+# def forgot_password(request):
+#     if request.method == 'POST':
+#         email = request.POST.get('email')
         
-        if UserDetail.objects.filter(user_email=email).exists():
-            user = UserDetail.objects.get(user_email__exact=email)
-            # Generate a reset token
-            reset_token = generate_reset_token()
+#         if UserDetail.objects.filter(user_email=email).exists():
+#             user = UserDetail.objects.get(user_email__exact=email)
+#             # Generate a reset token
+#             reset_token = generate_reset_token()
             
-            # Save the reset token to the user model
-            user.reset_token = reset_token
-            # print(user.reset_token)
-            # print(reset_token)
-            # print(user)
+#             # Save the reset token to the user model
+#             user.reset_token = reset_token
+#             # print(user.reset_token)
+#             # print(reset_token)
+#             # print(user)
             
-            user.save()
-            current_site = get_current_site(request)
-            mail_subject = 'Reset Your Password'
-            print(current_site)
+#             user.save()
+#             current_site = get_current_site(request)
+#             mail_subject = 'Reset Your Password'
+#             print(current_site)
             
-            message = render_to_string('accounts/reset_password_email.html',{
-            'user': user,
-            'domain': current_site.domain,
-            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            'token': reset_token,  # Pass the reset token
-            })
-            to_email = email
-            send_email = EmailMessage(mail_subject, message, to = [to_email])
-            # print(send_email)
-            send_email.send()
-            messages.success(request, 'Password reset email has been sent to your email address .' )
-            return redirect('user_login')
-        else:
-            messages.warning(request, 'Account does not exits.')
-            return redirect('forgot_password')
+#             message = render_to_string('accounts/reset_password_email.html',{
+#             'user': user,
+#             'domain': current_site.domain,
+#             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+#             'token': reset_token,  # Pass the reset token
+#             })
+#             to_email = email
+#             send_email = EmailMessage(mail_subject, message, to = [to_email])
+#             # print(send_email)
+#             send_email.send()
+#             messages.success(request, 'Password reset email has been sent to your email address .' )
+#             return redirect('user_login')
+#         else:
+#             messages.warning(request, 'Account does not exits.')
+#             return redirect('forgot_password')
             
-    else:    
-        return render(request, 'accounts/forgot_password.html')
+#     else:    
+#         return render(request, 'accounts/forgot_password.html')
     
     
     
-def resetpassword_validate(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = UserDetail._default_manager.get(pk=uid)
-        print(user)
-    except(TypeError, ValueError, OverflowError, UserDetail.DoesNotExist):
-        user = None
-    if user is not None and default_token_generator.check_token(user, token):
-        request.session['uid'] = uid
-        messages.success(request, 'Please Reset Your Password')
-        return redirect('reset_password')
-    else:
-        messages.error(request, 'This link has been expired')
-        return redirect('user_login')
+# def resetpassword_validate(request, uidb64, token):
+#     try:
+#         uid = urlsafe_base64_decode(uidb64).decode()
+#         user = UserDetail._default_manager.get(pk=uid)
+#         print(user)
+#     except(TypeError, ValueError, OverflowError, UserDetail.DoesNotExist):
+#         user = None
+#     if user is not None and default_token_generator.check_token(user, token):
+#         request.session['uid'] = uid
+#         messages.success(request, 'Please Reset Your Password')
+#         return redirect('reset_password')
+#     else:
+#         messages.error(request, 'This link has been expired')
+#         return redirect('user_login')
     
-def reset_password(request):
-    return render(request, 'accounts/user_resetPassword.html',)
+# def reset_password(request):
+#     return render(request, 'accounts/user_resetPassword.html',)
 
 
 
@@ -231,60 +243,66 @@ def userhome(request):
             details3= Variation.objects.filter(product__product_name__icontains=prod,product__category__id=cat_id).order_by('id')
         else:
             details3=Variation.objects.all().order_by('id')
-        paginator = Paginator(details3, 4)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+        popular_pdt=details3.order_by('id')[:4]
+        new_arivals=details3.order_by('-id')[:4]
+        recommended = details3.order_by('product')[:4]
+        # paginator = Paginator(details3, 4)
+        # page_number = request.GET.get('page')
+        # page_obj = paginator.get_page(page_number)
         obj = Banner.objects.all()
         print(len(obj))
         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
         
         context = {
-            'page_obj': page_obj,
+            # 'page_obj': page_obj,
             'cat':cat,
             'obj':obj,
             'user_firstname': user_detail.user_firstname,
             'user_image': user_detail.user_image,
             'user':user_detail,
+            'new_arivals':new_arivals,
+            'popular_pdt':popular_pdt,
+            'recommended':recommended,
         }
         return render(request, 'store/user_home.html', context)
     else:
          return redirect('user_login')
      
      
-@never_cache
-def userstore(request):
-    if 'user_email' in request.session: 
-        cat=Category.objects.all()
-        user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
-        sizes = Size.objects.all()
-        colors = Color.objects.all()
-        cat_id = request.GET.get('cat_id')
-        prod = request.GET.get('prod_id')
-        if cat_id is not None and prod is None:
-            details3= Variation.objects.filter(product__category__id=cat_id).order_by('id')
-        elif prod is not None and cat_id is None:
-            details3= Variation.objects.filter(product__product_name__icontains=prod).order_by('id')
-        elif prod is not None and cat_id is not None:
-            details3= Variation.objects.filter(product__product_name__icontains=prod,product__category__id=cat_id).order_by('id')
-        else:
-            details3=Variation.objects.all().order_by('id')
-        paginator = Paginator(details3, 6)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-        # product_count = Product.objects.all().count()
-        # print(sizes)
-        context = {
-            'page_obj': page_obj,
-            'cat':cat,
-            'sizes':sizes,
-            'colors': colors,
-            'user_firstname': user_detail.user_firstname,
-            'user_image': user_detail.user_image,
-            'user':user_detail,
-        }
-        return render(request, 'store/user_store.html', context)
-    else:
-         return redirect('user_login')
+# @never_cache
+# def userstore(request):
+#     if 'user_email' in request.session: 
+#         cat=Category.objects.all()
+#         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
+#         sizes = Size.objects.all()
+#         colors = Color.objects.all()
+#         cat_id = request.GET.get('cat_id')
+#         prod = request.GET.get('prod_id')
+#         if cat_id is not None and prod is None:
+#             details3= Variation.objects.filter(product__category__id=cat_id).order_by('id')
+#         elif prod is not None and cat_id is None:
+#             details3= Variation.objects.filter(product__product_name__icontains=prod).order_by('id')
+#         elif prod is not None and cat_id is not None:
+#             details3= Variation.objects.filter(product__product_name__icontains=prod,product__category__id=cat_id).order_by('id')
+#         else:
+#             details3=Variation.objects.all().order_by('id')
+#         paginator = Paginator(details3, 6)
+#         page_number = request.GET.get('page')
+#         page_obj = paginator.get_page(page_number)
+#         # product_count = Product.objects.all().count()
+#         # print(sizes)
+#         context = {
+#             'page_obj': page_obj,
+#             'cat':cat,
+#             'sizes':sizes,
+#             'colors': colors,
+#             'user_firstname': user_detail.user_firstname,
+#             'user_image': user_detail.user_image,
+#             'user':user_detail,
+#         }
+#         return render(request, 'store/user_store.html', context)
+#     else:
+#          return redirect('user_login')
      
 def userstore_filter(request):
     if 'user_email' in request.session:
@@ -300,25 +318,61 @@ def userstore_filter(request):
             color_id = request.POST.get('color_id')
             min_prize = request.POST.get('min_prize')
             max_prize = request.POST.get('max_prize')
-
+            
+            
             if cat_name:
                 details3 = details3.filter(product__category__id=cat_name)
             if size_id:
                 details3 = details3.filter(size__id=size_id)
+                
             if color_id:
                 details3 = details3.filter(color__id=color_id)
+                
 
             price_filter = Q()
             if min_prize:
                 price_filter &= Q(product__normal_price__gt=min_prize)
+                
             if max_prize:
                 price_filter &= Q(product__normal_price__lte=max_prize)
-
+                
             if price_filter:
                 details3 = details3.filter(price_filter)
 
             details3 = details3.order_by('id')
-        
+        else:
+            cat_name = request.GET.get('cat_id')
+            size_id = request.GET.get('size_id')
+            color_id = request.GET.get('color_id')
+            min_prize = request.GET.get('min_prize')
+            max_prize = request.GET.get('max_prize')
+            
+            # print(cat_name)
+            # print(size_id)
+            # print(color_id)
+            # print(min_prize)
+            # print(max_prize)
+            
+            if cat_name:
+                details3 = details3.filter(product__category__id=cat_name)
+            if size_id:
+                details3 = details3.filter(size__id=size_id)
+                
+            if color_id:
+                details3 = details3.filter(color__id=color_id)
+                
+            price_filter = Q()
+            if min_prize:
+                price_filter &= Q(product__normal_price__gt=min_prize)
+                
+            if max_prize:
+                price_filter &= Q(product__normal_price__lte=max_prize)
+                
+            if price_filter:
+                details3 = details3.filter(price_filter)
+
+            details3 = details3.order_by('id')
+            
         paginator = Paginator(details3, 6)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -332,6 +386,12 @@ def userstore_filter(request):
             'user_firstname': user_detail.user_firstname,
             'user_image': user_detail.user_image,
             'user': user_detail,
+            'cat_name': cat_name,
+            'size_id': size_id,
+            'color_id': color_id,
+            'min_prize': min_prize,
+            'max_prize': max_prize,
+            
         }
         return render(request, 'store/user_store.html', context)
     else:
@@ -552,8 +612,16 @@ def delete_address(request):
 
 class ChangePasswordView(View):
     def get(self, request):
-        if 'user_email' in request.session:   
-            return render(request,'accounts/change_password.html')
+        if 'user_email' in request.session:
+            user_email = request.session['user_email']
+            user = UserDetail.objects.get(user_email=user_email)
+            cat=Category.objects.all()
+            context={
+                'cat': cat,
+                'user_firstname': user.user_firstname,
+                'user_image': user.user_image,
+             }
+            return render(request,'accounts/change_password.html',context)
         else:
             return redirect('user_login')   
     def post(self, request):
@@ -576,6 +644,46 @@ class ChangePasswordView(View):
             return redirect('change_password')
         else:
             return redirect('user_login')
+        
+
+def forgot_password(request):
+    if 'user_email' in request.session:
+        if request.method == 'POST':
+            try:
+                email = request.POST.get('email')
+                user = UserDetail.objects.get(user_email=email)
+                print(user.user_firstname)
+            except:
+                messages.warning(request,'No user is registered with this email address')
+                return redirect('forgot_password')
+            """send otp code for mail"""
+            o=generateOTP()
+            # print(o)
+            user.user_password = make_password(o)
+            user.save()
+            # print(user.user_password)
+            if user:
+                htmlgen =  f'<p>Your new password for login Celeritas account is <strong>{o}</strong></p>.Its just a recovery password please change the password after login.'
+                send_mail('OTP request',o,'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
+                
+                del request.session['user_email']
+                messages.success(request,'Please check your email for new password and login again')
+                return redirect('forgot_password')
+            else:
+                messages.warning(request,'No user is registered with this email address')
+                return redirect('forgot_password')
+        else:
+            cat=Category.objects.all()
+            user_email = request.session['user_email']
+            user = UserDetail.objects.get(user_email=user_email)
+            context={
+                'cat': cat,
+                'user_firstname': user.user_firstname,
+                'user_image': user.user_image,
+             }
+            return render(request,'accounts/forgot_password.html',context)
+    else:
+        return redirect('user_login')
         
         
 def orders(request):
@@ -799,7 +907,9 @@ def otp_login(request):
         if user:
             htmlgen =  f'<p>Your OTP for login Celeritas account is <strong>{o}</strong></p>'
             send_mail('OTP request',o,'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
-        
+            # messages.success(request,'Please check your email for OTP verification')
+            
+        messages.success(request,'Please check your email and sms for OTP verification')
         return render(request, "accounts/otp.html", {'phone': phone})
     else:
         return render(request ,"accounts/user_otplogin.html")

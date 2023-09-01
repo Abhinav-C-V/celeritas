@@ -340,19 +340,19 @@ def confirm_order(request):
         user_email = request.session['user_email']
         user = UserDetail.objects.get(user_email = user_email)
         try:
-            use2 = Address.objects.get(user=user,selected=True)
+            user_ad = Address.objects.get(user=user,selected=True)
         except:
             messages.warning(request,'No address specified')
             return redirect('proceed_to_checkout')
         cart = CartItem.objects.filter(cart__user=user)
         try:
-            coupon = Coupon.objects.get(user=use1,is_active=True,applied=True)
+            coupon = Coupon.objects.get(user=user,is_active=True,applied=True)
             discount = coupon.discount_price
         except:
             discount = 0
         cartcount = cart.count()
         for c in cart:
-            Order(user=user, address=use2, product=c.product, amount=c.subtotal-(discount)/cartcount).save()
+            Order(user=user, address=user_ad, product=c.product, amount=c.subtotal-(discount)/cartcount).save()
             c.delete()
         return render(request,'store/confirm_order.html')
     else:
