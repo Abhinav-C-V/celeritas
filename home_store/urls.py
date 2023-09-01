@@ -30,6 +30,7 @@ urlpatterns = [
     path('edit_personal_info/', views.edit_personal_info, name='edit_personal_info'),
     path('change_password', ChangePasswordView.as_view(), name='change_password'),
     path('forgot_password/', views.forgot_password, name='forgot_password'),
+    path('forgot_pass_logout_user/', views.forgot_pass_logout_user, name='forgot_pass_logout_user'),
     path('edit_email/', views.edit_email, name='edit_email'),
     path('edit_phone/', views.edit_phone, name='edit_phone'),
     path('edit_image/', views.edit_image, name='edit_image'),

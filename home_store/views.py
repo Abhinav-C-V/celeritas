@@ -684,6 +684,39 @@ def forgot_password(request):
             return render(request,'accounts/forgot_password.html',context)
     else:
         return redirect('user_login')
+    
+    
+def forgot_pass_logout_user(request):
+    if request.method == 'POST':
+        try:
+            email = request.POST.get('email')
+            user = UserDetail.objects.get(user_email=email)
+            print(user.user_firstname)
+        except:
+            messages.warning(request,'No user is registered with this email address')
+            return redirect('forgot_pass_out_user')
+        """send otp code for mail"""
+        o=generateOTP()
+        print(o)
+        user.user_password = make_password(o)
+        user.save()
+        if user:
+            htmlgen =  f'<p>Your new password for login Celeritas account is <strong>{o}</strong></p>.Its just a recovery password please change the password after login.'
+            send_mail('OTP request',o,'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
+            
+            # del request.session['user_email']
+            messages.success(request,'Please check your email for new password and login again')
+            return redirect('user_login')
+        else:
+            messages.warning(request,'No user is registered with this email address')
+            return redirect('forgot_pass_out_user')
+    else:
+        cat=Category.objects.all()
+        context={
+            'cat': cat,
+         }
+        return render(request,'accounts/forgot_password_out.html',context)
+
         
         
 def orders(request):
