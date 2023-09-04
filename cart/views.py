@@ -26,6 +26,7 @@ import razorpay
 import random
 from django.conf import settings
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 
@@ -250,7 +251,11 @@ def proceed_to_checkout(request):
         cat=Category.objects.all()
         user_detail = UserDetail.objects.get(user_email=user_email)
         adrs = Address.objects.filter(user=user_detail).all()
-        # print("hello",adrs)
+        selected_adrs = Address.objects.filter(user=user_detail,selected=True)
+        if selected_adrs:
+            print("hello",selected_adrs)
+        else:
+            print("no address")
         # print(len(adrs))
         cart = CartItem.objects.filter(cart__user=user_detail).all()
         if len(cart)<=0:
@@ -302,6 +307,7 @@ def proceed_to_checkout(request):
                 'user_image': user_detail.user_image,
                 'user':user_detail,
                 'adrs': adrs,
+                'selected_adrs': selected_adrs,
                 'cart': cart,
                 # 'selected_ad': selected_ad,
                 'quantity': quantity,
@@ -346,14 +352,15 @@ def confirm_order(request):
             return redirect('proceed_to_checkout')
         cart = CartItem.objects.filter(cart__user=user)
         try:
-            coupon = Coupon.objects.get(user=user,is_active=True,applied=True)
-            discount = coupon.discount_price
+            coupon = UserCoupon.objects.get(user=user,coupon__is_active=True,applied=True)
+            discount = coupon.coupon.discount_price
         except:
             discount = 0
         cartcount = cart.count()
         for c in cart:
             Order(user=user, address=user_ad, product=c.product, amount=c.subtotal-(discount)/cartcount).save()
-            c.delete()
+            # c.delete()
+            print("order placed cod")
         return render(request,'store/confirm_order.html')
     else:
         return redirect('user_login')
@@ -395,43 +402,98 @@ def cash_on_delivery(request):
     
 
 
-def razorpay(request):
-    client = razorpay.Client(auth=(settings.razorpay_key_id, settings.key_secret))
-    DATA = {
-        "amount": 100 ,
-        "currency": "INR",
-        "receipt": "receipt#1",
-        "notes": {
-            "key1": "value3",
-            "key2": "value2"
+def r_razorpay(request):
+    if 'user_email' in request.session:
+        user_email = request.session['user_email']
+        user = UserDetail.objects.get(user_email = user_email)
+        try:
+            user_ad = Address.objects.get(user=user,selected=True)
+        except:
+            messages.warning(request,'No address specified')
+            return redirect('proceed_to_checkout')
+        cart = CartItem.objects.filter(cart__user=user)
+        try:
+            coupon = UserCoupon.objects.get(user=user,coupon__is_active=True,applied=True)
+            discount = coupon.coupon.discount_price
+        except:
+            discount = 0
+        cartcount = cart.count()
+        client = razorpay.Client(auth=("rzp_test_FzpBcunlDun1vW", "0CmJy8RJrFXmVAsInbHBJSyr"))
+        DATA = {
+            "amount": 100,
+            "currency": "INR",
+            "receipt": "receipt#1",
+            "payment_capture": 1,
+            "notes": {
+                "key1": "value3",
+                "key2": "value2"
+            }
         }
-    }
 
-    razorpay_response=client.order.create(data=DATA)
-
-    reazorpay_status=razorpay_response['status']
-    if reazorpay_status == 'created':
-        if 'user_email' in request.session:
-            user_email = request.session['user_email']
-            user = UserDetail.objects.get(uname = user_email)
-            try:
-                user_ad = Address.objects.get(user=user,selected=True)
-            except:
-                messages.warning(request,'No address specified')
-                return redirect('proceed_to_checkout')
-            cart = CartItem.objects.filter(cart__user=user)
-            try:
-                coupon = UserCoupon.objects.get(user=user,coupon__is_active=True,applied=True)
-                discount = coupon.coupon.discount_price
-            except:
-                discount = 0
-            cartcount = cart.count()
+        razorpay_response=client.order.create(data=DATA)
+        reazorpay_status=razorpay_response['status']
+        
+        print(reazorpay_status)
+        if reazorpay_status == 'created':
+            # if 'user_email' in request.session:
+            #     user_email = request.session['user_email']
+            #     user = UserDetail.objects.get(uname = user_email)
+            #     try:
+            #         user_ad = Address.objects.get(user=user,selected=True)
+            #     except:
+            #         messages.warning(request,'No address specified')
+            #         return redirect('proceed_to_checkout')
+            #     cart = CartItem.objects.filter(cart__user=user)
+            #     try:
+            #         coupon = UserCoupon.objects.get(user=user,coupon__is_active=True,applied=True)
+            #         discount = coupon.coupon.discount_price
+            #     except:
+            #         discount = 0
+            #     cartcount = cart.count()
             for c in cart:
-                Order(user=user, address=user_ad, product=c.product, amount=c.subtotal-(discount)/cartcount, quantity=c.quantity, ordertype= 'Razorpay').save()
+                Order(user=user, address=user_ad, product=c.product, amount=c.subtotal-(discount)/cartcount, quantity=c.quantity, order_type= 'Razorpay').save()
                 c.delete()
+                # print(Order.objects.filter(user=user))
+                print("order placed razorpay")
             return render(request,'store/confirm_order.html')
+            
         else:
-            return redirect('user_login')
+            messages.warning(request,'Something went wrong')
+            return redirect('user_home')
     else:
-        messages.warning(request,'Something wrong')
-        return redirect('shop')
+        return redirect('user_login')
+    
+    
+@csrf_exempt
+def razorpay_callback(request):
+    if request.method == 'POST':
+        # Retrieve the POST data from Razorpay
+        razorpay_data = request.POST
+
+        # Verify the authenticity of the callback request
+        client = razorpay.Client(auth=("rzp_test_FzpBcunlDun1vW", "0CmJy8RJrFXmVAsInbHBJSyr"))
+        try:
+            client.utility.verify_payment_signature(razorpay_data)
+            # Signature verification successful, proceed to process the payment
+            payment_id = razorpay_data['razorpay_payment_id']
+            payment_status = razorpay_data['razorpay_event']
+
+            if payment_status == 'payment.authorized':
+                # Payment is successful, mark the order as paid or update your records
+                # You can retrieve the order ID or other necessary data from Razorpay response
+
+                # Example: Update the order status
+                # Order.objects.filter(razorpay_order_id=payment_id).update(status='paid')
+
+                return JsonResponse({'status': 'success'})
+            else:
+                # Payment failed or has another status
+                # Handle as needed
+                return JsonResponse({'status': 'failed'})
+
+        except razorpay.errors.SignatureVerificationError:
+            # Signature verification failed, possibly an invalid request
+            return JsonResponse({'status': 'error'})
+    else:
+        # Handle non-POST requests appropriately
+        return JsonResponse({'status': 'error'})

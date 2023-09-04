@@ -158,15 +158,3 @@ EMAIL_FROM = 'celeritasmain2@gmail.com'
 EMAIL_HOST_USER = 'celeritasmain2@gmail.com'
 EMAIL_HOST_PASSWORD = 'gommurugmqgnwies'
 EMAIL_PORT = 587
-# SITE_ID = 1
-# EMAIL_USE_SSL = False
-
-
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' 
-# EMAIL_HOST_USER = 'ajeeshachu2019@gmail.com' 
-# EMAIL_FROM = 'ajeeshachu2019@gmail.com'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587 
-# EMAIL_USE_TLS = True 
-# EMAIL_HOST_PASSWORD = "ktoz fash jzqf gbew"
-

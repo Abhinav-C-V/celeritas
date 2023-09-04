@@ -818,21 +818,27 @@ def apply_coupon(request):
                 return redirect('proceed_to_checkout')
             
             if coup_code == coupon.coupon_code and coupon.is_active:
+                print(coupon.is_active)
                 UserCoupon.objects.filter(user__user_email=user_email).update(applied=False)
-                UserCoupon.objects.filter(user__user_email=user_email, coupon__is_active=True, coupon=coupon).update(applied=True)
+                user_coupon = UserCoupon.objects.filter(user__user_email=user_email, coupon__is_active=True, coupon=coupon)
+                user_coupon.update(applied=True)
                 
-                try:
-                    coup = UserCoupon.objects.get(user__user_email=user_email, coupon__is_active=True, applied=True)
-                    discount = coup.coupon.discount_price
-                except UserCoupon.DoesNotExist:
-                    discount = 0
+                if len(user_coupon) >0:
+                    try:
+                        coup = UserCoupon.objects.get(user__user_email=user_email, coupon__is_active=True, applied=True)
+                        discount = coup.coupon.discount_price
+                        print("hello",coup.coupon.discount_price)
+                        
+                    except UserCoupon.DoesNotExist:
+                        discount = 0
+                else:
+                    messages.warning(request, 'No such coupon is available')
+                    return redirect('proceed_to_checkout')
                 
                 cartcount = cart.count()
                 for c in cart:
                     # Calculate new subtotal after applying discount to each cart item
                     new_subtotal = c.subtotal - (discount / cartcount)
-                    print(new_subtotal)
-                
                 messages.success(request, 'Coupon Applied')
             elif coup_code == coupon.coupon_code:
                 messages.warning(request, 'Coupon has expired')
@@ -849,7 +855,7 @@ def apply_coupon(request):
     
 def cancelcoupon(request):
     user_email = request.session['user_email']
-    UserCoupon.objects.filter(user__user_email=user_email).update(applied=False)
+    UserCoupon.objects.filter(user__user_email=user_email,applied=True).update(applied=False)
     messages.warning(request,'Coupon removed')
     return redirect('proceed_to_checkout')
 
@@ -895,7 +901,6 @@ def generate_invoice(request):
     else:
         return redirect('user_login')
     
-    
 
 def generateOTP() :
     digits = "0123456789"
@@ -913,28 +918,23 @@ def otp_login(request):
         except:
             messages.warning(request,'No user is registered with this mobile number')
             return redirect('otp_login')
-        # try:
-        # phone = int(request.POST.get('phone'))
-        # email=request.POST.get('email')
-        # except:
-            # messages.warning(request, 'please check both fields')
         print(phone)
         o=generateOTP()
         request.session['otp'] = o
         request.session['random _data'] = phone
         print('otp is ',o)
-        # account_sid = 'AC7640975856745e4fbfeea44ce6a38a79'
-        # auth_token = '6f0a956dea470597f95e4177a1490c55'
-        # TWILIO_PHONE_NUMBER = +18775066252
+        account_sid = 'AC61ecfa87d2c06f591728efd8db170078'
+        auth_token = '3ba36828ccb7d09d8e458d145e3f2ae4'
+        TWILIO_PHONE_NUMBER = +16562184391
         
-        # client = Client(account_sid, auth_token)
-        # to_phone_number = phone
+        client = Client(account_sid, auth_token)
+        to_phone_number = phone
         
-        # message = client.messages.create(
-        #     body=f'Your OTP for login Celeritas account is: {o}',
-        #     from_=TWILIO_PHONE_NUMBER,
-        #     to='+91' + str(to_phone_number)
-        # )
+        message = client.messages.create(
+            body=f'Your OTP for login Celeritas account is: {o}',
+            from_= TWILIO_PHONE_NUMBER,
+            to='+91' + str(to_phone_number)
+        )
         
         """send otp code for mail"""
         if user:
@@ -972,6 +972,6 @@ def otp_verification(request):
             messages.warning(request,'Entered OTP is wrong please try agin')
             return redirect('otp_login')
     else:
-        messages.warning(request,'Something wet wrong please try agin')
+        messages.warning(request,'Something went wrong please try agin')
         return redirect('otp_login')
     
