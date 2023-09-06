@@ -49,7 +49,8 @@
                         <div class="float-md-right">
                             <form action="{% url 'admin_user_couponlist' %}" class="search-form">
                                 <div class="input-group">
-                                    <input class="form-control search-input" type="text" placeholder="Search Name" name="search" aria-label="Search">
+                                    {% comment %} <input class="form-control search-input" type="text" placeholder="Search Name" name="search" aria-label="Search" required> {% endcomment %}
+                                    <input class="form-control search-input" type="text" placeholder="Search Name" name="search" aria-label="Search" required>
                                     <div class="input-group-append">
                                         <button class="btn search-btn" type="submit"><i class="fa fa-search"></i></button>
                                     </div>
@@ -70,6 +71,8 @@
                                     <th>Description</th>
                                     <th>Is Active</th>
                                     <th>Applied</th>
+                                    <th>Actions</th>
+
                                 </tr>
                             </thead>
                             <tbody>

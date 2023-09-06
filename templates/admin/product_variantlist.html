@@ -50,7 +50,9 @@
                         <div class="float-md-right">
                             <form action="{% url 'admin_productlist' %}" class="search-form">
                                 <div class="input-group">
-                                    <input class="form-control search-input" type="text" placeholder="Search Name" name="search" aria-label="Search">
+                                    {% comment %} <input class="form-control search-input" type="text" placeholder="Search Name" name="search" aria-label="Search"> {% endcomment %}
+                                    <input class="form-control search-input" type="text" placeholder="Search Name" name="search" aria-label="Search" required>
+
                                     <div class="input-group-append">
                                         <button class="btn search-btn" type="submit"><i class="fa fa-search"></i></button>
                                     </div>

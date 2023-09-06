@@ -22,12 +22,13 @@ from django.views.decorators.cache import never_cache
 # from django.contrib import messages
 # from .forms import UserSignupForm
 # from django.contrib import messages
+from django.core.mail import send_mail
 import razorpay
 import random
 from django.conf import settings
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-
+from home_store.views import generateOTP
 # Create your views here.
 
 
@@ -261,7 +262,9 @@ def proceed_to_checkout(request):
         if len(cart)<=0:
             return redirect('cart')
        
-        captcha = random.randint(111111,999999)
+        # captcha = random.randint(111111,999999)
+        captcha = generateOTP()
+        
         # print(captcha)
         usercoupon = UserCoupon.objects.filter(user__user_email=user_email, coupon__is_active=True, applied=True).first()
         try:
@@ -369,6 +372,7 @@ def confirm_order(request):
 @never_cache
 def cash_on_delivery(request):
     if 'user_email' in request.session:
+        cat=Category.objects.all()
         user_email=request.session['user_email']
         if request.method == 'POST':
             user = UserDetail.objects.get(user_email = user_email)
@@ -388,15 +392,25 @@ def cash_on_delivery(request):
                     discount = 0
                 cartcount = cart.count()
                 for c in cart:
-                    Order(user=user, address=user_1, product=c.product, amount=c.subtotal-(discount)/cartcount, quantity=c.quantity ).save()
-                    c.delete()
+                    ord = Order(user=user, address=user_1, product=c.product, amount=c.subtotal-(discount)/cartcount, quantity=c.quantity )
+                    ord.save()
+                    htmlgen =  f'<p>Your Celeritas Order of Order ID <strong>ORDID{ord.id}</strong> placed successfully.</p>Price: ₹ {c.subtotal-(discount)/cartcount}<p>Quantity: {c.quantity} No.s</p>'
+                    send_mail('Order Placed',str(ord.id),'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
+                    # c.delete()
                 UserCoupon.objects.filter(user__user_email=user_email,coupon__is_active=True,applied=True).delete()
-                return render(request,'store/confirm_order.html')
+                context = {
+                    'cat':cat,
+                    'user_firstname': user.user_firstname,
+                    'user_image': user.user_image,
+                    'user':user,
+                    'cart': cart,
+                    }
+                return render(request,'store/confirm_order.html',context)
             else:
                 messages.warning(request, 'please enter the digits carefully')
                 return redirect('proceed_to_checkout')
         else:
-            pass
+            return redirect('proceed_to_checkout')
     else:
         return redirect('user_login')
     
@@ -451,10 +465,15 @@ def r_razorpay(request):
             #         discount = 0
             #     cartcount = cart.count()
             for c in cart:
-                Order(user=user, address=user_ad, product=c.product, amount=c.subtotal-(discount)/cartcount, quantity=c.quantity, order_type= 'Razorpay').save()
+                ord = Order(user=user, address=user_ad, product=c.product, amount=c.subtotal-(discount)/cartcount, quantity=c.quantity, order_type= 'Razorpay')
+                ord.save()
+                htmlgen =  f'<p>Your Celeritas Order of Order ID <strong>ORDID{ord.id}</strong> placed successfully.</p>Price: ₹ {c.subtotal-(discount)/cartcount}<p>Quantity: {c.quantity} No.s</p>'
+                send_mail('Order Placed',str(ord.id),'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
                 c.delete()
-                # print(Order.objects.filter(user=user))
+                print(Order.objects.filter(user=user))
                 print("order placed razorpay")
+                
+            UserCoupon.objects.filter(user__user_email=user_email,coupon__is_active=True,applied=True).delete()
             return render(request,'store/confirm_order.html')
             
         else:
@@ -464,36 +483,36 @@ def r_razorpay(request):
         return redirect('user_login')
     
     
-@csrf_exempt
-def razorpay_callback(request):
-    if request.method == 'POST':
-        # Retrieve the POST data from Razorpay
-        razorpay_data = request.POST
+# @csrf_exempt
+# def razorpay_callback(request):
+#     if request.method == 'POST':
+#         # Retrieve the POST data from Razorpay
+#         razorpay_data = request.POST
 
-        # Verify the authenticity of the callback request
-        client = razorpay.Client(auth=("rzp_test_FzpBcunlDun1vW", "0CmJy8RJrFXmVAsInbHBJSyr"))
-        try:
-            client.utility.verify_payment_signature(razorpay_data)
-            # Signature verification successful, proceed to process the payment
-            payment_id = razorpay_data['razorpay_payment_id']
-            payment_status = razorpay_data['razorpay_event']
+#         # Verify the authenticity of the callback request
+#         client = razorpay.Client(auth=("rzp_test_FzpBcunlDun1vW", "0CmJy8RJrFXmVAsInbHBJSyr"))
+#         try:
+#             client.utility.verify_payment_signature(razorpay_data)
+#             # Signature verification successful, proceed to process the payment
+#             payment_id = razorpay_data['razorpay_payment_id']
+#             payment_status = razorpay_data['razorpay_event']
 
-            if payment_status == 'payment.authorized':
-                # Payment is successful, mark the order as paid or update your records
-                # You can retrieve the order ID or other necessary data from Razorpay response
+#             if payment_status == 'payment.authorized':
+#                 # Payment is successful, mark the order as paid or update your records
+#                 # You can retrieve the order ID or other necessary data from Razorpay response
 
-                # Example: Update the order status
-                # Order.objects.filter(razorpay_order_id=payment_id).update(status='paid')
+#                 # Example: Update the order status
+#                 # Order.objects.filter(razorpay_order_id=payment_id).update(status='paid')
 
-                return JsonResponse({'status': 'success'})
-            else:
-                # Payment failed or has another status
-                # Handle as needed
-                return JsonResponse({'status': 'failed'})
+#                 return JsonResponse({'status': 'success'})
+#             else:
+#                 # Payment failed or has another status
+#                 # Handle as needed
+#                 return JsonResponse({'status': 'failed'})
 
-        except razorpay.errors.SignatureVerificationError:
-            # Signature verification failed, possibly an invalid request
-            return JsonResponse({'status': 'error'})
-    else:
-        # Handle non-POST requests appropriately
-        return JsonResponse({'status': 'error'})
+#         except razorpay.errors.SignatureVerificationError:
+#             # Signature verification failed, possibly an invalid request
+#             return JsonResponse({'status': 'error'})
+#     else:
+#         # Handle non-POST requests appropriately
+#         return JsonResponse({'status': 'error'})

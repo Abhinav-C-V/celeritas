@@ -134,15 +134,22 @@
 
     {% comment %} <main class="col-lg-8"> {% endcomment %}
    
-  <article class="filter-group">
+  <article class="filter-group ">
+
+    <header class="card-header">
+      <a href="#"  data-toggle="collapse" data-target="#collapse_4" aria-expanded="true" class="collapse-toggle">
+        <i class="icon-control fa fa-chevron-down"></i>
+        <h6 class="title">PAYMENT OPTIONS</h6>
+      </a>
+    </header>
       
     <div class="filter-content " id="collapse_4">
-      <div class="card-body">
+      <div class="card-body col-lg-9">
         {% if selected_adrs %}
       
         <article class="accordion" id="accordion_pay">
           
-          <div class="card">
+          {% comment %} <div class="card">
             <header class="card-header">
               <img src="./images/misc/payment-paypal.png" class="float-right" height="24"> 
               <label class="form-check collapsed" data-toggle="collapse" data-target="#pay_paypal">
@@ -154,14 +161,13 @@
             </header>
             <div id="pay_paypal" class="collapse show" data-parent="#accordion_pay">
             <div class="card-body">
-              {% comment %} <p class="text-center text-muted">Connect your PayPal account and use it to pay your bills. You'll be redirected to PayPal to add your billing information.</p> {% endcomment %}
               <p class="text-center">
                 <a href="#"><img src="{% static './images/misc/btn-paypal.png' %}" height="32"></a>
                 <br><br>
               </p>
             </div> <!-- card body .// -->
             </div> <!-- collapse .// -->
-          </div> <!-- card.// -->
+          </div> <!-- card.// --> {% endcomment %}
 
           <div class="card">
               <header class="card-header">
@@ -348,7 +354,7 @@
       <div class="d-flex justify-content-center" style="margin-top:10px; margin-bottom:10px;">
         <form action="{% url 'apply_coupon' %}" class="form-inline" method="post" id="coupon-form">
           {% csrf_token %}
-          <input type="text" maxlength="10" class="form-control mr-2" {% if usercoupon %} {% if usercoupon.applied %} value="{{usercoupon.coupon.coupon_code}}" readonly {% endif %} {% endif %} style="width: 170px" placeholder="Coupon Code" name="c_code" id="couponInput">
+          <input type="text" maxlength="10" class="form-control mr-2" {% if usercoupon %} {% if usercoupon.applied %} value="{{usercoupon.coupon.coupon_code}}" readonly {% endif %} {% endif %} style="width: 170px" placeholder="Coupon Code" name="c_code" id="couponInput" required>
           <button type="submit" class="btn btn-primary" id="submit-coupon-Button" name="couponform">Apply</button>
       </form>
         </div>

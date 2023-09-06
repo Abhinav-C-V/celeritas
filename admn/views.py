@@ -258,7 +258,7 @@ def admin_user_couponlist(request):
         if 'search' in request.GET:
             search=request.GET['search']
             # print(uid)
-            coupon=UserCoupon.objects.filter(coupon__coupon_code__icontains=search )
+            coupon=UserCoupon.objects.filter(coupon__coupon_code__icontains=search)
         else:
             uid=request.GET['uid']
             coupon=UserCoupon.objects.filter(user=uid).order_by('id')

@@ -24,7 +24,8 @@
 									<div class="d-flex justify-content-between align-items-center">
 										<img src="{{ order.product.product.image.url }}" alt="Product Image" width="71" height="71">
 										<strong class="card-title">{{ order.product.product.product_name }} <small>{{ order.phone }}</small></strong>
-										<small>Price: {{ order.amount }}</small>
+										<small><p>Price: {{ order.amount }}</p>
+											<p>Quantity: {{ order.quantity }}</p></small>
 										<small>Status: {{ order.status }}</small>
 									</div>
 								</div>

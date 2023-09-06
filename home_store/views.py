@@ -250,7 +250,7 @@ def userhome(request):
         # page_number = request.GET.get('page')
         # page_obj = paginator.get_page(page_number)
         obj = Banner.objects.all()
-        print(len(obj))
+        # print(len(obj))
         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
         
         context = {
@@ -695,17 +695,19 @@ def forgot_pass_logout_user(request):
         except:
             messages.warning(request,'No user is registered with this email address')
             return redirect('forgot_pass_out_user')
-        """send otp code for mail"""
+        
         o=generateOTP()
         print(o)
         user.user_password = make_password(o)
         user.save()
+        
+        """send otp code for mail"""
         if user:
             htmlgen =  f'<p>Your new password for login Celeritas account is <strong>{o}</strong></p>.Its just a recovery password please change the password after login.'
             send_mail('OTP request',o,'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
             
             # del request.session['user_email']
-            messages.success(request,'Please check your email for new password and login again')
+            messages.success(request,'Please check your email for new password')
             return redirect('user_login')
         else:
             messages.warning(request,'No user is registered with this email address')
@@ -813,33 +815,37 @@ def apply_coupon(request):
                 coup_code = request.POST.get('c_code')
                 coupon = Coupon.objects.get(coupon_code__iexact=coup_code, is_active=True)
                 cart = CartItem.objects.filter(cart__user__user_email=user_email)
+                if cart.exists():
+                    total = 0
+                    quantity = 0
+                    for cart_item in cart:
+                        total += cart_item.subtotal
+                        quantity += cart_item.quantity
+                    grand_total = total
             except:
                 messages.warning(request, 'No coupon')
                 return redirect('proceed_to_checkout')
             
             if coup_code == coupon.coupon_code and coupon.is_active:
-                print(coupon.is_active)
-                UserCoupon.objects.filter(user__user_email=user_email).update(applied=False)
-                user_coupon = UserCoupon.objects.filter(user__user_email=user_email, coupon__is_active=True, coupon=coupon)
-                user_coupon.update(applied=True)
-                
-                if len(user_coupon) >0:
-                    try:
-                        coup = UserCoupon.objects.get(user__user_email=user_email, coupon__is_active=True, applied=True)
-                        discount = coup.coupon.discount_price
-                        print("hello",coup.coupon.discount_price)
-                        
-                    except UserCoupon.DoesNotExist:
-                        discount = 0
+                if grand_total >= coupon.minimum_amount:
+                    print(coupon.is_active)
+                    UserCoupon.objects.filter(user__user_email=user_email).update(applied=False)
+                    user_coupon = UserCoupon.objects.filter(user__user_email=user_email, coupon__is_active=True, coupon=coupon)
+                    user_coupon.update(applied=True)
+                    
+                    if len(user_coupon) >0:
+                        messages.success(request, 'Coupon Applied')
+                    else:
+                        messages.warning(request, 'No such coupon is available')
+                        # return redirect('proceed_to_checkout')
+                    
+                    # cartcount = cart.count()
+                    # for c in cart:
+                        # Calculate new subtotal after applying discount to each cart item
+                        # new_subtotal = c.subtotal - (discount / cartcount)
+                    # messages.success(request, 'Coupon Applied')
                 else:
-                    messages.warning(request, 'No such coupon is available')
-                    return redirect('proceed_to_checkout')
-                
-                cartcount = cart.count()
-                for c in cart:
-                    # Calculate new subtotal after applying discount to each cart item
-                    new_subtotal = c.subtotal - (discount / cartcount)
-                messages.success(request, 'Coupon Applied')
+                    messages.warning(request, f'Total amount should be grater than {coupon.minimum_amount}')
             elif coup_code == coupon.coupon_code:
                 messages.warning(request, 'Coupon has expired')
             else:
