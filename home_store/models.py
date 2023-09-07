@@ -1,6 +1,6 @@
 from django.contrib.auth.hashers import make_password, check_password
 from django.db import models
-from product.models import Variation
+# from product.models import Variation, Product
 
 # Create your models here.
 
@@ -23,6 +23,11 @@ class UserDetail(models.Model):
     USERNAME_FEILD = 'email'
     
     USER_CPASSWORD_FIELD = 'user_password'
+    
+    # def full_name(self):
+    #     return f"{self.user_firstname} {self.user_lastname}"
+    
+    
 
     def __str__(self):
         return f"{self.user_firstname} {self.user_lastname}"
@@ -32,15 +37,7 @@ class UserDetail(models.Model):
 
     def check_password(self, raw_password):
         return check_password(raw_password, self.user_password)
-    
 
-
-# class Banner(models.Model):
-#     name = models.CharField(max_length=50,default=None)
-#     image = models.ImageField(upload_to='image_space/banner',default=None)
-    
-#     def __str__(self):
-#         return self.name.upper()
     
 
 STATE_CHOICES = (
@@ -65,29 +62,16 @@ class Address(models.Model):
     def __str__(self):
         return str(self.id)
     
-# STATUS_CHOICES = (
-#     ('Pending', 'Pending'),
-#     ('Accepted', 'Accepted'),
-#     ('Packed', 'Packed'),
-#     ('On the way', 'On the way'),
-#     ('Delivered', 'Delivered'),
-#     ('Cancel Requested', 'Cancel Requested'),
-#     ('Return Requested', 'Return Requested'),
-#     ('Cancelled', 'Cancelled'),
-#     ('Returned', 'Returned'),
-# )
-# TYPE_CHOICES = (
-#     ('Cash on delivery', 'Cash on delivery'),
-#     ('Paypal', 'Paypal'),
-#     ('Razorpay', 'Razorpay'),
-# )
-# class Order(models.Model):
+# class ReviewRating(models.Model):
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 #     user = models.ForeignKey(UserDetail, on_delete=models.CASCADE)
-#     address = models.ForeignKey(Address, on_delete=models.CASCADE)
-#     product = models.ForeignKey(Variation, on_delete=models.CASCADE)
-#     amount = models.IntegerField(default=0)
-#     ordered_date = models.DateTimeField(auto_now_add=True)
-#     ordertype = models.CharField(max_length=50, choices=TYPE_CHOICES, default='Cash on delivery')
-#     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
+#     subject = models.CharField(max_length=100, blank=True)
+#     review = models.TextField(max_length=500, blank=True)
+#     rating = models.FloatField()
+#     ip = models.CharField(max_length=20)
+#     status = models.BooleanField(default=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
 #     def __str__(self):
-#         return str(self.id)
+#         return self.subject
+

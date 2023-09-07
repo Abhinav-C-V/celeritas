@@ -1,7 +1,7 @@
 from django import forms
 from admn.models import Banner
 from cart.models import Coupon, UserCoupon, Order
-from product.models import Product, ProductGallery, Variation, Color, Size
+from product.models import Product, ProductGallery, Variation, Color, Size, ReviewRating
 import re
 from django.core.exceptions import ValidationError
 
@@ -151,4 +151,20 @@ class OrderForm(forms.ModelForm):
         labels={
             'order_type':'Order Type',
             'status':'Status',
+        }
+        
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = ReviewRating
+        fields = ['subject', 'review', 'rating']
+        widgets = {
+            'subject': forms.TextInput(attrs={'class': 'form-control'}),
+            'review': forms.TextInput(attrs={'class': 'form-control'}),
+            'rating': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'subject': 'subject',
+            'review': 'review',
+            'rating': 'rating',
         }

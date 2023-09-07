@@ -55,7 +55,6 @@
         <div class="card-body">
           <div class="card">
             <div class="card-body">
-              {% comment %} <h4 class="card-title mb-4">Billing Address</h4> {% endcomment %}
               <div style="margin-top: 20px; ">
 								<div class="card" style=" margin-bottom: 20px;">
 									<div class="card-header" >
@@ -144,34 +143,17 @@
     </header>
       
     <div class="filter-content " id="collapse_4">
-      <div class="card-body col-lg-9">
+      <div class="card-body ">
+      {% comment %} <div class="card-body col-lg-9"> {% endcomment %}
+
         {% if selected_adrs %}
       
         <article class="accordion" id="accordion_pay">
           
-          {% comment %} <div class="card">
-            <header class="card-header">
-              <img src="./images/misc/payment-paypal.png" class="float-right" height="24"> 
-              <label class="form-check collapsed" data-toggle="collapse" data-target="#pay_paypal">
-                <input class="form-check-input" name="payment-option" checked type="radio" value="option1">
-                <h6 class="form-check-label"> 
-                  Paypal 
-                </h6>
-              </label>
-            </header>
-            <div id="pay_paypal" class="collapse show" data-parent="#accordion_pay">
-            <div class="card-body">
-              <p class="text-center">
-                <a href="#"><img src="{% static './images/misc/btn-paypal.png' %}" height="32"></a>
-                <br><br>
-              </p>
-            </div> <!-- card body .// -->
-            </div> <!-- collapse .// -->
-          </div> <!-- card.// --> {% endcomment %}
 
           <div class="card">
               <header class="card-header">
-                <img src="./images/misc/payment-paypal.png" class="float-right" height="24"> 
+                {% comment %} <img src="./images/misc/payment-paypal.png" class="float-right" height="24">  {% endcomment %}
                 <label class="form-check collapsed" data-toggle="collapse" data-target="#pay_razorpay">
                   <input class="form-check-input" name="payment-option" checked type="radio" value="option2">
                   <h6 class="form-check-label"> Razorpay </h6>
@@ -189,7 +171,7 @@
                     
 
                   {% comment %} <a href="#"><img src="{% static './images/misc/btn-paypal.png' %}" height="32"></a> {% endcomment %}
-                      <button id="rzp-button1" type="submit" class="btn btn-secondary btn-md py-3 btn-block l-f-o__create-link btn--e-transparent-brand-b-2" style="border: 2px solid #555555;" href="">Razorpay</button>
+                      <button id="rzp-button1" type="submit" class="btn btn-primary btn-md py-2 btn-block" style="background-color: #007bff; color: #fff;">Razorpay</button>
                         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
                     <script>
                       var options = {
@@ -234,7 +216,7 @@
 
           <div class="card">
           <header class="card-header">
-            <img src="./images/misc/payment-card.png" class="float-right" height="24">  
+            {% comment %} <img src="./images/misc/payment-card.png" class="float-right" height="24">   {% endcomment %}
             <label class="form-check" data-toggle="collapse" data-target="#pay_credit">
               <input class="form-check-input" name="payment-option" type="radio" value="option3">
               <h6 class="form-check-label"> Cash on Delivery </h6>

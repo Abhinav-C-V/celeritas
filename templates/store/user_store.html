@@ -163,7 +163,7 @@
 						<div class="fix-height"style="height: 50%; overflow: auto;">
 							<a href="{% url 'product_detail' id=product.product.id %}" class="title">{{product.product.product_name}}</a>
 							<small>( {{product.product.category}}<br>Colour: {{product.color}}, Size: {{product.size}} )</small>
-							<div class="rating-wrap">
+							{% comment %} <div class="rating-wrap">
 								<ul class="rating-stars">
 									<li style="width:70%" class="stars-active"> 
 										<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
@@ -171,9 +171,9 @@
 									<li>
 										<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i> 
 									</li>
-								</ul>
+								</ul> {% endcomment %}
 								{% comment %} <span class="label-rating text-muted">34 reviews</span> {% endcomment %}
-							</div>
+							{% comment %} </div> {% endcomment %}
 							<div class="price mt-1">
 								{% if product.product.category.offer_active %}
 									<p class="font-weight-bold">Price: <s>₹ {{product.product.normal_price}}</s></p>

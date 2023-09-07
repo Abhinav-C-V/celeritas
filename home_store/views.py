@@ -5,8 +5,10 @@ from django.core.paginator import Paginator
 from django.contrib.auth.models import User
 from django.views.generic import View
 from celeritas.forms.user_form import UserSignupForm, UserLoginForm, UserAddressForm
+from celeritas.forms.product_form import ReviewForm
+
 from category.models import Category
-from product.models import Product, ProductGallery, Variation, Size, Color
+from product.models import Product, ProductGallery, Variation, Size, Color, ReviewRating
 from cart.models import Wishlist, Cart, CartItem, Coupon, UserCoupon
 from .models import UserDetail, Address
 from admn.models import  Banner
@@ -108,8 +110,9 @@ class UserLoginView(View):
         if 'user_email' in request.session:
             return redirect('user_home')
         else:
+            cat=Category.objects.all()
             form = UserLoginForm()
-            return render(request, 'accounts/user_login.html', {'form': form})
+            return render(request, 'accounts/user_login.html', {'form': form, 'cat': cat})
     
     @method_decorator(never_cache)
     def post(self, request):
@@ -136,11 +139,13 @@ class UserSignupView(View):
         if 'user_email' in request.session:
             return redirect('home_store')
         form = UserSignupForm()
-        return render(request, 'accounts/user_register.html', {'form': form})
+        cat=Category.objects.all()
+        return render(request, 'accounts/user_register.html', {'form': form, 'cat': cat})
     
     def post(self, request):
         if 'user_email' in request.session:
             return redirect('home_store')
+        cat=Category.objects.all()
         form = UserSignupForm(request.POST, request.FILES)
         if form.is_valid():
             password = request.POST.get('user_password')
@@ -154,7 +159,7 @@ class UserSignupView(View):
                 messages.warning(request, "Passwords do not match")
                 return redirect('user_register')
         else:
-            return render(request, 'accounts/user_register.html', {'form': form})
+            return render(request, 'accounts/user_register.html', {'form': form, 'cat': cat})
 
 
 
@@ -246,10 +251,10 @@ def userhome(request):
         popular_pdt=details3.order_by('id')[:4]
         new_arivals=details3.order_by('-id')[:4]
         recommended = details3.order_by('product')[:4]
-        # paginator = Paginator(details3, 4)
-        # page_number = request.GET.get('page')
-        # page_obj = paginator.get_page(page_number)
+
         obj = Banner.objects.all()
+        prod_count = Variation.objects.all().count()
+        brand_prod = prod_count/3
         # print(len(obj))
         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
         
@@ -260,6 +265,8 @@ def userhome(request):
             'user_firstname': user_detail.user_firstname,
             'user_image': user_detail.user_image,
             'user':user_detail,
+            'brand_prod':brand_prod,
+            
             'new_arivals':new_arivals,
             'popular_pdt':popular_pdt,
             'recommended':recommended,
@@ -319,7 +326,6 @@ def userstore_filter(request):
             min_prize = request.POST.get('min_prize')
             max_prize = request.POST.get('max_prize')
             
-            
             if cat_name:
                 details3 = details3.filter(product__category__id=cat_name)
             if size_id:
@@ -327,7 +333,6 @@ def userstore_filter(request):
                 
             if color_id:
                 details3 = details3.filter(color__id=color_id)
-                
 
             price_filter = Q()
             if min_prize:
@@ -404,13 +409,15 @@ def product_detail(request, id):
     try:
         
         single_product = get_object_or_404(Product, id=id)
+        reviews = ReviewRating.objects.filter(product=single_product)
+        cat=Category.objects.all()
         # print(id,single_product)
         variants = Variation.objects.filter(product=single_product)
         colors=[]
         sizes=[]
         for prod in variants:
             if prod.color not in colors:
-                print(prod.color)
+                # print(prod.color)
                 colors.append(prod.color)
             if prod.size not in sizes:
                 sizes.append(prod.size)
@@ -420,31 +427,53 @@ def product_detail(request, id):
         raise Http404("Product does not exist")
     product_gallery = ProductGallery.objects.filter(product__product=single_product)
     if 'user_email' in request.session:
-        user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
+        user = UserDetail.objects.get(user_email=request.session['user_email'])
+        try:
+            ord_pdt = False
+            for pdt in variants:
+                ordr = Order.objects.filter(user=user, product=pdt).exists()
+                if ordr:
+                    ord_pdt = True
+            print(ord_pdt)
+        except Order.DoesNotExist:
+            ord_pdt = False
+        # Get the reviews
+        # reviews = ReviewRating.objects.filter(product=single_product)cat
         context = {
+            'cat': cat,
             'single_product': single_product,
             'product_gallery': product_gallery,
-            'variants ':variants,
+            'variants':variants,
+            'ord_pdt':ord_pdt,
+            'reviews': reviews,
             'colors': colors,
             'sizes': sizes,
-            'user_firstname': user_detail.user_firstname,
-            'user_image': user_detail.user_image,
-            'user': user_detail
+            'user_firstname': user.user_firstname,
+            'user_image': user.user_image,
+            'user': user
         }
     else:
         context = {
+        'cat': cat,
         'single_product': single_product,
         'product_gallery': product_gallery,
-    }
+        'variants':variants,
+        'reviews': reviews,
+        'colors': colors,
+        'sizes': sizes,
+        }
     return render(request, 'store/product_detail.html', context)
+
 
 def user_dashboard(request):
     if 'user_email' in request.session:
         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
         order_pdt= Order.objects.filter(user=user_detail)
         orders_count = order_pdt.count()
+        cat=Category.objects.all()
             
         context = {
+            'cat':cat,
             'orders_count':orders_count,
             'user':user_detail,
             'user_image': user_detail.user_image,
@@ -461,9 +490,11 @@ def user_profile_info(request):
     if 'user_email' in request.session:
         user_email = request.session['user_email']
         # print(user_email)
+        cat=Category.objects.all()
         user = UserDetail.objects.get(user_email=user_email)
         adrs = Address.objects.filter(user=user).all()
         context = {
+            'cat':cat,
             'user':user,
             'user_image':user.user_image,
             'user_firstname': user.user_firstname,
@@ -552,7 +583,9 @@ def user_manage_address(request):
     if 'user_email' in request.session:
         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
         adrs = Address.objects.filter(user=user_detail).all()
+        cat=Category.objects.all()
         context = {
+            'cat':cat,
             'user':user_detail,
             'user_image':user_detail.user_image,
             'user_firstname': user_detail.user_firstname,
@@ -955,7 +988,6 @@ def otp_login(request):
 
 
 def otp_verification(request):
-    
     if request.method == 'POST':
         otp = request.POST.get('otp')
         if otp == request.session["otp"]:
@@ -981,3 +1013,35 @@ def otp_verification(request):
         messages.warning(request,'Something went wrong please try agin')
         return redirect('otp_login')
     
+ 
+def submit_review(request,id):
+    if 'user_email' in request.session:
+        url = request.META.get('HTTP_REFERER')
+        if request.method == 'POST':
+            try:
+                prod = Product.objects.get(id=id)
+                user=UserDetail.objects.get(user_email=request.session['user_email'] )
+                reviews = ReviewRating.objects.get(user=user, product=prod)
+                form = ReviewForm(request.POST, instance=reviews)
+                form.save()
+                messages.success(request, 'Thank you your review has been updated.')
+                return redirect(url)
+            except ReviewRating.DoesNotExist:
+                form = ReviewForm(request.POST)
+                if form.is_valid():
+                    data = ReviewRating()
+                    data.subject = form.cleaned_data['subject']
+                    data.rating = form.cleaned_data['rating']
+                    data.review = form.cleaned_data['review']
+                    data.ip = request.META.get('REMOTE_ADDR')
+                    data.product = prod
+                    data.user = user
+                    data.save()
+                    messages.success(request, 'Thank you your review has been submited.')
+                    return redirect(url)
+    else:
+        return redirect('user_login')
+                    
+                    
+                    
+                

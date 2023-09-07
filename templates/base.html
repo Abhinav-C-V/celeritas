@@ -21,6 +21,11 @@
 <link href="{% static 'css/ui.css' %}" rel="stylesheet" type="text/css">
 <link href="{% static 'css/responsive.css' %}" rel="stylesheet" media="only screen and (max-width: 1200px)">
 
+<link href="{% static 'css/custom.css' %}" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+
 <!-- Include jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -124,37 +129,7 @@
     margin: auto;
   }
 
-  .rate {
-    display: flex;
-    align-items: center;
-  }
-
-  .rate input[type="radio"] {
-    display: none;
-  }
-
-  .rate label {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-right: 5px;
-    position: relative;
-    cursor: pointer;
-  }
-
-  .rate label span {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .rate input[type="radio"]:checked + label {
-    background-color: #3377ff; /* Add your desired background color for selected radio button */
-    color: #fff; /* Add your desired text color for selected radio button */
-  }
+  
   
 
   

@@ -64,7 +64,7 @@
 					<a href="{% url 'product_detail' id=product.id %}" class="title">{{product.product.product_name}}</a>
 					<small>( {{i.product.category}}<br>Colour: {{i.color}}, Size: {{i.size}} )</small> {% endcomment %}
 
-				<div class="rating-wrap">
+				{% comment %} <div class="rating-wrap">
 					<ul class="rating-stars">
 						<li style="width:80%" class="stars-active"> 
 							<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
@@ -74,7 +74,7 @@
 						</li>
 					</ul>
 					<span class="label-rating text-muted"> 34 reviws</span>
-				</div>
+				</div> {% endcomment %}
 
 				<div class="price mt-1">
 					{% if i.product.category.offer_active %}
@@ -127,18 +127,6 @@
 					<a href="{% url 'product_detail' id=product.id %}" class="title">{{product.product.product_name}}</a>
 					<small>( {{i.product.category}}<br>Colour: {{i.color}}, Size: {{i.size}} )</small> {% endcomment %}
 
-				<div class="rating-wrap">
-					<ul class="rating-stars">
-						<li style="width:80%" class="stars-active"> 
-							<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
-						</li>
-						<li>
-							<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i> 
-						</li>
-					</ul>
-					<span class="label-rating text-muted"> 34 reviws</span>
-				</div>
-
 				<div class="price mt-1">
 					{% if i.product.category.offer_active %}
                     <p class="font-weight-bold">Price: <s>₹ {{i.product.normal_price}}</s></p>
@@ -156,33 +144,6 @@
 	{% endfor %}
 	
 </div> <!-- row.// -->
-{% comment %} <div class="row" data-aos="fade-up">
-              
-	<div class="col-md-12 text-center">
-	  <div class="site-block-27">
-		<ul>
-
-		  {% if page_obj.has_previous %}
-		  
-	
-		  <li><a href="?page={{ page_obj.previous_page_number }}">&lt;</a></li>
-		  {% endif %}
-
-		  <li class="active"><span>{{ page_obj.number }}</span></li>
-		  {% if page_obj.has_next %}
-		  <li><a href="?page={{ page_obj.next_page_number }}">&gt;</a></li>
-		  
-		  <!--
-		  <li><a href="?page={{ page_obj.paginator.num_pages }}">last</a></li>
-		  -->
-		  
-		  {% endif %}
-
-		</ul>
-	  </div>
-	</div>
-
-</div> {% endcomment %}
 
 
 </div> <!-- container .//  -->
@@ -257,22 +218,6 @@
 				<a href="{{ i.get_url }}" class="title">{{i.product.product_name}}</a>
 				<small>( {{i.product.category}}<br>Colour: {{i.color}}, Size: {{i.size}} )</small>
 
-				{% comment %} <div class="fix-height"style="height: 50%; overflow: auto;">
-					<a href="{% url 'product_detail' id=product.id %}" class="title">{{product.product.product_name}}</a>
-					<small>( {{i.product.category}}<br>Colour: {{i.color}}, Size: {{i.size}} )</small> {% endcomment %}
-
-				<div class="rating-wrap">
-					<ul class="rating-stars">
-						<li style="width:80%" class="stars-active"> 
-							<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
-						</li>
-						<li>
-							<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i> 
-						</li>
-					</ul>
-					<span class="label-rating text-muted"> 34 reviws</span>
-				</div>
-
 				<div class="price mt-1">
 					{% if i.product.category.offer_active %}
                     <p class="font-weight-bold">Price: <s>₹ {{i.product.normal_price}}</s></p>
@@ -343,42 +288,42 @@
 	<div class="col-md-2 col-6">
 		<figure class="box item-logo">
 			<a href="#"><img src="{% static 'images/items/NIKE.jpg' %}"></a>
-			<figcaption class="border-top pt-2">36 Products</figcaption>
+			<figcaption class="border-top pt-2">{{brand_prod}}</figcaption>
 		</figure> <!-- item-logo.// -->
 	</div> <!-- col.// -->
 
 	<div class="col-md-2 col-6">
 		<figure class="box item-logo">
 			<a href="#"><img src="{% static 'images/items/ADIDAS.jpg' %}"></a>
-			<figcaption class="border-top pt-2">36 Products</figcaption>
+			<figcaption class="border-top pt-2">{{brand_prod}}</figcaption>
 		</figure> <!-- item-logo.// -->
 	</div> <!-- col.// -->
 
 	<div class="col-md-2 col-6">
 		<figure class="box item-logo">
 			<a href="#"><img src="{% static 'images/items/SEGA.jpg' %}"></a>
-			<figcaption class="border-top pt-2">36 Products</figcaption>
+			<figcaption class="border-top pt-2">{{brand_prod}}</figcaption>
 		</figure> <!-- item-logo.// -->
 	</div> <!-- col.// -->
 
 	<div class="col-md-2 col-6">
 		<figure class="box item-logo">
 			<a href="#"><img src="{% static 'images/items/PUMA.jpg' %}"></a>
-			<figcaption class="border-top pt-2">36 Products</figcaption>
+			<figcaption class="border-top pt-2">{{brand_prod}}</figcaption>
 		</figure> <!-- item-logo.// -->
 	</div> <!-- col.// -->
 
 	<div class="col-md-2 col-6">
 		<figure class="box item-logo">
 			<a href="#"><img src="{% static 'images/items/SEGA.jpg' %}"></a>
-			<figcaption class="border-top pt-2">36 Products</figcaption>
+			<figcaption class="border-top pt-2">{{brand_prod}}</figcaption>
 		</figure> <!-- item-logo.// -->
 	</div> <!-- col.// -->
 
 	<div class="col-md-2 col-6">
 		<figure class="box item-logo">
 			<a href="#"><img src="{% static 'images/items/NIKE.jpg' %}"></a>
-			<figcaption class="border-top pt-2">36 Products</figcaption>
+			<figcaption class="border-top pt-2">{{brand_prod}}</figcaption>
 		</figure> <!-- item-logo.// -->
 	</div> <!-- col.// -->
 	

@@ -119,9 +119,9 @@
 		<div class="row">
 			<div class="col-md-9">
 
+			{% comment %} {% include 'includes/alerts.html' %} {% endcomment %}
 
-
-				<form action=" # " method="POST">
+				<form action=" {% url 'submit_review' id=single_product.id %} " method="POST">
 					{% csrf_token %}
 					<h5>Write Your Review</h5>
 
@@ -159,7 +159,11 @@
 						{% endif %} --> {% endcomment %}
 
 						{% if 'user_email' in request.session %}
+							{% if ord_pdt  %}
 								<input type="submit" value="Submit Review" class="btn btn-primary">
+							{% else %}
+								<p>You must purchase this product to post a review.</p>
+							{% endif %}
 						{% else %}
 						<p>You must be logged in to post a review. <span><a href="{% url 'user_login' %}">Login now</a></span></p>
 						{% endif %}
@@ -168,9 +172,11 @@
 </div> {% endcomment %}
 
 					</div>
-{% comment %} {% include 'includes/alerts.html' %} {% endcomment %}
+					
 				</form>
 <br>
+{% include 'includes/alerts.html' %}
+
 <header class="section-heading">
 	<h3>Customer Reviews </h3>
 	<div class="rating-star">
@@ -191,8 +197,8 @@
 					<div class="icontext w-100">
 
 						<div class="text">
-							<span class="date text-muted float-md-right"><!-- {{review.updated_at}}.// --> </span> 
-							<h6 class="mb-1"> <!-- {{review.user.full_name}} .// --> </h6>
+							<span class="date text-muted float-md-right">{{review.updated_at}}</span> 
+							<h6 class="mb-1"> {{review.user}} </h6>
 							<div class="rating-star">
 								<span>
 									<i class="fa fa-star{% if review.rating == 0.5 %}-half-o{% elif review.rating < 1 %}-o {% endif %}" aria-hidden="true"></i>

@@ -4,4 +4,4 @@ from .models import UserDetail, Address
 
 admin.site.register(UserDetail)
 admin.site.register(Address)
-
+# admin.site.register(ReviewRating)
