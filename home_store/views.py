@@ -27,12 +27,12 @@ from django.core.files.storage import FileSystemStorage
 # from .forms import UserSignupForm
 
 # from django.shortcuts import render
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes
-from django.contrib.sites.shortcuts import get_current_site
+# from django.contrib.auth.tokens import default_token_generator
+# from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+# from django.utils.encoding import force_bytes
+# from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
+# from django.core.mail import EmailMessage
 
 from cart.models import Order
 from xhtml2pdf import pisa
@@ -41,18 +41,16 @@ import datetime
 import math, random
 from django.core.mail import send_mail
 import string
-from django.urls import reverse
+# from django.urls import reverse
 import os
 from twilio.rest import Client
 # from twilio.rest import Client
 
 # from .models import UserDetail, Order
 # from django.contrib import messages
-# from .models import UserDetail  # You need to import your UserDetail model
+# from .models import UserDetail  
 import uuid  # Import the UUID module
 # from .utils import generate_reset_token  # Import the function from step 1
-
-
 
 
 
@@ -70,20 +68,17 @@ def index(request):
         cat_id = request.GET.get('cat_id')
         prod = request.GET.get('prod_id')
         if cat_id is not None and prod is None:
-            details3= Product.objects.filter(category__id=cat_id).order_by('id')
+            details3= Variation.objects.filter(product__category__id=cat_id).order_by('id')
         elif prod is not None and cat_id is None:
-            details3= Product.objects.filter(name__icontains=prod).order_by('id')    
+            details3= Variation.objects.filter(product__product_name__icontains=prod).order_by('id')
         elif prod is not None and cat_id is not None:
-            details3= Product.objects.filter(name__icontains=prod,category__id=cat_id).order_by('id')
+            details3= Variation.objects.filter(product__product_name__icontains=prod,product__category__id=cat_id).order_by('id')
         else:
-            details3=Product.objects.all().order_by('id')
+            details3=Variation.objects.all().order_by('id')
         popular_pdt=details3.order_by('id')[:4]
         new_arivals=details3.order_by('-id')[:4]
-        recommended = details3.order_by('product_name')[:4]
+        recommended = details3.order_by('product')[:4]
         
-        # paginator = Paginator(details3, 4)
-        # page_number = request.GET.get('page')
-        # page_obj = paginator.get_page(page_number)
         obj = Banner.objects.all()
         context={ 
                 # 'page_obj': page_obj,
@@ -119,7 +114,7 @@ class UserLoginView(View):
         user_email = request.POST.get('user_email')
         password = request.POST.get('user_password')
         user = UserDetail.objects.filter(user_email=user_email).first()
-        if user and user.user_is_active is True:
+        if user and user.user_is_active is True and user.u_otp is None:
             # print(check_password(password, user.user_password))
             if check_password(password, user.user_password):  # Compare hashed passwords
             # if password == user.user_password:
@@ -151,80 +146,60 @@ class UserSignupView(View):
             password = request.POST.get('user_password')
             c_password = request.POST.get('user_cpassword')
             if c_password == password:
+                u_otp = generateOTP()
                 user = form.save(commit=False)
                 user.user_password = make_password(password)  # Hash the password
-                user.save()
-                return redirect('user_login')
+                user.user_cpassword = make_password(c_password)  # Hash the password
+                user.u_otp = u_otp
+                
+                htmlgen =  f'<p>Your OTP for sign up Celeritas account is <strong>{u_otp}</strong></p>.'
+                otp_email = send_mail('OTP request',u_otp,'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
+                
+                if otp_email:
+                    print('otp send to mail',u_otp)
+                    user.save()
+                    request.session['u_otp'] = user.u_otp
+                    return redirect('signup_otp')
+
+                messages.warning(request, "Please enter a valid email address")
+                return redirect('user_signup')
             else:
                 messages.warning(request, "Passwords do not match")
-                return redirect('user_register')
+                return redirect('user_signup')
         else:
             return render(request, 'accounts/user_register.html', {'form': form, 'cat': cat})
-
-
-
         
-# def forgot_password(request):
-#     if request.method == 'POST':
-#         email = request.POST.get('email')
-        
-#         if UserDetail.objects.filter(user_email=email).exists():
-#             user = UserDetail.objects.get(user_email__exact=email)
-#             # Generate a reset token
-#             reset_token = generate_reset_token()
-            
-#             # Save the reset token to the user model
-#             user.reset_token = reset_token
-#             # print(user.reset_token)
-#             # print(reset_token)
-#             # print(user)
-            
-#             user.save()
-#             current_site = get_current_site(request)
-#             mail_subject = 'Reset Your Password'
-#             print(current_site)
-            
-#             message = render_to_string('accounts/reset_password_email.html',{
-#             'user': user,
-#             'domain': current_site.domain,
-#             'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-#             'token': reset_token,  # Pass the reset token
-#             })
-#             to_email = email
-#             send_email = EmailMessage(mail_subject, message, to = [to_email])
-#             # print(send_email)
-#             send_email.send()
-#             messages.success(request, 'Password reset email has been sent to your email address .' )
-#             return redirect('user_login')
-#         else:
-#             messages.warning(request, 'Account does not exits.')
-#             return redirect('forgot_password')
-            
-#     else:    
-#         return render(request, 'accounts/forgot_password.html')
-    
-    
-    
-# def resetpassword_validate(request, uidb64, token):
-#     try:
-#         uid = urlsafe_base64_decode(uidb64).decode()
-#         user = UserDetail._default_manager.get(pk=uid)
-#         print(user)
-#     except(TypeError, ValueError, OverflowError, UserDetail.DoesNotExist):
-#         user = None
-#     if user is not None and default_token_generator.check_token(user, token):
-#         request.session['uid'] = uid
-#         messages.success(request, 'Please Reset Your Password')
-#         return redirect('reset_password')
-#     else:
-#         messages.error(request, 'This link has been expired')
-#         return redirect('user_login')
-    
-# def reset_password(request):
-#     return render(request, 'accounts/user_resetPassword.html',)
 
+class SignupOTPView(View):
+    def get(self, request):
+        if 'u_otp' in request.session:
+            # Redirect the user to the registration page if registration data is not in the session
+            cat = Category.objects.all()
+            return render(request, 'accounts/signup_otp.html',{'cat':cat})
+        else:
+            return redirect('user_signup')
 
+    def post(self, request):
+        if 'u_otp' not in request.session:
+            return redirect('user_signup')
 
+        entered_otp = request.POST.get('u_otp')
+
+        if entered_otp == request.session['u_otp']:
+            try:
+                user = UserDetail.objects.get(u_otp = entered_otp )
+                user.u_otp = None
+                user.save()
+            except UserDetail.DoesNotExist:
+                messages.warning(request,'please enter valid OTP')
+                return redirect('signup_otp')
+            del request.session['u_otp']
+            if user:
+                messages.success(request,'User successfully registered please login for explore Celeritas')
+                return redirect('user_login')
+        else:
+            messages.warning(request, 'Invalid OTP. Please try again.')
+            return redirect('signup_otp') 
 
 
 @never_cache
@@ -253,9 +228,9 @@ def userhome(request):
         recommended = details3.order_by('product')[:4]
 
         obj = Banner.objects.all()
-        prod_count = Variation.objects.all().count()
-        brand_prod = prod_count/3
-        # print(len(obj))
+        # prod_count = Variation.objects.all().count()
+        # brand_prod = prod_count/3
+        # print(brand_prod)
         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
         
         context = {
@@ -265,8 +240,6 @@ def userhome(request):
             'user_firstname': user_detail.user_firstname,
             'user_image': user_detail.user_image,
             'user':user_detail,
-            'brand_prod':brand_prod,
-            
             'new_arivals':new_arivals,
             'popular_pdt':popular_pdt,
             'recommended':recommended,
@@ -275,41 +248,6 @@ def userhome(request):
     else:
          return redirect('user_login')
      
-     
-# @never_cache
-# def userstore(request):
-#     if 'user_email' in request.session: 
-#         cat=Category.objects.all()
-#         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
-#         sizes = Size.objects.all()
-#         colors = Color.objects.all()
-#         cat_id = request.GET.get('cat_id')
-#         prod = request.GET.get('prod_id')
-#         if cat_id is not None and prod is None:
-#             details3= Variation.objects.filter(product__category__id=cat_id).order_by('id')
-#         elif prod is not None and cat_id is None:
-#             details3= Variation.objects.filter(product__product_name__icontains=prod).order_by('id')
-#         elif prod is not None and cat_id is not None:
-#             details3= Variation.objects.filter(product__product_name__icontains=prod,product__category__id=cat_id).order_by('id')
-#         else:
-#             details3=Variation.objects.all().order_by('id')
-#         paginator = Paginator(details3, 6)
-#         page_number = request.GET.get('page')
-#         page_obj = paginator.get_page(page_number)
-#         # product_count = Product.objects.all().count()
-#         # print(sizes)
-#         context = {
-#             'page_obj': page_obj,
-#             'cat':cat,
-#             'sizes':sizes,
-#             'colors': colors,
-#             'user_firstname': user_detail.user_firstname,
-#             'user_image': user_detail.user_image,
-#             'user':user_detail,
-#         }
-#         return render(request, 'store/user_store.html', context)
-#     else:
-#          return redirect('user_login')
      
 def userstore_filter(request):
     if 'user_email' in request.session:
@@ -352,11 +290,6 @@ def userstore_filter(request):
             min_prize = request.GET.get('min_prize')
             max_prize = request.GET.get('max_prize')
             
-            # print(cat_name)
-            # print(size_id)
-            # print(color_id)
-            # print(min_prize)
-            # print(max_prize)
             
             if cat_name:
                 details3 = details3.filter(product__category__id=cat_name)
@@ -409,23 +342,24 @@ def product_detail(request, id):
     try:
         
         single_product = get_object_or_404(Product, id=id)
+        # print(single_product)
         reviews = ReviewRating.objects.filter(product=single_product)
         cat=Category.objects.all()
         # print(id,single_product)
         variants = Variation.objects.filter(product=single_product)
         colors=[]
         sizes=[]
+        # product_gallery = []
         for prod in variants:
             if prod.color not in colors:
                 # print(prod.color)
                 colors.append(prod.color)
             if prod.size not in sizes:
                 sizes.append(prod.size)
-        # for clr in variants.color:
-        #     print(clr)
     except Product.DoesNotExist:
         raise Http404("Product does not exist")
     product_gallery = ProductGallery.objects.filter(product__product=single_product)
+    # print(product_gallery)
     if 'user_email' in request.session:
         user = UserDetail.objects.get(user_email=request.session['user_email'])
         try:
@@ -434,7 +368,7 @@ def product_detail(request, id):
                 ordr = Order.objects.filter(user=user, product=pdt).exists()
                 if ordr:
                     ord_pdt = True
-            print(ord_pdt)
+            # print(ord_pdt)
         except Order.DoesNotExist:
             ord_pdt = False
         # Get the reviews
@@ -553,9 +487,7 @@ def edit_image(request):
         if request.method == 'POST':
             user_email = request.session['user_email']
             user = UserDetail.objects.get(user_email=user_email)
-            # print("Form Data:", request.POST)
-            # print("Files:", request.FILES)
-            # Handle the uploaded image
+
             if 'image' in request.FILES:
                 uploaded_image = request.FILES['image']
 
@@ -685,7 +617,7 @@ def forgot_password(request):
             try:
                 email = request.POST.get('email')
                 user = UserDetail.objects.get(user_email=email)
-                print(user.user_firstname)
+                # print(user.user_firstname)
             except:
                 messages.warning(request,'No user is registered with this email address')
                 return redirect('forgot_password')
@@ -694,6 +626,7 @@ def forgot_password(request):
             # print(o)
             user.user_password = make_password(o)
             user.save()
+            print(o)
             # print(user.user_password)
             if user:
                 htmlgen =  f'<p>Your new password for login Celeritas account is <strong>{o}</strong></p>.Its just a recovery password please change the password after login.'

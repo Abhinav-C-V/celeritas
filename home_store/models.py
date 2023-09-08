@@ -18,9 +18,10 @@ class UserDetail(models.Model):
     user_cpassword = models.CharField(max_length=128)
     user_is_active = models.BooleanField(default=True)
     user_image     = models.ImageField(upload_to='image_space/', null=True, blank=True)
+    u_otp          = models.IntegerField(null=True)
     # is_admin       = models.BooleanField(default=False)
     
-    USERNAME_FEILD = 'email'
+    # USERNAME_FEILD = 'email'
     
     USER_CPASSWORD_FIELD = 'user_password'
     

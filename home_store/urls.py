@@ -2,13 +2,15 @@ from django.urls import path,include
 from . import views
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import UserLoginView, UserSignupView, ChangePasswordView
+from .views import UserLoginView, UserSignupView, ChangePasswordView, SignupOTPView
 
 urlpatterns = [
     # path('', views.store, name='store'),
     path('', views.index, name='user_index'),
     path('user_login', UserLoginView.as_view(), name='user_login'),
     path('user_signup', UserSignupView.as_view(), name='user_signup'),
+    path('signup_otp', SignupOTPView.as_view(), name='signup_otp'),
+    
     # path('edit_profile_user', EditUserView.as_view(), name='edit_profile_user'),
     path('user_logout', views.userlogout, name='user_logout'),
     path('otp_login', views.otp_login, name='otp_login'),
