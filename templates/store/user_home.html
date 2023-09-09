@@ -116,8 +116,8 @@
 	{% for i in new_arivals %}
 
 	<div class="col-md-3">
-		<div href="#" class="card card-product-grid">
-			<a href="#" class="img-wrap"> <img src="{{i.product.image.url}}" alt="Image placeholder"> </a>
+		<div href="{% url 'product_detail' id=i.product.id %}" class="card card-product-grid">
+			<a href="{% url 'product_detail' id=i.product.id %}" class="img-wrap"> <img src="{{i.product.image.url}}" alt="Image placeholder"> </a>
 
 			<figcaption class="info-wrap">
 				<a href="{{ i.get_url }}" class="title">{{i.product.product_name}}</a>
@@ -211,8 +211,8 @@
 	{% for i in recommended %}
 
 	<div class="col-md-3">
-		<div href="#" class="card card-product-grid">
-			<a href="#" class="img-wrap"> <img src="{{i.product.image.url}}" alt="Image placeholder"> </a>
+		<div href="{% url 'product_detail' id=i.product.id %}" class="card card-product-grid">
+			<a href="{% url 'product_detail' id=i.product.id %}" class="img-wrap"> <img src="{{i.product.image.url}}" alt="Image placeholder"> </a>
 
 			<figcaption class="info-wrap">
 				<a href="{{ i.get_url }}" class="title">{{i.product.product_name}}</a>

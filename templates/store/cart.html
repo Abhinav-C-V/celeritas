@@ -25,6 +25,7 @@
   <th scope="col">Product</th>
   <th scope="col" width="120">Quantity</th>
   <th scope="col" width="120">Price</th>
+  
   <th scope="col" class="text-right" width="200"> </th>
 </tr>
 </thead>
@@ -49,6 +50,7 @@
 			</figcaption>
 		</figure>
 	</td>
+	{% if cart_item.product.stock %}
 	<td>
 		<!-- col.// -->
 		<div class="col">
@@ -77,6 +79,14 @@
 	<td class="text-right">
 	<a href="{% url 'remove_cart_item' %}?id={{cart_item.id}}" onclick="return confirm('Are you sure you want to delete this item?')" class="btn btn-danger"> Remove</a>
 	</td>
+	{% else %}
+	<td class="text-right">
+		<h6 class="text-center">Out of stock</h6>
+		<div class="text-center">
+			<a href="{% url 'remove_cart_item' %}?id={{cart_item.id}}" onclick="return confirm('Are you sure you want to delete this item?')" style="color: red;"> <h6>Remove</h6></a>
+		</div>
+	</td>
+	{% endif %}
 </tr>
 {% endfor %}
 
@@ -86,6 +96,7 @@
 
 	</aside> <!-- col.// -->
 	<aside class="col-lg-3">
+		{% include 'includes/alerts.html' %}
 
 		<div class="card">
 		<div class="card-body">

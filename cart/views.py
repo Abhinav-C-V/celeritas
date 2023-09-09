@@ -110,23 +110,27 @@ def add_to_cart(request):
             if variant.stock < 1:
                 messages.warning(request, 'Out of stock')
                 return redirect('product_detail', id=prod_id)
-
+            
             try:
                 cart_item = CartItem.objects.get(cart=cart, product=variant)
+                if cart_item.quantity >= variant.stock:
+                    messages.warning(request, 'Out of stock')
+                    return redirect('product_detail', id=prod_id)
                 cart_item.quantity += 1
-                variant.stock -= 1
-                variant.save()
+                # variant.stock -= 1
+                # variant.save()
+                
                 cart_item.save()
             except CartItem.DoesNotExist:
                 cart_item = CartItem.objects.create(cart=cart, product=variant, quantity=1)
-                variant.stock -= 1
-                variant.save()
+                # variant.stock -= 1
+                # variant.save()
                 cart_item.save()
 
         except Variation.DoesNotExist:
             messages.warning(request, 'Variant not available')
             return redirect('product_detail', id=prod_id)
-
+        print(variant.stock)
         return redirect('cart')
     else:
         messages.warning(request, 'Please login first')
@@ -189,10 +193,10 @@ def cart(request):
 def remove_cart_item(request):
     if 'user_email' in request.session:
         id=request.GET['id']
-        item=CartItem.objects.get(id=id)
-        cart_quantity = item.quantity
-        cart_product = item.product.product
-        Variation.objects.filter(product=cart_product).update(stock=F('stock')+cart_quantity)
+        # item=CartItem.objects.get(id=id)
+        # cart_quantity = item.quantity
+        # cart_product = item.product.product
+        # Variation.objects.filter(product=cart_product).update(stock=F('stock')+cart_quantity)
         CartItem.objects.filter(id=id).delete()
         return redirect('cart')
     else:
@@ -203,15 +207,22 @@ def increment_cart_item(request):
     if 'user_email' in request.session:
         cart_id = request.GET.get('cart_id')
         cart_item = CartItem.objects.get(id=cart_id)
+        # stock = cart_item.product.stock
         if cart_item.product.stock != 0:
             if cart_item.quantity > 0 :
-                cart_item.quantity += 1
-                cart_item.product.stock -= 1
-                cart_item.product.save()
-                cart_item.save()
-                print(cart_item.product.stock)
-                print(cart_item.quantity)            
-                return redirect('cart')
+                print(cart_item.quantity)
+                print(cart_item.product.stock)         
+                if cart_item.product.stock > cart_item.quantity:
+                    cart_item.quantity += 1
+                    # cart_item.product.stock -= 1
+                    # cart_item.product.save()
+                    cart_item.save()
+                    print(cart_item.product.stock)
+                    print(cart_item.quantity)         
+                    return redirect('cart')
+                else:
+                    messages.warning(request, 'Product Out Of Stock')
+                    return redirect('cart')
             else:
                 CartItem.objects.filter(id=cart_id).delete()
                 return redirect('cart')
@@ -228,15 +239,15 @@ def decrement_cart_item(request):
         cart_item = CartItem.objects.get(id=cart_id)
         if cart_item.quantity > 1 :
             cart_item.quantity -= 1
-            cart_item.product.stock += 1
-            cart_item.product.save()
+            # cart_item.product.stock += 1
+            # cart_item.product.save()
             cart_item.save()
             print(cart_item.product.stock)
-            print(cart_item.quantity)            
+            print(cart_item.quantity)
             return redirect('cart')
         else:
-            cart_item.product.stock += 1
-            cart_item.product.save()
+            # cart_item.product.stock += 1
+            # cart_item.product.save()
             print(cart_item.product.stock)
             print(cart_item.quantity)
             CartItem.objects.filter(id=cart_id).delete()
@@ -275,32 +286,42 @@ def proceed_to_checkout(request):
             discount = 0
         cartcount = cart.count()
         # usercoupon = UserCoupon.objects.filter(user__user_email=user_email, applied=True).first()
-        if usercoupon:
-            if cart.exists():
-                total = 0
-                quantity = 0
-                for cart_item in cart:
-                    total += cart_item.subtotal - (discount / cartcount)
+        # if usercoupon:
+        if cart.exists():
+            total = 0
+            quantity = 0
+            for cart_item in cart:
+                if cart_item.product.stock >= cart_item.quantity:
+                    if usercoupon:
+                        total += cart_item.subtotal - (discount / cartcount)
+                    else:
+                        total += cart_item.subtotal
                     quantity += cart_item.quantity
-                grand_total = total
-            else:
-                total = 0
-                quantity = 0
-                grand_total = total
+                else:
+                    messages.warning(request,'Product out of stock')
+                    return redirect('cart')
+            grand_total = total
+        else:
+            total = 0
+            quantity = 0
+            grand_total = total
+        if usercoupon:
             usercoupon.applied = True
         else:
-            if cart.exists():
-                total = 0
-                quantity = 0
-                for cart_item in cart:
-                    total += cart_item.subtotal
-                    quantity += cart_item.quantity
-                grand_total = total
-            else:
-                total = 0
-                quantity = 0
-                grand_total = total
             usercoupon = False
+        # else:
+        #     if cart.exists():
+        #         total = 0
+        #         quantity = 0
+        #         for cart_item in cart:
+        #             total += cart_item.subtotal
+        #             quantity += cart_item.quantity
+        #         grand_total = total
+        #     else:
+        #         total = 0
+        #         quantity = 0
+        #         grand_total = total
+        #     usercoupon = False
         # print(usercoupon)
         # tax = (total*1.7)/100
         # grand_total = total
@@ -362,7 +383,9 @@ def confirm_order(request):
         cartcount = cart.count()
         for c in cart:
             Order(user=user, address=user_ad, product=c.product, amount=c.subtotal-(discount)/cartcount).save()
-            # c.delete()
+            # c.product.stock -= c.quantity
+            # c.product.save()
+            c.delete()
             print("order placed cod")
         return render(request,'store/confirm_order.html')
     else:
@@ -392,11 +415,19 @@ def cash_on_delivery(request):
                     discount = 0
                 cartcount = cart.count()
                 for c in cart:
-                    ord = Order(user=user, address=user_1, product=c.product, amount=c.subtotal-(discount)/cartcount, quantity=c.quantity )
-                    ord.save()
-                    htmlgen =  f'<p>Your Celeritas Order of Order ID <strong>ORDID{ord.id}</strong> placed successfully.</p>Price: ₹ {c.subtotal-(discount)/cartcount}<p>Quantity: {c.quantity} No.s</p>'
-                    send_mail('Order Placed',str(ord.id),'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
-                    # c.delete()
+                    if c.product.stock >= c.quantity:
+                        ord = Order(user=user, address=user_1, product=c.product, amount=c.subtotal-(discount)/cartcount, quantity=c.quantity )
+                        ord.save()
+                        print(c.product.stock)
+                        print(c.quantity)
+                        c.product.stock -= c.quantity
+                        c.product.save()
+                        htmlgen =  f'<p>Your Celeritas Order of Order ID <strong>ORDID{ord.id}</strong> placed successfully.</p>Price: ₹ {c.subtotal-(discount)/cartcount}<p>Quantity: {c.quantity} No.s</p>'
+                        send_mail('Order Placed',str(ord.id),'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
+                        c.delete()
+                    else:
+                        # messages.warning(request, 'Product out of stock')
+                        return redirect('proceed_to_checkout')
                 UserCoupon.objects.filter(user__user_email=user_email,coupon__is_active=True,applied=True).delete()
                 context = {
                     'cat':cat,
@@ -465,11 +496,17 @@ def r_razorpay(request):
             #         discount = 0
             #     cartcount = cart.count()
             for c in cart:
-                ord = Order(user=user, address=user_ad, product=c.product, amount=c.subtotal-(discount)/cartcount, quantity=c.quantity, order_type= 'Razorpay')
-                ord.save()
-                htmlgen =  f'<p>Your Celeritas Order of Order ID <strong>ORDID{ord.id}</strong> placed successfully.</p>Price: ₹ {c.subtotal-(discount)/cartcount}<p>Quantity: {c.quantity} No.s</p>'
-                send_mail('Order Placed',str(ord.id),'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
-                c.delete()
+                if c.product.stock >= c.quantity:
+                    ord = Order(user=user, address=user_ad, product=c.product, amount=c.subtotal-(discount)/cartcount, quantity=c.quantity, order_type= 'Razorpay')
+                    ord.save()
+                    c.product.stock -= c.quantity
+                    c.product.save()
+                    htmlgen =  f'<p>Your Celeritas Order of Order ID <strong>ORDID{ord.id}</strong> placed successfully.</p>Price: ₹ {c.subtotal-(discount)/cartcount}<p>Quantity: {c.quantity} No.s</p>'
+                    send_mail('Order Placed',str(ord.id),'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
+                    c.delete()
+                else:
+                    # messages.warning(request, 'Product out of stock')
+                    return redirect('proceed_to_checkout')
                 print(Order.objects.filter(user=user))
                 print("order placed razorpay")
                 
@@ -483,36 +520,3 @@ def r_razorpay(request):
         return redirect('user_login')
     
     
-# @csrf_exempt
-# def razorpay_callback(request):
-#     if request.method == 'POST':
-#         # Retrieve the POST data from Razorpay
-#         razorpay_data = request.POST
-
-#         # Verify the authenticity of the callback request
-#         client = razorpay.Client(auth=("rzp_test_FzpBcunlDun1vW", "0CmJy8RJrFXmVAsInbHBJSyr"))
-#         try:
-#             client.utility.verify_payment_signature(razorpay_data)
-#             # Signature verification successful, proceed to process the payment
-#             payment_id = razorpay_data['razorpay_payment_id']
-#             payment_status = razorpay_data['razorpay_event']
-
-#             if payment_status == 'payment.authorized':
-#                 # Payment is successful, mark the order as paid or update your records
-#                 # You can retrieve the order ID or other necessary data from Razorpay response
-
-#                 # Example: Update the order status
-#                 # Order.objects.filter(razorpay_order_id=payment_id).update(status='paid')
-
-#                 return JsonResponse({'status': 'success'})
-#             else:
-#                 # Payment failed or has another status
-#                 # Handle as needed
-#                 return JsonResponse({'status': 'failed'})
-
-#         except razorpay.errors.SignatureVerificationError:
-#             # Signature verification failed, possibly an invalid request
-#             return JsonResponse({'status': 'error'})
-#     else:
-#         # Handle non-POST requests appropriately
-#         return JsonResponse({'status': 'error'})

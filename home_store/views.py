@@ -445,7 +445,7 @@ def edit_personal_info(request):
             user_firstname = request.POST.get('firstname')
             user_lastname = request.POST.get('lastname')
             UserDetail.objects.filter(user_email=user.user_email).update(user_firstname=user_firstname,user_lastname=user_lastname)
-            messages.success(request, 'User mobile number updated successfully')
+            messages.success(request, 'User personal information updated successfully')
             return redirect('user_profile_info')
         else:
             return redirect('user_profile_info')
@@ -462,15 +462,8 @@ def edit_email(request):
             except UserDetail.DoesNotExist:
                 messages.warning(request,'invalid user')
             new_email = request.POST.get('email')
-            # u_otp = generateOTP()
-            # request.session['u_otp'] = u_otp
-            request.session['new_email'] = new_email
             
-            # htmlgen =  f'<p>Your OTP for change email address of your Celeritas account is <strong>{u_otp}</strong></p>.'
-            # send_mail('OTP request',u_otp,'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
-            # UserDetail.objects.filter(user_email=user.user_email).update(user_email=user_email2)
-            # messages.success(request, 'User Email updated successfully please login with your new email')
-            # print(u_otp)
+            request.session['new_email'] = new_email
             return redirect('verify_edit_email')
         else:
             return redirect('user_profile_info')
@@ -592,10 +585,20 @@ def add_address(request):
                 messages.success(request, 'new address added successfully')
                 return redirect('user_manage_address') 
             else:
-                return render(request, 'accounts/user_add_address.html', {'form': form})
+                return redirect('add_address') 
+                # return render(request, 'accounts/user_add_address.html', {'form': form})
         else:
             form = UserAddressForm()
-            return render(request, 'accounts/user_add_address.html', {'form': form})
+            user = UserDetail.objects.get(user_email=request.session['user_email'])
+            cat=Category.objects.all()
+            context = {
+            'cat':cat,
+            'user':user,
+            'user_image':user.user_image,
+            'user_firstname': user.user_firstname,
+            'form': form,
+            }
+            return render(request, 'accounts/user_add_address.html', context)
     else:
         return redirect('user_login')
     
