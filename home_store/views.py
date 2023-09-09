@@ -456,16 +456,68 @@ def edit_personal_info(request):
 def edit_email(request):
     if 'user_email' in request.session:
         if request.method == 'POST':
-            user_email = request.session['user_email']
-            user = UserDetail.objects.get(user_email=user_email)
-            user_email = request.POST.get('email')
-            UserDetail.objects.filter(user_email=user.user_email).update(user_email=user_email)
-            messages.success(request, 'User mobile number updated successfully')
-            return redirect('user_logout')
+            try:
+                user_email = request.session['user_email']
+                user = UserDetail.objects.get(user_email=user_email)
+            except UserDetail.DoesNotExist:
+                messages.warning(request,'invalid user')
+            new_email = request.POST.get('email')
+            # u_otp = generateOTP()
+            # request.session['u_otp'] = u_otp
+            request.session['new_email'] = new_email
+            
+            # htmlgen =  f'<p>Your OTP for change email address of your Celeritas account is <strong>{u_otp}</strong></p>.'
+            # send_mail('OTP request',u_otp,'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
+            # UserDetail.objects.filter(user_email=user.user_email).update(user_email=user_email2)
+            # messages.success(request, 'User Email updated successfully please login with your new email')
+            # print(u_otp)
+            return redirect('verify_edit_email')
         else:
             return redirect('user_profile_info')
     else:
         return redirect('user_login')
+
+
+class EmailChangeVerification(View):
+    def get(self, request):
+        if 'new_email' and 'user_email' in request.session:
+            user_email = request.session['user_email']
+            cat = Category.objects.all()
+            user = UserDetail.objects.get(user_email=user_email)
+            context = {
+                'cat':cat,
+                'user':user,
+                'user_image':user.user_image,
+                'user_firstname': user.user_firstname,
+                }
+            return render(request, 'accounts/change_email_verification.html',context)
+        else:
+            return redirect('edit_email')
+
+    def post(self, request):
+        if 'new_email' and 'user_email' not in request.session:
+            return redirect('edit_email')
+        user_pass = request.POST.get('password')
+        user_cpass = request.POST.get('c_password')
+        
+        new_email = request.session['new_email']
+        user_email = request.session['user_email']
+
+        if user_pass == user_cpass:
+            user = UserDetail.objects.filter(user_email=user_email)
+            user.update(user_email=new_email)
+            
+            del request.session['user_email']
+            request.session['user_email'] = new_email
+            del request.session['new_email']
+            
+            messages.success(request,'Successfully changed your email address.')
+            return redirect('edit_email')
+        else:
+            messages.warning(request, 'Passwords not match.')
+            return redirect('verify_edit_email')
+        
+        
         
 def edit_phone(request):
     if 'user_email' in request.session:

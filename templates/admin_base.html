@@ -146,9 +146,9 @@ $(document).ready(function() {
 
         // Pie chart flotPie1
         var piedata = [
-            { label: "Desktop visits", data: [[1,32]], color: '#5c6bc0'},
-            { label: "Tab visits", data: [[1,33]], color: '#ef5350'},
-            { label: "Mobile visits", data: [[1,35]], color: '#66bb6a'}
+            { label: "Registerd User", data: [[1,32]], color: '#5c6bc0'},
+            { label: "Purchased User", data: [[1,33]], color: '#ef5350'},
+            { label: "Purchase Pending User", data: [[1,35]], color: '#66bb6a'}
         ];
 
         $.plot('#flotPie1', piedata, {
@@ -276,14 +276,14 @@ $(document).ready(function() {
                     labels: [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul" ],
                     datasets: [
                     {
-                        label: "Visit",
+                        label: "Last Month Orders",
                         borderColor: "rgba(4, 73, 203,.09)",
                         borderWidth: "1",
                         backgroundColor: "rgba(4, 73, 203,.5)",
                         data: [ 0, 2900, 5000, 3300, 6000, 3250, 0 ]
                     },
                     {
-                        label: "Bounce",
+                        label: "Expected Orders",
                         borderColor: "rgba(245, 23, 66, 0.9)",
                         borderWidth: "1",
                         backgroundColor: "rgba(245, 23, 66,.5)",
@@ -291,7 +291,7 @@ $(document).ready(function() {
                         data: [ 0, 4200, 4500, 1600, 4200, 1500, 4000 ]
                     },
                     {
-                        label: "Targeted",
+                        label: "Last Month Revenue",
                         borderColor: "rgba(40, 169, 46, 0.9)",
                         borderWidth: "1",
                         backgroundColor: "rgba(40, 169, 46, .5)",

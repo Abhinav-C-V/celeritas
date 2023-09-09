@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<section class="section-conten padding-y" style="min-height:84vh">
+
+<!-- ============================ COMPONENT LOGIN   ================================= -->
+
+
+	<div class="card mx-auto" style="max-width: 496px; margin-top:100px;">
+
+      <div class="card-body ">
+      <h4 class="card-title mb-4">PASSWORD VERIFICATION</h4>
+      <br>
+      {% include 'includes/alerts.html' %}
+      <small>Please confirm your password for update your email address.</small>
+    
+      <form action="{% url 'verify_edit_email' %}" method="POST">
+        {% csrf_token %}
+        {% comment %} <div class="form-group text-center"> {% endcomment %}
+            <div class="form-group">
+                <input type="password" class="form-control" placeholder="Password" name="password" required>
+            </div>
+          <div class="form-group">
+			 <input type="password" class="form-control" placeholder="Confirm Password" name="c_password" required>
+          </div> <!-- form-group// -->
+
+          <div class="form-group text-left">
+            <button type="submit" class="btn btn-primary col-lg-4 btn-sm">Submit</button>
+          </div><!-- form-group// -->
+        {% comment %} </div> {% endcomment %}
+      </form>
+            <div class="form-group text-right">
+                <a href="{% url 'forgot_password' %}">Forgot Password</a>
+            </div>
+    
+      </div> <!-- card-body.// -->
+    </div> <!-- card .// -->
+
+     {% comment %} <p class="text-center mt-4"><a href="{% url 'forgot_password' %}">Login</a></p> {% endcomment %}
+     <br><br>
+<!-- ============================ COMPONENT LOGIN  END.// ================================= -->
+
+</section>
+{% endblock %}

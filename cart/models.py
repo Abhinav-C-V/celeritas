@@ -2,27 +2,23 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.db import models
 from home_store.models import UserDetail, Address
 from product.models import Product, Variation
+from django.db.models import Count, Sum
+from datetime import datetime, timedelta, date
 # Create your models here.
 
 
 class Wishlist(models.Model):
     user = models.ForeignKey(UserDetail, on_delete=models.CASCADE,default=None)
     product = models.ForeignKey(Product,  on_delete=models.CASCADE,default=None)
-    
     def __str__(self):
         return f"{self.user.user_email} , {self.product.product_name}"
 
-
-     
 class Cart(models.Model):
     user = models.ForeignKey(UserDetail, on_delete=models.CASCADE, null=False)
-
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, null=False, related_name='items')
     product = models.ForeignKey(Variation, on_delete=models.CASCADE, null=False)
     quantity = models.PositiveIntegerField()
-    
-
     @property
     def subtotal(self):
         return self.product.product.price * self.quantity
@@ -73,3 +69,6 @@ class Order(models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
     def __str__(self):
         return str(self.id)
+    
+
+    

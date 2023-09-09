@@ -16,6 +16,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from cart.models import Coupon, UserCoupon, Order
 
+from django.db.models import Sum
+from datetime import datetime, timedelta
+
 
 
 
@@ -40,10 +43,53 @@ class AdminLoginView(View):
             return render(request, 'admin/login.html')
         
         
-@never_cache
 def admindashboard(request):
     if 'username' in request.session:
-        return render(request, 'admin/index.html')
+        # Calculate the start and end dates for the last month
+        today = datetime.today()
+        last_month_end = today - timedelta(days=1)
+        last_month_start = last_month_end - timedelta(days=29)
+
+        # Calculate last month's orders
+        last_month_completed_orders = Order.objects.filter(
+            ordered_date__gte=last_month_start,
+            ordered_date__lte=last_month_end,
+            status='Delivered'
+        ).count()
+        
+        last_month_incomplete_orders = Order.objects.filter(
+            ordered_date__gte=last_month_start,
+            ordered_date__lte=last_month_end,
+        ).exclude(status='Delivered').count()
+        
+        last_month_expected_orders = int(last_month_completed_orders * 1.71)
+
+        # Calculate last month's revenue
+        last_month_revenue = Order.objects.filter(
+            ordered_date__gte=last_month_start,
+            ordered_date__lte=last_month_end,
+            status='Delivered'
+        ).aggregate(total_revenue=Sum('amount'))['total_revenue']
+
+        # Calculate the total number of users
+        total_users = UserDetail.objects.all().count()
+        
+
+        # Handle cases where last_month_revenue may be None
+        if last_month_revenue is None:
+            last_month_revenue = 0
+        
+        last_month_expected_revenue = int(last_month_revenue * 1.60)
+
+        context = {
+            'orders': last_month_completed_orders,
+            'incomplete_orders': last_month_incomplete_orders,
+            'expected_orders':last_month_expected_orders,
+            'expected_revenue': last_month_expected_revenue,
+            'users': total_users,
+            'revenue': last_month_revenue,
+        }
+        return render(request, 'admin/index.html', context)
     else:
         return redirect('admin_login')
     
@@ -116,8 +162,6 @@ def admin_bannerlist(request):
         paginator = Paginator(banner, 5)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
-        # for banner in page_obj:
-        #     print(banner)
         return render(request,'admin/banner_list.html',{'page_obj': page_obj})
     else:
         return redirect('admin_login')
@@ -128,13 +172,11 @@ def update_banner(request):
         bid = request.GET['bid']
         ban = Banner.objects.get(id=bid)
         if request.method == 'POST':
-            # print(ban)
             form = BannerForm(request.POST, request.FILES, instance=ban)
             if form.is_valid():
                 form.save()
                 return redirect('admin_bannerlist')
         else:
-            # print(ban)
             form = BannerForm(instance=ban)
             return render(request, 'admin/update_banner.html', {'form': form,'ban':ban })
     else:
@@ -162,25 +204,6 @@ class AdminAddBannerView(View):
                 return redirect('admin_bannerlist')
         else:
             return render(request, 'admin/add_banner.html', {'form': form})
-
-
-# def admin_addbanner(request): 
-#     if 'username' in request.session:
-#         if request.method == 'POST':
-#             form = BannerForm(request.POST, request.FILES)
-#             print(form.cleaned_data['name'])
-#             if form.is_valid():
-#                 form.save()
-#                 print(form.cleaned_data['name'])
-#                 messages.success(request,'Banner added successfully')
-#                 return redirect('admin_bannerlist')
-#             else:
-#                 return render(request, 'admin/add_banner.html', {'form': form})
-#         else:
-#             form = BannerForm()
-#             return render(request, 'admin/add_banner.html', {'form': form})
-#     else:
-#         return redirect('admin_login')
 
   
 def delete_banner(request):
