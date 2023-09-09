@@ -49,63 +49,51 @@ def admindashboard(request):
         today = datetime.today()
         last_month_end = today - timedelta(days=1)
         last_month_start = last_month_end - timedelta(days=29)
-
-        # Calculate last month's orders
-        last_month_completed_orders = Order.objects.filter(
-            ordered_date__gte=last_month_start,
-            ordered_date__lte=last_month_end,
-            status='Delivered'
-        ).count()
         
-        last_month_incomplete_orders = Order.objects.filter(
-            ordered_date__gte=last_month_start,
-            ordered_date__lte=last_month_end,
-        ).exclude(status='Delivered').count()
-        
-        last_month_expected_orders = int(last_month_completed_orders * 1.71)
-
-        # Calculate last month's revenue
-        last_month_revenue = Order.objects.filter(
-            ordered_date__gte=last_month_start,
-            ordered_date__lte=last_month_end,
-            status='Delivered'
-        ).aggregate(total_revenue=Sum('amount'))['total_revenue']
-
-        # Calculate the total number of users
         total_users = UserDetail.objects.all().count()
-        
 
-        # Handle cases where last_month_revenue may be None
+        last_month_orders = Order.objects.filter(ordered_date__gte=last_month_start,ordered_date__lte=last_month_end,status='Delivered')
+        
+        last_month_completed_orders = last_month_orders.count()
+        last_month_expected_orders = int(total_users * 2)
+        last_month_incomplete_orders = Order.objects.filter(ordered_date__gte=last_month_start,ordered_date__lte=last_month_end,).exclude(status='Delivered').count()
+        
+        last_month_revenue = last_month_orders.aggregate(total_revenue=Sum('amount'))['total_revenue']
         if last_month_revenue is None:
             last_month_revenue = 0
+        last_month_expected_revenue = int(total_users * 2000)
         
-        last_month_expected_revenue = int(last_month_revenue * 1.60)
+        
+        # Find the most sold product
+        most_sold_product = (last_month_orders.values('product').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity').first())
 
+        # Find the least sold product
+        least_sold_product = (last_month_orders.values('product').annotate(total_quantity=Sum('quantity')).order_by('total_quantity').first())
+            
+        print(least_sold_product)
+        print(most_sold_product)
+        
         context = {
             'orders': last_month_completed_orders,
             'incomplete_orders': last_month_incomplete_orders,
             'expected_orders':last_month_expected_orders,
+            
+            'least_sold_product': least_sold_product,
+            'most_sold_product': most_sold_product,
+            
             'expected_revenue': last_month_expected_revenue,
-            'users': total_users,
             'revenue': last_month_revenue,
+            
+            'most_sold_product': most_sold_product,
+            'least_sold_product': least_sold_product,
+            
+            'users': total_users,
+            
         }
         return render(request, 'admin/index.html', context)
     else:
         return redirect('admin_login')
     
-    # if 'username' in request.session:
-    #     orders_months = Order.objects.annotate(month=ExtractMonth("ordered_date")).values('month').annotate(count=Count('id')).values('month','count')
-    #     months = []
-    #     total_ord = []
-    #     for i in orders_months:
-    #         months.append(calendar.month_name[i['month']])
-    #         total_ord.append(i['count'])
-    #         order = Order.objects.order_by('ordered_date')[:2]
-    #     return render(request, 'admindashboard.html',{'months':months,'total_ord':total_ord})
-    
-    # else:
-    # return render(request, 'admin_login.html')
-
 
 @never_cache
 def admin_logout(request):
