@@ -26,19 +26,19 @@
 					<h6 class="title">Help</h6>
 					<ul class="list-unstyled">
 						<li> <a href="#">Contact us</a></li>
-						<li> <a href="#">Money refund</a></li>
-						<li> <a href="#">Order status</a></li>
-						<li> <a href="#">Shipping info</a></li>
+						<li> <a href="{% url 'orders' %}">Money refund</a></li>
+						<li> <a href="{% url 'orders' %}">Order status</a></li>
+						<li> <a href="{% url 'orders' %}">Shipping info</a></li>
 						<li> <a href="#">Open dispute</a></li>
 					</ul>
 				</aside>
 				<aside class="col-md col-6">
 					<h6 class="title">Account</h6>
 					<ul class="list-unstyled">
-						<li> <a href="#"> User Login </a></li>
-						<li> <a href="#"> User register </a></li>
-						<li> <a href="#"> Account Setting </a></li>
-						<li> <a href="#"> My Orders </a></li>
+						<li> <a href="{% url 'user_dashboard' %}"> User Login </a></li>
+						<li> <a href="{% url 'user_dashboard' %}"> User register </a></li>
+						<li> <a href="{% url 'user_profile_info' %}"> Account Setting </a></li>
+						<li> <a href="{% url 'orders' %}"> My Orders </a></li>
 					</ul>
 				</aside>
 				<aside class="col-md">

@@ -340,7 +340,6 @@ def userstore_filter(request):
 def product_detail(request, id):
     # if 'user_email' in request.session:
     try:
-        
         single_product = get_object_or_404(Product, id=id)
         # print(single_product)
         reviews = ReviewRating.objects.filter(product=single_product)
@@ -359,7 +358,6 @@ def product_detail(request, id):
     except Product.DoesNotExist:
         raise Http404("Product does not exist")
     product_gallery = ProductGallery.objects.filter(product__product=single_product)
-    # print(product_gallery)
     if 'user_email' in request.session:
         user = UserDetail.objects.get(user_email=request.session['user_email'])
         try:
@@ -372,7 +370,6 @@ def product_detail(request, id):
         except Order.DoesNotExist:
             ord_pdt = False
         # Get the reviews
-        # reviews = ReviewRating.objects.filter(product=single_product)cat
         context = {
             'cat': cat,
             'single_product': single_product,
@@ -677,7 +674,7 @@ def forgot_password(request):
                 messages.warning(request,'No user is registered with this email address')
                 return redirect('forgot_password')
             """send otp code for mail"""
-            o=generateOTP()
+            o=str(user.user_firstname)+generateOTP()
             # print(o)
             user.user_password = make_password(o)
             user.save()
@@ -697,6 +694,7 @@ def forgot_password(request):
             cat=Category.objects.all()
             user_email = request.session['user_email']
             user = UserDetail.objects.get(user_email=user_email)
+            # print(o)
             context={
                 'cat': cat,
                 'user_firstname': user.user_firstname,
@@ -855,6 +853,7 @@ def apply_coupon(request):
                     user_coupon.update(applied=True)
                     
                     if len(user_coupon) >0:
+                        request.session['user_coupon'] = True
                         messages.success(request, 'Coupon Applied')
                     else:
                         messages.warning(request, 'No such coupon is available')
@@ -951,7 +950,7 @@ def otp_login(request):
         request.session['random _data'] = phone
         print('otp is ',o)
         account_sid = 'AC61ecfa87d2c06f591728efd8db170078'
-        auth_token = '3ba36828ccb7d09d8e458d145e3f2ae4'
+        auth_token = 'c1719b983d826bf556d2c91776a7babe'
         TWILIO_PHONE_NUMBER = +16562184391
         
         client = Client(account_sid, auth_token)

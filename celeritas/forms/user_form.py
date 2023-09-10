@@ -54,7 +54,7 @@ class UserSignupForm(forms.ModelForm):
 
     def clean_user_lastname(self):
         user_lastname = self.cleaned_data['user_lastname']
-        if len(user_lastname) < 2:
+        if len(user_lastname) < 1:
             raise forms.ValidationError("Last name must have at least 2 characters.")
         if not user_lastname.isalpha():
             raise forms.ValidationError("Last name must only contain alphabetic characters.")

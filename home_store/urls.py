@@ -16,12 +16,6 @@ urlpatterns = [
     path('otp_login', views.otp_login, name='otp_login'),
     path('otp_verification', views.otp_verification, name='otp_verification'),
     
-    
-    
-    # path('forgot_password', views.forgot_password, name='forgot_password'),
-    # path('resetpassword_validate/<uidb64>/<token>/', views.resetpassword_validate, name='resetpassword_validate'),
-    # path('reset_password', views.reset_password, name='reset_password'),
-    
     path('user_home', views.userhome, name='user_home'),
     path('user_store', views.userstore_filter, name='user_store'),
     # path('userstore_filter', views.userstore_filter, name='userstore_filter'),
@@ -35,7 +29,6 @@ urlpatterns = [
     path('forgot_pass_logout_user/', views.forgot_pass_logout_user, name='forgot_pass_logout_user'),
     path('edit_email/', views.edit_email, name='edit_email'),
     path('verify_edit_email', EmailChangeVerification.as_view(), name='verify_edit_email'),
-    
     
     path('edit_phone/', views.edit_phone, name='edit_phone'),
     path('edit_image/', views.edit_image, name='edit_image'),

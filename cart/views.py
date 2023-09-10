@@ -162,7 +162,7 @@ def cart(request):
             # tax = (total*1.7)/100
             tax = 0
             grand_total = total + tax
-            
+            key = True
             context = {
                 'cart_items': cart_items,
                 'total': total,
@@ -173,11 +173,13 @@ def cart(request):
                 'user_image': user_detail.user_image,
                 'user':user_detail,
                 'cat':cat,
+                'key':key,
+                
                 
             }
-            return render(request, 'store/cart.html', context)
+            # return render(request, 'store/cart.html', context)
         else:
-            user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
+            # user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
             context = {
                 'user_firstname': user_detail.user_firstname,
                 'user_image': user_detail.user_image,
@@ -186,7 +188,7 @@ def cart(request):
                 
             }
             # messages.warning(request, 'No items in cart')
-            return render(request, 'store/cart.html',context)
+        return render(request, 'store/cart.html',context)
 
     return redirect('user_login')
     
@@ -258,26 +260,27 @@ def decrement_cart_item(request):
 @never_cache
 def proceed_to_checkout(request):
     if 'user_email' in request.session:
+        
         user_email=request.session['user_email']
         # cart = CartItem.objects.filter(cart__user=user_detail).all()
         cat=Category.objects.all()
         user_detail = UserDetail.objects.get(user_email=user_email)
         adrs = Address.objects.filter(user=user_detail).all()
         selected_adrs = Address.objects.filter(user=user_detail,selected=True)
-        if selected_adrs:
-            print("hello",selected_adrs)
-        else:
-            print("no address")
-        # print(len(adrs))
+        
         cart = CartItem.objects.filter(cart__user=user_detail).all()
         if len(cart)<=0:
             return redirect('cart')
-       
+        
         # captcha = random.randint(111111,999999)
         captcha = generateOTP()
-        
+            
         # print(captcha)
-        usercoupon = UserCoupon.objects.filter(user__user_email=user_email, coupon__is_active=True, applied=True).first()
+        if 'user_coupon' in request.session:
+            usercoupon = UserCoupon.objects.filter(user__user_email=user_email, coupon__is_active=True, applied=True).first()
+            del request.session['user_coupon']
+        else:
+            usercoupon = None
         try:
             # usercoupon = UserCoupon.objects.get(user__user_email=user_email, coupon__is_active=True, applied=True)
             
@@ -311,22 +314,7 @@ def proceed_to_checkout(request):
             usercoupon.applied = True
         else:
             usercoupon = False
-        # else:
-        #     if cart.exists():
-        #         total = 0
-        #         quantity = 0
-        #         for cart_item in cart:
-        #             total += cart_item.subtotal
-        #             quantity += cart_item.quantity
-        #         grand_total = total
-        #     else:
-        #         total = 0
-        #         quantity = 0
-        #         grand_total = total
-        #     usercoupon = False
-        # print(usercoupon)
-        # tax = (total*1.7)/100
-        # grand_total = total
+        
         context = {
                 'cat':cat,
                 'user_firstname': user_detail.user_firstname,
@@ -343,8 +331,9 @@ def proceed_to_checkout(request):
                 'captcha': captcha,
                 'usercoupon': usercoupon,
             }
-       
+        
         return render(request, 'store/checkout.html', context)
+    
     else:
         return redirect('user_login')
 
