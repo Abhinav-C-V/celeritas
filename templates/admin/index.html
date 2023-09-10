@@ -91,10 +91,10 @@
                             </div>
                             <div class="row">
                                 <div class="col-lg-12">
-                                    <div class="card-body">
+                                    {% comment %} <div class="card-body"> {% endcomment %}
                                         <!-- <canvas id="TrafficChart"></canvas>   -->
                                         {% comment %} <div id="traffic-chart" class="traffic-chart"></div> {% endcomment %}
-                                        <div class="orders">
+                                        {% comment %} <div class="orders "> {% endcomment %}
                                             <div class="row">
                                                 <div class="col-lg-6">
                                                     <canvas id="ordersChart" width="400" height="200"></canvas>
@@ -116,8 +116,8 @@
                                                     {% comment %} <div id="least-sold-product">Least Sold Product: Loading...</div> {% endcomment %}
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
+                                        {% comment %} </div> {% endcomment %}
+                                    {% comment %} </div> {% endcomment %}
                                 </div>
                             
 
@@ -154,17 +154,17 @@
                                     </div> <!-- /.card-body -->
                                 </div> {% endcomment %}
                             {% comment %} <div class="col-xl-12"> {% endcomment %}
-                                <div class="row col-md-12 text-center">
+                            <div class="row col-md-12 text-center">
                                 <div class="col-md-12 col-lg-4">
-                                    <div class="card">
+                                    {% comment %} <div class="card"> {% endcomment %}
                                         <div class="card-body">
                                             <!-- <h4 class="box-title">Chandler</h4> -->
-                                            <div class="calender-cont widget-calender">
+                                            <div class="calender-cont ">
                                                 <canvas id="pieChart" width="400" height="200"></canvas>
                                                 {% comment %} <div id="calendar"></div> {% endcomment %}
                                             </div>
                                         </div>
-                                    </div><!-- /.card -->
+                                    {% comment %} </div><!-- /.card --> {% endcomment %}
                                 </div>
 
                                 <!-- Calender Chart Weather  -->
@@ -183,15 +183,15 @@
                                 <div class="col-md-12 col-lg-4">
                                     <div class="card bg-flat-color-3 ">
                                         <div class="card-body">
-                                            <h4 class="card-title m-0  white-color ">August 2018</h4>
+                                            <h4 class="card-title m-0  white-color "></h4>
                                         </div>
                                          <div class="card-body">
                                              <div id="flotLine5" class="flot-line"></div>
                                          </div>
                                     </div><!-- /.card -->
                                 </div>
-                                </div>
-                            {% comment %} </div> <!-- /.col-md-4 --> {% endcomment %}
+                            </div>
+                                {% comment %} </div> <!-- /.col-md-4 --> {% endcomment %}
 
                             </div> <!-- /.row -->
                             
