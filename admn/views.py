@@ -109,7 +109,7 @@ def admin_userdetails(request):
             user=UserDetail.objects.filter(user_firstname__icontains=search)
         else:
             user=UserDetail.objects.all().order_by('id')
-        paginator = Paginator(user, 5)
+        paginator = Paginator(user, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         return render(request,'admin/user_details.html',{'page_obj': page_obj})
@@ -158,7 +158,11 @@ def admin_bannerlist(request):
 def update_banner(request):
     if 'username' in request.session:
         bid = request.GET['bid']
-        ban = Banner.objects.get(id=bid)
+        try:
+            ban = Banner.objects.get(id=bid)
+        except Banner.DoesNotExist:
+            messages.warning(request,'Selected banner not found')
+            return redirect('admin_bannerlist')
         if request.method == 'POST':
             form = BannerForm(request.POST, request.FILES, instance=ban)
             if form.is_valid():
@@ -210,7 +214,7 @@ def admin_couponlist(request):
             coupon=Coupon.objects.filter(coupon_code__icontains=search)
         else:
             coupon=Coupon.objects.all().order_by('-id')
-        paginator = Paginator(coupon, 5)
+        paginator = Paginator(coupon, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         return render(request,'admin/coupon_list.html',{'page_obj': page_obj})
@@ -247,8 +251,11 @@ def delete_coupon(request):
 
 def update_coupon(request):
     if 'username' in request.session:
-        c_id = request.GET['uid']
-        coup = Coupon.objects.get(id=c_id)
+        try:
+            c_id = request.GET['uid']
+            coup = Coupon.objects.get(id=c_id)
+        except Coupon.DoesNotExist:
+            messages.warning(request,'Selected Coupon does not exist.')
         if request.method == 'POST':
             form = CouponForm(request.POST, request.FILES, instance=coup)
             if form.is_valid():
@@ -273,7 +280,7 @@ def admin_user_couponlist(request):
         else:
             uid=request.GET['uid']
             coupon=UserCoupon.objects.filter(user=uid).order_by('id')
-        paginator = Paginator(coupon, 5)
+        paginator = Paginator(coupon, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         return render(request,'admin/user_couponlist.html',{'page_obj': page_obj,})
@@ -315,10 +322,10 @@ def admin_orderlist(request):
     if 'username' in request.session:
         if 'search' in request.GET:
             search=request.GET['search']
-            member=Order.objects.filter(Q(user__user_firstname__icontains=search)|Q(id__icontains=search)).order_by('-id')
+            order=Order.objects.filter(Q(user__user_firstname__icontains=search)|Q(id__icontains=search)).order_by('-id')
         else:
-            member = Order.objects.all().order_by('-id')
-        paginator = Paginator(member, 10)
+            order = Order.objects.all().order_by('-id')
+        paginator = Paginator(order, 15)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         return render(request,'admin/order_list.html', {'page_obj': page_obj})
@@ -328,8 +335,13 @@ def admin_orderlist(request):
 class OrderUpdateView(View):
     def get(self, request, id):
         if 'username' in request.session:
-            ord = Order.objects.get(id=id)
-            form = OrderForm(instance=ord)
+            try:
+                ord = Order.objects.get(id=id)
+                form = OrderForm(instance=ord)
+            except Order.DoesNotExist:
+                messages.warning(request,'Selected order does not exist')
+                return redirect('admin_orderlist')
+                
             return render(request, 'admin/update_orders.html', {'form': form,'ord':ord})
         else:
             return redirect('admin_login')

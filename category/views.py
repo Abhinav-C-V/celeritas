@@ -12,27 +12,23 @@ from django.views.decorators.cache import never_cache
 # Create your views here.
 
 
-# def category_view(request):
-#     categories = Category.objects.all()  # Retrieve all categories from the database
-#     context = {
-#         'links': categories,
-#     }
-#     return render(request, 'store/user_store.html', context)
 
 class AdminAddCategoryView(View):
+    @method_decorator(never_cache)
     def get(self, request):
         if 'username' in request.session:
             form = CategoryForm()
             return render(request, 'admin/add_category.html', {'form': form})
         else:
             return render(request, 'admin/login.html')
-
+        
+    @method_decorator(never_cache)
     def post(self, request):
         if 'username' in request.session:
             form = CategoryForm(request.POST, request.FILES)
             if form.is_valid():
                 name = form.cleaned_data['category_name']
-                dup = Category.objects.filter(name=name).first()
+                dup = Category.objects.filter(category_name=name).first()
                 if dup:
                     messages.warning(request, 'Category already exists')
                     return redirect('admin_addcategory')
@@ -53,7 +49,7 @@ def admincategorylist(request):
             cat=Category.objects.filter(category_name__icontains=search)
         else:
             cat=Category.objects.all().order_by('id')
-        paginator = Paginator(cat, 5)
+        paginator = Paginator(cat, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         return render(request,'admin/category_list.html',{'page_obj': page_obj})
@@ -61,19 +57,29 @@ def admincategorylist(request):
         return render(request, 'admin/login.html')
 
 class UpdateCategoryView(View):
+    @method_decorator(never_cache)
     def get(self, request):
         if 'username' in request.session:
             uid = request.GET['uid']
-            cat = Category.objects.get(id=uid)
-            form = CategoryForm(instance=cat)
+            try:
+                cat = Category.objects.get(id=uid)
+                form = CategoryForm(instance=cat)
+            except Category.DoesNotExist:
+                messages.warning(request,'Selected category does not exist')
+                return redirect('admin_categorylist')
             return render(request, 'admin/update_category.html', {'form': form, 'cat':cat})
         else:
             return redirect('admin_login')
-    
+        
+    @method_decorator(never_cache)
     def post(self, request):
         if 'username' in request.session:
             uid = request.GET['uid']
-            cat = Category.objects.get(id=uid)
+            try:
+                cat = Category.objects.get(id=uid)
+            except Category.DoesNotExist:
+                messages.warning(request,'Selected category does not exist')
+                return redirect('admin_categorylist')
             form = CategoryForm(request.POST, request.FILES, instance=cat)
             if form.is_valid():
                 form.save()

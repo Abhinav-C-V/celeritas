@@ -33,10 +33,6 @@
                             <li><a  href="{% url 'admin_addproduct' %}"><i class="menu-icon fa fa-plus"></i> Add Product</a></li>
                             <li><a  href="{% url 'add_productvariation' %}"><i class="menu-icon fa fa-plus"></i> Add Variation</a></li>
                         </ol>
-                        <ol class="breadcrumb text-right">
-                            <li><a  href="{% url 'add_productcolor' %}"><i class="menu-icon fa fa-plus"></i> Add Color</a></li>
-                            <li><a  href="{% url 'add_productsize' %}"><i class="menu-icon fa fa-plus"></i> Add Size</a></li>
-                        </ol>
                     </div>
                 </div>
             </div>
@@ -55,6 +51,11 @@
                             <form action="{% url 'admin_productlist' %}" class="search-form">
                                 <div class="input-group">
                                     <input class="form-control search-input" type="text" placeholder="Search Name" name="search" aria-label="Search">
+                                    <select class="form-control " name="sort_price">
+                                        <option value="">Sort by Price</option>
+                                        <option value="asc">Price: Low to High</option>
+                                        <option value="desc">Price: High to Low</option>
+                                    </select>
                                     <div class="input-group-append">
                                         <button class="btn search-btn" type="submit"><i class="fa fa-search"></i></button>
                                     </div>
@@ -102,7 +103,9 @@
                                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                                                     <a class="dropdown-item" href="{% url 'admin_updateproduct' id=prod.id %} "><i class="menu-icon fa fa-sign-in"></i>Update</a>
                                                     <a class="dropdown-item" href="{% url 'admin_deleteproduct' %}?uid={{ prod.id }}"><i class="menu-icon fa fa-trash"></i>Delete</a>
-                                                    <a class="dropdown-item" href="{% url 'admin_product_variantlist' %}?prod_id={{ prod.id }}"><i class="menu-icon fa fa-th"></i>Product Variant List</a>
+                                                    {% comment %} <a class="dropdown-item" href="{% url 'admin_product_variantlist' %}?prod_id={{ prod.id }}"><i class="menu-icon fa fa-th"></i>Product Variant List</a> {% endcomment %}
+                                                    <a class="dropdown-item" href="{% url 'admin_product_variantlist' id=prod.id %}"><i class="menu-icon fa fa-th"></i>Product Variant List</a>
+
                                                 </div>
                                                 
 

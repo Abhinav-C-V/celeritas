@@ -280,7 +280,9 @@ def proceed_to_checkout(request):
         usercoupon = UserCoupon.objects.filter(user__user_email=user_email, coupon__is_active=True, applied=True).first()
         try:
             # usercoupon = UserCoupon.objects.get(user__user_email=user_email, coupon__is_active=True, applied=True)
+            
             if usercoupon is not None:
+                # if usercoupon.coupon.minimum_amount < 
                 discount = usercoupon.coupon.discount_price
         except UserCoupon.DoesNotExist:
             discount = 0

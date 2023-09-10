@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from . models import Product, ProductGallery, Variation, Size, Color
+from category.models import Category
 
 from celeritas.forms.product_form import ProductForm, ProductGalleryForm, VariationForm, ProductColorForm, ProductSizeForm
 from django.core.paginator import Paginator
@@ -20,28 +21,37 @@ from django.db.models import F
 def adminproductlist(request):
     if 'username' in request.session:
         if 'search' in request.GET:
-            search=request.GET['search']
-            prod=Product.objects.filter(product_name__icontains=search)
+            search = request.GET['search']
+            prod = Product.objects.filter(product_name__icontains=search)
         else:
-            prod=Product.objects.all().order_by('id')
-        paginator = Paginator(prod, 5)
+            prod = Product.objects.all().order_by('id')
+
+        # Add sorting by product price
+        sort_by_price = request.GET.get('sort_price')
+        if sort_by_price:
+            if sort_by_price == 'asc':
+                prod = prod.order_by('normal_price')
+            elif sort_by_price == 'desc':
+                prod = prod.order_by(F('normal_price').desc())
+
+        paginator = Paginator(prod, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
-        return render(request,'admin/product_details.html',{'page_obj': page_obj,})
+        return render(request, 'admin/product_details.html', {'page_obj': page_obj})
     else:
         return render(request, 'admin/login.html')
     
 @never_cache
-def admin_product_variantlist(request):
+def admin_product_variantlist(request,id):
     if 'username' in request.session:
         try:
-            prod_id = request.GET.get('prod_id')
-            product = get_object_or_404(Product, id=prod_id)
+            # prod_id = request.GET.get('prod_id')
+            product = get_object_or_404(Product, id=id)
             variants = Variation.objects.filter(product=product)
         except:
             messages.warning(request,'Variants not found')
             return redirect('admin_productlist')
-        paginator = Paginator(variants, 5)
+        paginator = Paginator(variants, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         return render(request, 'admin/product_variantlist.html', {'page_obj': page_obj})
@@ -57,9 +67,10 @@ def adminproductgallery(request):
             prod=ProductGallery.objects.filter(product__product__product_name__icontains=search)
         else:
             prod=ProductGallery.objects.all().order_by('id')
+            # prod = ProductGallery.objects.values('product').annotate(id=F('id'), image_count=Count('id')).order_by('id')
             # prod = ProductGallery.objects.values('product').annotate(id=F('id')).order_by('id')
             
-        paginator = Paginator(prod, 5)
+        paginator = Paginator(prod, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         return render(request,'admin/product_gallery.html',{'page_obj': page_obj,})
@@ -77,15 +88,32 @@ class AdminAddProductView(View):
     def post(self, request):
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            prod = form.cleaned_data['product_name']
-            dup = Product.objects.filter(product_name=prod).first()
+            prod_name = form.cleaned_data['product_name']
+            normal_price = form.cleaned_data['normal_price']
+            input_cat = form.cleaned_data['category']
+            dup = Product.objects.filter(product_name=prod_name).first()
             if dup:
                 messages.warning(request,'Product with same name already exists')
                 return redirect('admin_addproduct')
             else:
-                form.save()
-                messages.success(request,'Product added successfully')
-                return redirect('admin_productlist')
+                try:
+                    cat = Category.objects.get(category_name = input_cat)
+                except Category.DoesNotExist:
+                    messages.warning(request,'No such category exists')
+                    return redirect('admin_addproduct')
+                print(cat.discount)
+                if cat.discount:
+                    if int(cat.discount) < normal_price:
+                        form.save()
+                        messages.success(request,'Product added successfully')
+                        return redirect('admin_productlist')
+                    else:
+                        messages.warning(request,'Product price must be grater than discount value')
+                        return redirect('admin_addproduct')
+                else:
+                    form.save()
+                    messages.success(request,'Product added successfully')
+                    return redirect('admin_productlist')
         else:
             return render(request, 'admin/add_product.html', {'form': form})
 
@@ -113,14 +141,14 @@ class AddProductVariantionView(View):
         if 'username' in request.session:
             form = VariationForm()
             # Get the product, color, and size values from the form's initial data
-            product = form.initial.get('product')
-            color = form.initial.get('color')
-            size = form.initial.get('size')
+            # product = form.initial.get('product')
+            # color = form.initial.get('color')
+            # size = form.initial.get('size')
             # Check if the same variation already exists
-            if Variation.objects.filter(product=product, color=color, size=size).exists():
-                messages.warning(request, "This variation already exists")
+            # if Variation.objects.filter(product=product, color=color, size=size).exists():
+                # messages.warning(request, "This variation already exists")
             
-            return render(request, 'admin/product_variations.html', {'form': form})
+            return render(request, 'admin/add_product_variations.html', {'form': form})
         else:
             return redirect('admin_login')
 
@@ -130,15 +158,34 @@ class AddProductVariantionView(View):
             product = form.cleaned_data.get('product')
             color = form.cleaned_data.get('color')
             size = form.cleaned_data.get('size')
+            
             # Check if the same variation already exists
             if Variation.objects.filter(product=product, color=color, size=size).exists():
                 # form.add_error(None, 'This variation already exists.')
                 messages.warning(request, "This variation already exists")
-                return render(request, 'admin/product_variations.html', {'form': form})
+                return redirect('add_productvariation')
+                # return render(request, 'admin/add_product_variations.html', {'form': form})
             form.save()
             return redirect('admin_productlist')
         else:
-            return render(request, 'admin/product_variations.html', {'form': form})
+            return render(request, 'admin/add_product_variations.html', {'form': form})
+        
+        
+def admin_product_variations(request):
+    if 'username' in request.session:
+        if 'search' in request.GET:
+            search = request.GET['search']
+            prod = Variation.objects.filter(product__product_name__icontains=search)
+        else:
+            prod = Variation.objects.all().order_by('id')
+            # Add sorting by product price
+            paginator = Paginator(prod, 10)
+            page_number = request.GET.get('page')
+            page_obj = paginator.get_page(page_number)
+            
+        return render(request, 'admin/product_variations.html',{'page_obj': page_obj})
+    else:
+        return redirect('admin_login')
 
 
 class AddProductColorView(View):
@@ -150,19 +197,22 @@ class AddProductColorView(View):
             return redirect('admin_login')
            
     def post(self, request):
-        form = ProductColorForm(request.POST, request.FILES)
-        if form.is_valid():
-            color = form.cleaned_data['color'].upper()
-            dup = Color.objects.filter(color=color).first()
-            if dup:
-                messages.warning(request,'Colour already exists')
-                return redirect('add_productcolor')
-            else: 
-                form.save()
-                messages.success(request,'Colour added successfully')
-                return redirect('admin_colorlist')
+        if 'username' in request.session:
+            form = ProductColorForm(request.POST, request.FILES)
+            if form.is_valid():
+                color = form.cleaned_data['color'].upper()
+                dup = Color.objects.filter(color=color).first()
+                if dup:
+                    messages.warning(request,'Colour already exists')
+                    return redirect('add_productcolor')
+                else: 
+                    form.save()
+                    messages.success(request,'Colour added successfully')
+                    return redirect('admin_colorlist')
+            else:
+                return render(request, 'admin/add_productcolor.html', {'form': form})
         else:
-            return render(request, 'admin/add_productcolor.html', {'form': form})
+            return redirect('admin_login')
         
         
 @never_cache
@@ -170,12 +220,12 @@ def admin_colorlist(request):
     if 'username' in request.session:
         if 'search' in request.GET:
             search=request.GET['search']
-            color=Color.objects.filter(product_name__icontains=search)
+            color=Color.objects.filter(color__icontains=search)
                
         else:
             color=Color.objects.all().order_by('id')
         print(color)
-        paginator = Paginator(color, 5)
+        paginator = Paginator(color, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         return render(request,'admin/color_list.html',{'page_obj': page_obj,})
@@ -185,7 +235,11 @@ def admin_colorlist(request):
     
 def admin_updatecolor(request,id):
     if 'username' in request.session:
-        color = Color.objects.get(id=id)
+        try:
+            color = Color.objects.get(id=id)
+        except Color.DoesNotExist:
+            messages.warning(request, 'Selected colour does not exist')
+            return redirect('admin_colorlist')
         if request.method == 'POST':
             form = ProductColorForm(request.POST, request.FILES, instance=color)
             if form.is_valid():
@@ -238,12 +292,12 @@ def admin_sizelist(request):
     if 'username' in request.session:
         if 'search' in request.GET:
             search=request.GET['search']
-            size=Size.objects.filter(product_name__icontains=search)
+            size=Size.objects.filter(size__icontains=search)
                
         else:
             size=Size.objects.all().order_by('id')
         print(size)
-        paginator = Paginator(size, 5)
+        paginator = Paginator(size, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
         return render(request,'admin/size_list.html',{'page_obj': page_obj,})
@@ -253,7 +307,11 @@ def admin_sizelist(request):
     
 def admin_updatesize(request,id):
     if 'username' in request.session:
-        size = Size.objects.get(id=id)
+        try:
+            size = Size.objects.get(id=id)
+        except Size.DoesNotExist:
+            messages.warning(request, 'Selected Size does not exist')
+            return redirect('admin_sizelist')
         if request.method == 'POST':
             form = ProductSizeForm(request.POST, request.FILES, instance=size)
             if form.is_valid():
@@ -279,7 +337,12 @@ def deletesize(request):
 
 def updateproduct(request,id):
     if 'username' in request.session:
-        prod = Product.objects.get(id=id)
+        try:
+            prod = Product.objects.get(id=id)
+        except Product.DoesNotExist:
+            messages.warning(request, 'Selected Product does not exist')
+            return redirect('admin_productlist')
+        
         if request.method == 'POST':
             form = ProductForm(request.POST, request.FILES, instance=prod)
             if form.is_valid():
@@ -295,18 +358,25 @@ def updateproduct(request,id):
         return redirect('admin_login')
     
     
+    
 def update_productvarient(request,id):
     if 'username' in request.session:
-        prod = Variation.objects.get(id=id)
+        try:
+            prod = Variation.objects.get(id=id)
+        except Variation.DoesNotExist:
+            messages.warning(request, 'Selected Variation does not exist')
+            return redirect('admin_product_variantlist', id=prod.product.product.id)
+        
         if request.method == 'POST':
             form = VariationForm(request.POST, request.FILES, instance=prod)
             # form = VariationForm(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
                 messages.success(request,"Product details updated")
-                return redirect('admin_productlist')
+                return redirect('admin_product_variantlist', id=prod.product.id)
             else:
-                return render(request, 'admin/update_product_variation.html', {'form': form,'prod':prod})
+                # return render(request, 'admin/update_product_variation.html', {'form': form,'prod':prod})
+                return redirect('admin_product_variantlist', id=prod.product.id)
         else:
             form = VariationForm(instance=prod)
             return render(request, 'admin/update_product_variation.html', {'form': form,'prod':prod})
@@ -347,7 +417,7 @@ def delete_productvarient(request):
     if 'username' in request.session:
         uid=request.GET['uid']
         Variation.objects.filter(id=uid).delete()
-        return redirect('user_manage_address')
+        return redirect('admin_product_variations')
     else:
         return redirect('admin_login')
 

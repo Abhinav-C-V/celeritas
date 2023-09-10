@@ -52,6 +52,24 @@ class VariationForm(forms.ModelForm):
         if stock < 0:
             raise ValidationError("Stock must be a non-negative integer.")
         return stock
+    
+    def clean_product(self):
+        product = self.cleaned_data['product']
+        if not product:
+            raise ValidationError("Please select a product.")
+        return product
+    
+    def clean_color(self):
+        color = self.cleaned_data['color']
+        if not color:
+            raise ValidationError("Please select a color.")
+        return color
+    
+    def clean_size(self):
+        size = self.cleaned_data['size']
+        if not size:
+            raise ValidationError("Please select a size.")
+        return size
 
 
 class ProductColorForm(forms.ModelForm):

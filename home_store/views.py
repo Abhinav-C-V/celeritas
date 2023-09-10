@@ -932,7 +932,7 @@ def generate_invoice(request):
 def generateOTP() :
     digits = "0123456789"
     OTP = ""
-    for i in range(6) :
+    for _ in range(6) :
         OTP += digits[math.floor(random.random() * 10)]
     return OTP
 
