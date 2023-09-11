@@ -311,7 +311,7 @@ def userstore_filter(request):
 
             details3 = details3.order_by('id')
             
-        paginator = Paginator(details3, 6)
+        paginator = Paginator(details3, 9)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
@@ -1029,6 +1029,9 @@ def submit_review(request,id):
     else:
         return redirect('user_login')
                     
+                    
+def handle_not_found(request,exception):
+    return render(request,'not_found.html')
                     
                     
                 
