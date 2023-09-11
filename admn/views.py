@@ -19,6 +19,21 @@ from cart.models import Coupon, UserCoupon, Order
 from django.db.models import Sum
 from datetime import datetime, timedelta
 
+from django.http import HttpResponse, FileResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.lib.units import inch
+from reportlab.platypus import Table, TableStyle
+from reportlab.lib import colors
+import pandas as pd
+import openpyxl
+from cart.models import Order 
+
+from io import BytesIO
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+
+
 
 
 
@@ -65,27 +80,21 @@ def admindashboard(request):
         
         
         # Find the most sold product
-        most_sold_product = (last_month_orders.values('product').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity').first())
+        # most_sold_product = (last_month_orders.values('product').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity').first())
 
         # Find the least sold product
-        least_sold_product = (last_month_orders.values('product').annotate(total_quantity=Sum('quantity')).order_by('total_quantity').first())
+        # least_sold_product = (last_month_orders.values('product').annotate(total_quantity=Sum('quantity')).order_by('total_quantity').first())
             
-        print(least_sold_product)
-        print(most_sold_product)
+        # print(least_sold_product)
+        # print(most_sold_product)
         
         context = {
             'orders': last_month_completed_orders,
             'incomplete_orders': last_month_incomplete_orders,
             'expected_orders':last_month_expected_orders,
             
-            'least_sold_product': least_sold_product,
-            'most_sold_product': most_sold_product,
-            
             'expected_revenue': last_month_expected_revenue,
             'revenue': last_month_revenue,
-            
-            'most_sold_product': most_sold_product,
-            'least_sold_product': least_sold_product,
             
             'users': total_users,
             
@@ -109,6 +118,7 @@ def admin_userdetails(request):
             user=UserDetail.objects.filter(user_firstname__icontains=search)
         else:
             user=UserDetail.objects.all().order_by('id')
+            print(user)
         paginator = Paginator(user, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
@@ -360,3 +370,312 @@ class OrderUpdateView(View):
             return redirect('admin_login')
 
 
+
+# def sales_report(request):
+#     if 'username' in request.session:
+#         if request.method == 'POST':    
+#             start_date = request.POST.get('start_date')
+#             end_date = request.POST.get('end_date')
+#             generate = request.POST.get('generate')
+#             if not start_date or not end_date:
+#                 messages.warning(request, 'Check dates')
+#                 return redirect('sales_report')
+#             if end_date < start_date:
+#                 messages.warning(request, 'start date is not less than end date')
+#                 return redirect('sales_report')
+#             elif end_date >= start_date:
+#                 if generate=='PDF':
+#                     buf = io.BytesIO()
+#                     c = canvas.Canvas(buf,pagesize=letter, bottomup=1)
+#                     textob = c.beginText()
+#                     textob.setTextOrigin(inch, inch)
+#                     textob.setFont("Helvetica", 16)
+#                     orders = Order.objects.all()
+#                     if start_date and end_date:
+#                         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+#                         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+#                         orders = orders.order_by('-ordered_date').filter(ordered_date__range=[start_date, end_date])
+#                     else:
+#                         orders = Order.objects.all().order_by('-order_date')
+#                     if not orders.exists():
+#                         messages.warning(request,'No data found')
+#                         return redirect('sales_report')           
+#                     table_header = ["Customer Name", "Product Title", "Order Date and Time", "Order Status", "Payment Status"]            
+#                     table_data = []
+#                     for ord in orders:
+#                         row_data = [ord.address.user, ord.product.product.product_name, str(ord.ordered_date), str(ord.status), str(ord.order_type)]
+#                         table_data += [row_data]
+#                     pdfTable = Table([table_header] +table_data)
+#                     pdfTableStyle = TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.lightblue)]) 
+#                     pdfTable.setStyle(pdfTableStyle)
+#                     pdfTable.wrapOn(c, 100, 100)
+#                     pdfTable.drawOn(c, 10, 10 + 5)
+#                     c.drawText(textob)
+#                     c.showPage()
+#                     c.save()
+#                     buf.seek(0)
+#                     return FileResponse(buf, as_attachment=True, filename="Sales report.pdf")
+
+#                 else:
+#                     orders = Order.objects.filter(ordered_date__range=[start_date, end_date])
+#                     if not orders.exists():
+#                         messages.warning(request,'No data found')
+#                         return redirect('sales_report') 
+#                     orders_df = pd.DataFrame(list(orders.values()))
+#                     try:
+#                         orders_df.drop(['user_id', 'address_id'], axis=1, inplace=True)
+#                     except:
+#                         messages.warning(request,'Something wrong')
+#                         return redirect('sales_report')
+#                     orders_df.rename(columns={'product_id': 'product_id', 'amount': 'amount', 'ordered_date': 'ordered_date', 'order_type': 'order_type', 'status': 'status'}, inplace=True)
+#                     orders_df['ordered_date'] = orders_df['ordered_date'].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S"))
+#                     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+#                     response['Content-Disposition'] = 'attachment; filename=orders.xlsx'
+#                     orders_df.to_excel(response, index=False)
+#                     return response 
+                
+#             else:
+#                 print("!!Unidentified")
+#         else:
+#             return redirect('admin_dashboard')
+#             # return render(request,'templates/sales_report.html')
+#     else:
+#         return redirect('admin_login')
+
+
+
+# def generate_pdf_report(orders, start_date, end_date):
+#     # Create a buffer to receive PDF data.
+#     buffer = BytesIO()
+    
+#     # Use landscape orientation to make better use of the page width.
+#     doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    
+#     # Container for the PDF elements
+#     elements = []
+    
+#     # Define styles
+#     styles = getSampleStyleSheet()
+#     style_normal = styles['Normal']
+#     style_heading = styles['Heading1']
+    
+#     # Add a heading
+#     elements.append(Paragraph("Sales Report", style_heading))
+#     elements.append(Spacer(1, 12))
+    
+#     # Convert dates to formatted strings
+#     start_date = start_date.strftime("%Y-%m-%d")
+#     end_date = end_date.strftime("%Y-%m-%d")
+    
+#     # Add date range to the report
+#     date_range = f"Date Range: {start_date} to {end_date}"
+#     elements.append(Paragraph(date_range, style_normal))
+#     elements.append(Spacer(1, 12))
+    
+#     # Create a data table
+#     table_data = [['Customer Name', 'Product Title', 'Order Date and Time', 'Order Status', 'Payment Status']]
+    
+#     for order in orders:
+#         row = [order.address.user, order.product.product.product_name, order.ordered_date.strftime("%Y-%m-%d %H:%M:%S"), order.status, order.order_type]
+#         table_data.append(row)
+    
+#     # Adjust column widths to fit the page
+#     col_widths = [2.0 * inch, 3.0 * inch, 2.5 * inch, 1.5 * inch, 1.5 * inch]  # Modify these values as needed
+    
+#     # Create the table and style it
+#     table = Table(table_data, colWidths=col_widths)
+#     table.setStyle(TableStyle([
+#         ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
+#         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+#         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+#         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+#         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+#         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+#         ('GRID', (0, 0), (-1, -1), 1, colors.black)
+#     ]))
+#     elements.append(table)
+    
+#     # Build the PDF document
+#     doc.build(elements)
+    
+#     # Rewind the buffer and return the PDF file
+#     buffer.seek(0)
+#     return buffer
+
+def generate_pdf_report(orders, start_date, end_date):
+    # Create a buffer to receive PDF data.
+    buffer = BytesIO()
+    
+    # Use landscape orientation to make the PDF fit better.
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    
+    # Container for the PDF elements
+    elements = []
+    
+    # Define styles
+    styles = getSampleStyleSheet()
+    style_normal = styles['Normal']
+    style_heading = styles['Heading1']
+    
+    # Add a heading
+    elements.append(Paragraph("Sales Report", style_heading))
+    elements.append(Spacer(1, 12))
+    
+    # Convert dates to formatted strings
+    start_date = start_date.strftime("%Y-%m-%d")
+    end_date = end_date.strftime("%Y-%m-%d")
+    
+    # Add date range to the report
+    date_range = f"Date Range: {start_date} to {end_date}"
+    elements.append(Paragraph(date_range, style_normal))
+    elements.append(Spacer(1, 12))
+    
+    # Create a data table
+    table_data = [['Customer Name', 'Product Title', 'Order Date and Time', 'Order Status', 'Payment Status']]
+    
+    for order in orders:
+        row = [order.address.user, order.product.product.product_name, order.ordered_date.strftime("%Y-%m-%d %H:%M:%S"), order.status, order.order_type]
+        table_data.append(row)
+    
+    # Create the table and style it
+    table = Table(table_data)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    elements.append(table)
+    
+    # Build the PDF document
+    doc.build(elements)
+    
+    # Rewind the buffer and return the PDF file
+    buffer.seek(0)
+    return buffer
+
+# def sales_report(request):
+#     if 'username' in request.session:
+#         if request.method == 'POST':
+#             start_date = request.POST.get('start_date').date()
+#             end_date = request.POST.get('end_date').date()
+#             generate = request.POST.get('generate')
+            
+#             # end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+#             # start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+#             today_date = datetime.now().date()
+            
+#             if not start_date or not end_date:
+#                 messages.warning(request, 'Check dates')
+#                 return redirect('sales_report')
+#             # if end_date < start_date and end_date > today_date:
+#             #     messages.warning(request, 'Start date is not less than end date grater than todays date')
+#             #     return redirect('sales_report')
+#             if end_date < start_date:
+#                 messages.warning(request, 'End date is less than start date')
+#                 return redirect('sales_report')
+#             elif end_date > today_date:
+#                 messages.warning(request, 'End date is greater than today\'s date')
+#                 return redirect('sales_report')
+#             # if :
+#             #     messages.warning(request, 'Start date is not less than end date')
+#             #     return redirect('sales_report')
+#             orders = Order.objects.all()
+#             if start_date and end_date:
+#                 start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+#                 end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+#                 orders = orders.order_by('-ordered_date').filter(ordered_date__range=[start_date, end_date])
+            
+#             if not orders.exists():
+#                 messages.warning(request, 'No data found')
+#                 return redirect('sales_report')
+            
+#             if generate == 'PDF':
+#                 pdf_buffer = generate_pdf_report(orders, start_date, end_date)
+#                 return FileResponse(pdf_buffer, as_attachment=True, filename="SalesReport.pdf")
+#             else:
+#                 orders = Order.objects.filter(ordered_date__range=[start_date, end_date])
+#                 if not orders.exists():
+#                     messages.warning(request,'No data found')
+#                     return redirect('sales_report') 
+#                 orders_df = pd.DataFrame(list(orders.values()))
+#                 try:
+#                     orders_df.drop(['user_id', 'address_id'], axis=1, inplace=True)
+#                 except:
+#                     messages.warning(request,'Something wrong')
+#                     return redirect('sales_report')
+#                 orders_df.rename(columns={'product_id': 'product_id', 'amount': 'amount', 'ordered_date': 'ordered_date', 'order_type': 'order_type', 'status': 'status'}, inplace=True)
+#                 orders_df['ordered_date'] = orders_df['ordered_date'].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S"))
+#                 response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+#                 response['Content-Disposition'] = 'attachment; filename=orders.xlsx'
+#                 orders_df.to_excel(response, index=False)
+#                 return response
+#         else:
+#             return redirect('admin_dashboard')
+#     else:
+#         return redirect('admin_login')
+
+
+def sales_report(request):
+    if 'username' in request.session:
+        if request.method == 'POST':
+            start_date_str = request.POST.get('start_date')
+            end_date_str = request.POST.get('end_date')
+            generate = request.POST.get('generate')
+            
+            # Convert today's date to a datetime.date object
+            today_date = datetime.now().date()
+            
+            # Check if start_date and end_date are provided and in the correct format
+            if not start_date_str or not end_date_str:
+                messages.warning(request, 'Check dates')
+                return redirect('sales_report')
+            
+            # Convert start_date and end_date strings to datetime.date objects
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            
+            # Check the date range
+            if end_date < start_date:
+                messages.warning(request, 'End date is less than start date')
+                return redirect('sales_report')
+            elif end_date > today_date:
+                messages.warning(request, 'End date is greater than today\'s date')
+                return redirect('sales_report')
+            
+            # Fetch orders based on the date range
+            orders = Order.objects.filter(ordered_date__range=[start_date, end_date]).order_by('-ordered_date')
+            
+            if not orders.exists():
+                messages.warning(request, 'No data found')
+                return redirect('sales_report')
+            
+            if generate == 'PDF':
+                pdf_buffer = generate_pdf_report(orders, start_date, end_date)
+                return FileResponse(pdf_buffer, as_attachment=True, filename="SalesReport.pdf")
+            else:
+                # Generate Excel or other formats as needed
+                # Add code here for other formats
+                orders = Order.objects.filter(ordered_date__range=[start_date, end_date])
+                if not orders.exists():
+                    messages.warning(request,'No data found')
+                    return redirect('sales_report') 
+                orders_df = pd.DataFrame(list(orders.values()))
+                try:
+                    orders_df.drop(['user_id', 'address_id'], axis=1, inplace=True)
+                except:
+                    messages.warning(request,'Something wrong')
+                    return redirect('sales_report')
+                orders_df.rename(columns={'product_id': 'product_id', 'amount': 'amount', 'ordered_date': 'ordered_date', 'order_type': 'order_type', 'status': 'status'}, inplace=True)
+                orders_df['ordered_date'] = orders_df['ordered_date'].apply(lambda x: x.strftime("%Y-%m-%d %H:%M:%S"))
+                response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                response['Content-Disposition'] = 'attachment; filename=orders.xlsx'
+                orders_df.to_excel(response, index=False)
+                return response
+        else:
+            return redirect('admin_dashboard')
+    else:
+        return redirect('admin_login')

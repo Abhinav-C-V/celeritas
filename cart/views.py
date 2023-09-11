@@ -142,6 +142,7 @@ def add_to_cart(request):
 @never_cache
 def cart(request):
     if 'user_email' in request.session:
+        request.session['cart_visited'] = True
         user_email = request.session['user_email']
         # prod_id = request.GET.get('product_id')
         user_detail = UserDetail.objects.get(user_email=user_email)
@@ -260,6 +261,9 @@ def decrement_cart_item(request):
 @never_cache
 def proceed_to_checkout(request):
     if 'user_email' in request.session:
+        if request.session.get('cart_visited', False):
+        # Clear the session variable to prevent forward navigation
+            request.session['cart_visited'] = False
         
         user_email=request.session['user_email']
         # cart = CartItem.objects.filter(cart__user=user_detail).all()

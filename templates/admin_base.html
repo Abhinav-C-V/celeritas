@@ -127,6 +127,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 
 
+
  
 <!--user detailsnte-->
 
@@ -155,10 +156,8 @@ $(document).ready(function() {
 <script>
     var ctx1 = document.getElementById('ordersChart').getContext('2d');
     var ctx2 = document.getElementById('revenueChart').getContext('2d');
-    var ctx3 = document.getElementById('mostSoldChart').getContext('2d');
-    var ctx4 = document.getElementById('leastSoldChart').getContext('2d');
 
-    // Create charts
+    // Create the ordersChart
     var ordersChart = new Chart(ctx1, {
         type: 'bar',
         data: {
@@ -182,6 +181,7 @@ $(document).ready(function() {
         }
     });
 
+    // Create the revenueChart
     var revenueChart = new Chart(ctx2, {
         type: 'bar',
         data: {
@@ -204,9 +204,9 @@ $(document).ready(function() {
             }
         }
     });
-
-    // You can similarly create charts for most_sold_product and least_sold_product
 </script>
+
+
 
 <script>
     // Get the data values from the Django context

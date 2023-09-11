@@ -82,19 +82,77 @@
                     </div>
                 </div>
                 <!-- /Widgets -->
+                <div class="messages-container">
+                    {% if messages %}
+                      <div class="messages">
+                        {% for message in messages %}
+                          <div class="alert alert-warning">{{ message }}</div>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                </div>
                 <!--  Traffic  -->
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="card">
-                            <div class="card-body">
-                                <h4 class="box-title">Traffic </h4>
+                            
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                                            <a class="navbar-brand" href="#">Sales Report</a>
+                                            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                                                <span class="navbar-toggler-icon"></span>
+                                            </button>
+                                            <div class="collapse navbar-collapse" id="navbarNav">
+                                                <ul class="navbar-nav ml-auto">
+                                                    <li class="nav-item">
+                                                        <form method="POST" action="{% url 'sales_report'%}">
+                                                            {% csrf_token %}
+                                                            <div class="form-row align-items-center">
+                                                                <div class="col-auto">
+                                                                    <label class="sr-only" for="start_date">Start Date:</label>
+                                                                    <input type="date" class="form-control mb-2" id="start_date" name="start_date">
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <label class="sr-only" for="end_date">End Date:</label>
+                                                                    <input type="date" class="form-control mb-2" id="end_date" name="end_date">
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <select class="form-control mb-2" name="generate">
+                                                                        <option value="PDF">PDF</option>
+                                                                        <option value="EXCEL">EXCEL</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-auto">
+                                                                    <button type="submit" formtarget="_blank" class="btn btn-outline-dark mb-2">
+                                                                        <i class="fas fa-file-export"></i> Download Report
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </nav>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 col-lg-4">
+                                        <div class="card bg-flat-color-3">
+                                            <!-- Chart content here -->
+                                        </div><!-- /.card -->
+                                    </div>
+                                    <!-- Other chart divs here -->
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-12">
-                                    {% comment %} <div class="card-body"> {% endcomment %}
                                         <!-- <canvas id="TrafficChart"></canvas>   -->
-                                        {% comment %} <div id="traffic-chart" class="traffic-chart"></div> {% endcomment %}
-                                        {% comment %} <div class="orders "> {% endcomment %}
+                                    {% comment %} <div id="traffic-chart" class="traffic-chart"></div> {% endcomment %}
+                                    <div class="orders ">
+                                        <div class="card-body">
+
                                             <div class="row">
                                                 <div class="col-lg-6">
                                                     <canvas id="ordersChart" width="400" height="200"></canvas>
@@ -103,94 +161,43 @@
                                                     <canvas id="revenueChart" width="400" height="200"></canvas>
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="col-lg-6">
-                                                    <canvas id="mostSoldChart" width="400" height="200"></canvas>
-                                                    <!-- Display the most sold product dynamically -->
-                                                    {% comment %} <div id="most-sold-product">Most Sold Product: Loading...</div> {% endcomment %}
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <canvas id="leastSoldChart" width="400" height="200"></canvas>
-                                                    <!-- Display the least sold product dynamically -->
-                                                    
-                                                    {% comment %} <div id="least-sold-product">Least Sold Product: Loading...</div> {% endcomment %}
-                                                </div>
-                                            </div>
-                                        {% comment %} </div> {% endcomment %}
-                                    {% comment %} </div> {% endcomment %}
-                                </div>
+                                        </div>
+                                    </div>
+                                {% comment %} </div> {% endcomment %}
                             
 
-                                {% comment %} <div class="col-lg-4">
+                                <div class="col-lg-4">
                                     <div class="card-body">
-                                        <div class="progress-box progress-1">
-                                            <h4 class="por-title">Last Month Orders</h4>
-                                            <div class="por-txt">{{orders}} Orders (29%)</div>
-                                            <div class="progress mb-2" style="height: 5px;">
-                                                <div class="progress-bar bg-flat-color-1" role="progressbar" style="width: 29%;" aria-valuenow="29" aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                        </div>
-                                        <div class="progress-box progress-2">
-                                            <h4 class="por-title">Expected Orders</h4>
-                                            <div class="por-txt">{{expected_orders}} Orders (71%)</div>
-                                            <div class="progress mb-2" style="height: 5px;">
-                                                <div class="progress-bar bg-flat-color-2" role="progressbar" style="width: 71%;" aria-valuenow="71" aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                        </div>
-                                        <div class="progress-box progress-2">
-                                            <h4 class="por-title">Last Month Revenue</h4>
-                                            <div class="por-txt">₹ {{revenue}} (40%)</div>
-                                            <div class="progress mb-2" style="height: 5px;">
-                                                <div class="progress-bar bg-flat-color-3" role="progressbar" style="width: 40%;" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                        </div>
-                                        <div class="progress-box progress-2">
-                                            <h4 class="por-title">Expected Last Month Revenue</h4>
-                                            <div class="por-txt">₹ {{expected_revenue}} (60%)</div>
-                                            <div class="progress mb-2" style="height: 5px;">
-                                                <div class="progress-bar bg-flat-color-4" role="progressbar" style="width: 60%;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                        </div>
+                                        
                                     </div> <!-- /.card-body -->
-                                </div> {% endcomment %}
+                                </div> 
                             {% comment %} <div class="col-xl-12"> {% endcomment %}
-                            <div class="row col-md-12 text-center">
-                                <div class="col-md-12 col-lg-4">
-                                    {% comment %} <div class="card"> {% endcomment %}
-                                        <div class="card-body">
-                                            <!-- <h4 class="box-title">Chandler</h4> -->
-                                            <div class="calender-cont ">
-                                                <canvas id="pieChart" width="400" height="200"></canvas>
-                                                {% comment %} <div id="calendar"></div> {% endcomment %}
+                                <div class="row col-md-12 text-center">
+                                    <div class="col-md-12 col-lg-4">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="calender-cont">
+                                                    <!-- Chart 1: Pie Chart -->
+                                                    <canvas id="pieChart" width="400" height="200"></canvas>
+                                                </div>
                                             </div>
                                         </div>
-                                    {% comment %} </div><!-- /.card --> {% endcomment %}
-                                </div>
-
-                                <!-- Calender Chart Weather  -->
-                                <div class="col-md-12 col-lg-4">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <!-- <h4 class="box-title">Chandler</h4> -->
-                                            <div class="calender-cont widget-calender">
-                                                <div id="calendar"></div>
+                                    </div>
+                                
+                                    <div class="col-md-12 col-lg-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="calender-cont widget-calender">
+                                                    <!-- Chart 2: Calendar Chart -->
+                                                    <div id="calendar"></div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div><!-- /.card -->
+                                    </div>
+                                
+                                    <!-- Add more charts or content here if needed -->
                                 </div>
-                                <!-- /Calender Chart Weather -->
-
-                                <div class="col-md-12 col-lg-4">
-                                    <div class="card bg-flat-color-3 ">
-                                        <div class="card-body">
-                                            <h4 class="card-title m-0  white-color "></h4>
-                                        </div>
-                                         <div class="card-body">
-                                             <div id="flotLine5" class="flot-line"></div>
-                                         </div>
-                                    </div><!-- /.card -->
-                                </div>
-                            </div>
+                                
                                 {% comment %} </div> <!-- /.col-md-4 --> {% endcomment %}
 
                             </div> <!-- /.row -->
@@ -199,6 +206,8 @@
                         </div>
                         
                     </div><!-- /# column -->
+                    
+                    
                     
                 </div>
                 <!--  /Traffic -->

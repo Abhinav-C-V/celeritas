@@ -31,6 +31,9 @@ urlpatterns = [
     path('admin_orderlist/', views.admin_orderlist, name='admin_orderlist'),
     path('admin_updateorder/<int:id>/', OrderUpdateView.as_view(), name='admin_updateorder'),
     
+    path('sales_report/', views.sales_report, name='sales_report'),
+    
+    
     
     
     
