@@ -178,9 +178,7 @@ def cart(request):
                 
                 
             }
-            # return render(request, 'store/cart.html', context)
         else:
-            # user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
             context = {
                 'user_firstname': user_detail.user_firstname,
                 'user_image': user_detail.user_image,
@@ -196,10 +194,6 @@ def cart(request):
 def remove_cart_item(request):
     if 'user_email' in request.session:
         id=request.GET['id']
-        # item=CartItem.objects.get(id=id)
-        # cart_quantity = item.quantity
-        # cart_product = item.product.product
-        # Variation.objects.filter(product=cart_product).update(stock=F('stock')+cart_quantity)
         CartItem.objects.filter(id=id).delete()
         return redirect('cart')
     else:
@@ -360,31 +354,7 @@ def select_address(request):
         return redirect('user_login')
 
 
-def confirm_order(request):
-    if 'user_email' in request.session:
-        user_email = request.session['user_email']
-        user = UserDetail.objects.get(user_email = user_email)
-        try:
-            user_ad = Address.objects.get(user=user,selected=True)
-        except:
-            messages.warning(request,'No address specified')
-            return redirect('proceed_to_checkout')
-        cart = CartItem.objects.filter(cart__user=user)
-        try:
-            coupon = UserCoupon.objects.get(user=user,coupon__is_active=True,applied=True)
-            discount = coupon.coupon.discount_price
-        except:
-            discount = 0
-        cartcount = cart.count()
-        for c in cart:
-            Order(user=user, address=user_ad, product=c.product, amount=c.subtotal-(discount)/cartcount).save()
-            # c.product.stock -= c.quantity
-            # c.product.save()
-            c.delete()
-            print("order placed cod")
-        return render(request,'store/confirm_order.html')
-    else:
-        return redirect('user_login')
+
 
     
 @never_cache
@@ -475,21 +445,7 @@ def r_razorpay(request):
         
         print(reazorpay_status)
         if reazorpay_status == 'created':
-            # if 'user_email' in request.session:
-            #     user_email = request.session['user_email']
-            #     user = UserDetail.objects.get(uname = user_email)
-            #     try:
-            #         user_ad = Address.objects.get(user=user,selected=True)
-            #     except:
-            #         messages.warning(request,'No address specified')
-            #         return redirect('proceed_to_checkout')
-            #     cart = CartItem.objects.filter(cart__user=user)
-            #     try:
-            #         coupon = UserCoupon.objects.get(user=user,coupon__is_active=True,applied=True)
-            #         discount = coupon.coupon.discount_price
-            #     except:
-            #         discount = 0
-            #     cartcount = cart.count()
+            
             for c in cart:
                 if c.product.stock >= c.quantity:
                     ord = Order(user=user, address=user_ad, product=c.product, amount=c.subtotal-(discount)/cartcount, quantity=c.quantity, order_type= 'Razorpay')

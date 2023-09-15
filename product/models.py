@@ -47,14 +47,6 @@ class Product(models.Model):
     
     
 
-# class ProductGallery(models.Model):
-#     product = models.ForeignKey(Variation, on_delete=models.CASCADE)
-#     image = models.ImageField(upload_to='product_gallery/')
-
-#     def __str__(self):
-#         return f"Gallery Image for {self.product.product_name}"
-
-
 class Color(models.Model):
     color = models.CharField(max_length=50, unique=True)
 

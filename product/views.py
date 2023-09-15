@@ -67,8 +67,6 @@ def adminproductgallery(request):
             prod=ProductGallery.objects.filter(product__product__product_name__icontains=search)
         else:
             prod=ProductGallery.objects.all().order_by('id')
-            # prod = ProductGallery.objects.values('product').annotate(id=F('id'), image_count=Count('id')).order_by('id')
-            # prod = ProductGallery.objects.values('product').annotate(id=F('id')).order_by('id')
             
         paginator = Paginator(prod, 10)
         page_number = request.GET.get('page')

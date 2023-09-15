@@ -23,16 +23,17 @@ from django.db import transaction
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.core.files.storage import FileSystemStorage
-# from django.http import JsonResponse
-# from .forms import UserSignupForm
 
-# from django.shortcuts import render
-# from django.contrib.auth.tokens import default_token_generator
-# from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-# from django.utils.encoding import force_bytes
-# from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 # from django.core.mail import EmailMessage
+
+# from django.core.mail import send_mail
+# from django.contrib.auth.tokens import default_token_generator
+# from django.contrib.auth import get_user_model
+# from django.template.loader import render_to_string
+# from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+# from django.utils.encoding import force_bytes, force_text
+# from django.urls import reverse
 
 from cart.models import Order
 from xhtml2pdf import pisa
@@ -46,11 +47,7 @@ import os
 from twilio.rest import Client
 # from twilio.rest import Client
 
-# from .models import UserDetail, Order
-# from django.contrib import messages
-# from .models import UserDetail  
-import uuid  # Import the UUID module
-# from .utils import generate_reset_token  # Import the function from step 1
+# import uuid  
 
 
 
@@ -96,8 +93,6 @@ def contact(request):
 def about(request):
     return render(request, 'about.html')
 
-# def index(request):
-#     return render(request, 'home.html')
 
 class UserLoginView(View):
     @method_decorator(never_cache)
@@ -206,6 +201,7 @@ class SignupOTPView(View):
 def userlogout(request):
     if 'user_email' in request.session:
         del request.session['user_email']
+        # print(request.session['user_email'])
     return redirect('user_index')
 
 
@@ -676,17 +672,26 @@ def forgot_password(request):
             """send otp code for mail"""
             o=str(user.user_firstname)+generateOTP()
             # print(o)
-            user.user_password = make_password(o)
-            user.save()
-            print(o)
+            # user.user_password = make_password(o)
+            # user.save()
+            # print(o)
             # print(user.user_password)
             if user:
                 htmlgen =  f'<p>Your new password for login Celeritas account is <strong>{o}</strong></p>.Its just a recovery password please change the password after login.'
-                send_mail('OTP request',o,'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
-                
-                del request.session['user_email']
-                messages.success(request,'Please check your email for new password and login again')
-                return redirect('forgot_password')
+                email_sent = send_mail('OTP request',o,'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
+                if email_sent:
+                    print(email_sent)
+                    print(o)
+                    user.user_password = make_password(o)
+                    user.save()
+                    # Email was sent successfully
+                    del request.session['user_email']
+                    messages.success(request,'Please check your email for new password and login again')
+                    return redirect('forgot_password')
+                else:
+                    # Email sending failed
+                    messages.warning(request, 'Email sending failed. Not a proper email Please try again.')
+                    return redirect('forgot_password')
             else:
                 messages.warning(request,'No user is registered with this email address')
                 return redirect('forgot_password')
@@ -715,19 +720,29 @@ def forgot_pass_logout_user(request):
             messages.warning(request,'No user is registered with this email address')
             return redirect('forgot_pass_out_user')
         
-        o=generateOTP()
-        print(o)
-        user.user_password = make_password(o)
-        user.save()
+        o=str(user.user_firstname)+generateOTP()
+        # print(o)
+        # user.user_password = make_password(o)
+        # user.save()
         
         """send otp code for mail"""
         if user:
             htmlgen =  f'<p>Your new password for login Celeritas account is <strong>{o}</strong></p>.Its just a recovery password please change the password after login.'
-            send_mail('OTP request',o,'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
-            
-            # del request.session['user_email']
-            messages.success(request,'Please check your email for new password')
-            return redirect('user_login')
+            email_sent = send_mail('OTP request',o,'celeritasmain2@gmail.com',[user.user_email], fail_silently=False, html_message=htmlgen)
+            if email_sent:
+                print(o)
+                user.user_password = make_password(o)
+                user.save()
+                # Email was sent successfully
+                messages.success(request, 'Please check your email for a new password')
+                return redirect('user_login')
+            else:
+                # Email sending failed
+                messages.warning(request, 'Email sending failed. Not a proper email Please try again.')
+                return redirect('forgot_pass_out_user')
+            # # del request.session['user_email']
+            # messages.success(request,'Please check your email for new password')
+            # return redirect('user_login')
         else:
             messages.warning(request,'No user is registered with this email address')
             return redirect('forgot_pass_out_user')
@@ -880,10 +895,13 @@ def apply_coupon(request):
     
     
 def cancelcoupon(request):
-    user_email = request.session['user_email']
-    UserCoupon.objects.filter(user__user_email=user_email,applied=True).update(applied=False)
-    messages.warning(request,'Coupon removed')
-    return redirect('proceed_to_checkout')
+    if 'user_email' in request.session:
+        user_email = request.session['user_email']
+        UserCoupon.objects.filter(user__user_email=user_email,applied=True).update(applied=False)
+        messages.warning(request,'Coupon removed')
+        return redirect('proceed_to_checkout')
+    else:
+        return redirect('user_login')
 
 
 

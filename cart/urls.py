@@ -13,12 +13,8 @@ urlpatterns = [
     path('increment_cart_item/', views.increment_cart_item, name='increment_cart_item'),
     path('select_address/', views.select_address, name='select_address'),
     path('cash_on_delivery/', views.cash_on_delivery, name='cash_on_delivery'),
-    path('confirm_order/', views.confirm_order, name='confirm_order'),
+    # path('confirm_order/', views.confirm_order, name='confirm_order'),
     path('razorpay/', views.r_razorpay, name='razorpay'),
-    # path('razorpay_callback/', views.razorpay_callback, name='razorpay_callback'),
-    
-    
-    
     
     
 ]

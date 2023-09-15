@@ -130,3 +130,11 @@ class UserAddressForm(forms.ModelForm):
             raise ValidationError("Enter a valid zipcode.")
         return zipcode
     
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        if len(name) < 2:
+            raise forms.ValidationError("name must have at least 2 characters.")
+        if not name.isalpha():
+            raise forms.ValidationError("name must only contain alphabetic characters.")
+        return name
+    
