@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from . models import Product, ProductGallery, Variation, Size, Color
 from category.models import Category
-
 from celeritas.forms.product_form import ProductForm, ProductGalleryForm, VariationForm, ProductColorForm, ProductSizeForm
 from django.core.paginator import Paginator
 from django.contrib import messages
@@ -10,9 +9,6 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.db.models import F
-
-
-
 
 
 # Create your views here.
@@ -76,6 +72,7 @@ def adminproductgallery(request):
         return render(request, 'admin/login.html')
 
 class AdminAddProductView(View):
+    @method_decorator(never_cache)
     def get(self, request):
         if 'username' in request.session:
             form = ProductForm()
@@ -83,11 +80,13 @@ class AdminAddProductView(View):
         else:
             return redirect('admin_login')
            
+    @method_decorator(never_cache)
     def post(self, request):
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             prod_name = form.cleaned_data['product_name']
             normal_price = form.cleaned_data['normal_price']
+            product_discount = form.cleaned_data['product_discount']
             input_cat = form.cleaned_data['category']
             dup = Product.objects.filter(product_name=prod_name).first()
             if dup:
@@ -100,11 +99,20 @@ class AdminAddProductView(View):
                     messages.warning(request,'No such category exists')
                     return redirect('admin_addproduct')
                 print(cat.discount)
+                
                 if cat.discount:
+                    if product_discount is not None:
+                        if int(cat.discount) < normal_price and product_discount < normal_price:
+                            form.save()
+                            messages.success(request,'Product added successfully')
+                            return redirect('admin_productlist')
+                        else:
+                            messages.warning(request,'Product price must be grater than discount value')
+                            return redirect('admin_addproduct')
                     if int(cat.discount) < normal_price:
-                        form.save()
-                        messages.success(request,'Product added successfully')
-                        return redirect('admin_productlist')
+                            form.save()
+                            messages.success(request,'Product added successfully')
+                            return redirect('admin_productlist')
                     else:
                         messages.warning(request,'Product price must be grater than discount value')
                         return redirect('admin_addproduct')
@@ -117,13 +125,15 @@ class AdminAddProductView(View):
 
 
 class AdminAddProductImageView(View):
+    @method_decorator(never_cache)
     def get(self, request):
         if 'username' in request.session:
             form = ProductGalleryForm()
             return render(request, 'admin/add_image_for_product.html', {'form': form})
         else:
             return redirect('admin_login')
-    
+        
+    @method_decorator(never_cache)
     def post(self, request):
         form = ProductGalleryForm(request.POST, request.FILES)
         if form.is_valid():
@@ -135,6 +145,7 @@ class AdminAddProductImageView(View):
         
         
 class AddProductVariantionView(View):
+    @method_decorator(never_cache)
     def get(self, request):
         if 'username' in request.session:
             form = VariationForm()
@@ -149,7 +160,8 @@ class AddProductVariantionView(View):
             return render(request, 'admin/add_product_variations.html', {'form': form})
         else:
             return redirect('admin_login')
-
+        
+    @method_decorator(never_cache)
     def post(self, request):
         form = VariationForm(request.POST, request.FILES)
         if form.is_valid():
@@ -168,7 +180,7 @@ class AddProductVariantionView(View):
         else:
             return render(request, 'admin/add_product_variations.html', {'form': form})
         
-        
+@never_cache
 def admin_product_variations(request):
     if 'username' in request.session:
         if 'search' in request.GET:
@@ -176,7 +188,6 @@ def admin_product_variations(request):
             prod = Variation.objects.filter(product__product_name__icontains=search)
         else:
             prod = Variation.objects.all().order_by('id')
-            # Add sorting by product price
             paginator = Paginator(prod, 10)
             page_number = request.GET.get('page')
             page_obj = paginator.get_page(page_number)
@@ -187,13 +198,15 @@ def admin_product_variations(request):
 
 
 class AddProductColorView(View):
+    @method_decorator(never_cache)
     def get(self, request):
         if 'username' in request.session:
             form = ProductColorForm()
             return render(request, 'admin/add_productcolor.html', {'form': form})
         else:
             return redirect('admin_login')
-           
+        
+    @method_decorator(never_cache)
     def post(self, request):
         if 'username' in request.session:
             form = ProductColorForm(request.POST, request.FILES)
@@ -230,7 +243,7 @@ def admin_colorlist(request):
     else:
         return render(request, 'admin_login')
     
-    
+@never_cache
 def admin_updatecolor(request,id):
     if 'username' in request.session:
         try:
@@ -251,7 +264,8 @@ def admin_updatecolor(request,id):
             return render(request, 'admin/update_color.html', {'form': form,'color':color})
     else:
         return redirect('admin_login')
-    
+
+@never_cache
 def deletecolor(request):
     if 'username' in request.session:
         uid=request.GET['uid']
@@ -263,13 +277,15 @@ def deletecolor(request):
     
         
 class AddProductSizeView(View):
+    @method_decorator(never_cache)
     def get(self, request):
         if 'username' in request.session:
             form = ProductSizeForm()
             return render(request, 'admin/add_productsize.html', {'form': form})
         else:
             return redirect('admin_login')
-           
+    
+    @method_decorator(never_cache)
     def post(self, request):
         form = ProductSizeForm(request.POST, request.FILES)
         if form.is_valid():
@@ -302,7 +318,7 @@ def admin_sizelist(request):
     else:
         return render(request, 'admin_login')
     
-    
+@never_cache
 def admin_updatesize(request,id):
     if 'username' in request.session:
         try:
@@ -323,7 +339,8 @@ def admin_updatesize(request,id):
             return render(request, 'admin/update_size.html', {'form': form,'size':size})
     else:
         return redirect('admin_login')
-    
+
+@never_cache
 def deletesize(request):
     if 'username' in request.session:
         uid=request.GET['uid']
@@ -332,7 +349,7 @@ def deletesize(request):
     else:
         return redirect('admin_login')
 
-
+@never_cache
 def updateproduct(request,id):
     if 'username' in request.session:
         try:
@@ -344,9 +361,40 @@ def updateproduct(request,id):
         if request.method == 'POST':
             form = ProductForm(request.POST, request.FILES, instance=prod)
             if form.is_valid():
-                form.save()
-                messages.success(request,"Product details updated")
-                return redirect('admin_productlist')
+                prod_name = form.cleaned_data['product_name']
+                normal_price = form.cleaned_data['normal_price']
+                product_discount = form.cleaned_data['product_discount']
+                input_cat = form.cleaned_data['category']
+                try:
+                    new_prod = Product.objects.get(product_name = prod_name)
+                    cat = Category.objects.get(category_name = input_cat)
+                except Category.DoesNotExist:
+                    messages.warning(request,'No such category exists')
+                    # return redirect('admin_updateproduct')
+                print(cat.discount)
+                if cat.discount:
+                    if product_discount is not None:
+                        if int(cat.discount) < normal_price and product_discount < normal_price:
+                            form.save()
+                            messages.success(request,'Product added successfully')
+                            return redirect('admin_productlist')
+                        else:
+                            messages.warning(request,'Product price must be grater than discount value')
+                            return redirect('admin_updateproduct', id= new_prod.id)
+                    if int(cat.discount) < normal_price:
+                            form.save()
+                            messages.success(request,'Product added successfully')
+                            return redirect('admin_productlist')
+                    else:
+                        messages.warning(request,'Product price must be grater than discount value')
+                        return redirect('admin_updateproduct', id= new_prod.id)
+                else:
+                    form.save()
+                    messages.success(request,'Product added successfully')
+                    return redirect('admin_productlist')
+                # form.save()
+                # messages.success(request,"Product details updated")
+                # return redirect('admin_productlist')
             else:
                 return render(request, 'admin/update_product.html', {'form': form,'prod':prod})
         else:
@@ -356,14 +404,14 @@ def updateproduct(request,id):
         return redirect('admin_login')
     
     
-    
+@never_cache
 def update_productvarient(request,id):
     if 'username' in request.session:
         try:
             prod = Variation.objects.get(id=id)
         except Variation.DoesNotExist:
             messages.warning(request, 'Selected Variation does not exist')
-            return redirect('admin_product_variantlist', id=prod.product.product.id)
+            return redirect('admin_product_variantlist', id=prod.product.id)
         
         if request.method == 'POST':
             form = VariationForm(request.POST, request.FILES, instance=prod)
@@ -381,7 +429,7 @@ def update_productvarient(request,id):
     else:
         return redirect('admin_login')
     
-    
+@never_cache
 def update_productimage(request,id):
     if 'username' in request.session:
         prod = ProductGallery.objects.get(id=id)
@@ -400,8 +448,7 @@ def update_productimage(request,id):
         return redirect('admin_login')
     
 
-
-    
+@never_cache
 def deleteproduct(request):
     if 'username' in request.session:
         uid=request.GET['uid']
@@ -410,7 +457,7 @@ def deleteproduct(request):
     else:
         return redirect('admin_login')
 
-
+@never_cache
 def delete_productvarient(request):
     if 'username' in request.session:
         uid=request.GET['uid']
@@ -419,7 +466,7 @@ def delete_productvarient(request):
     else:
         return redirect('admin_login')
 
-    
+@never_cache 
 def delete_productimage(request):
     if 'username' in request.session:
         uid=request.GET['uid']

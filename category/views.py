@@ -20,26 +20,32 @@ class AdminAddCategoryView(View):
             form = CategoryForm()
             return render(request, 'admin/add_category.html', {'form': form})
         else:
-            return render(request, 'admin/login.html')
-        
+            return redirect('admin_login')
     @method_decorator(never_cache)
     def post(self, request):
         if 'username' in request.session:
             form = CategoryForm(request.POST, request.FILES)
             if form.is_valid():
+                print("form is valid")
                 name = form.cleaned_data['category_name']
+                discount = form.cleaned_data['discount']
+                offer_active = form.cleaned_data['offer_active']
+                
                 dup = Category.objects.filter(category_name=name).first()
                 if dup:
                     messages.warning(request, 'Category already exists')
+                    return redirect('admin_addcategory')
+                elif offer_active and (discount is None or discount == 0):
+                    messages.warning(request, 'A discount greater than 0 is required.')
                     return redirect('admin_addcategory')
                 else:
                     form.save()
                     return redirect('admin_categorylist')
             else:
-                form = CategoryForm()
-                return render(request, 'admin/add_category.html', {'form': form})
+                print("form is not valid")
+                return redirect('admin_addcategory')
         else:
-            return render(request, 'admin/login.html')
+            return redirect('admin_login')
 
 @never_cache
 def admincategorylist(request):
@@ -54,7 +60,7 @@ def admincategorylist(request):
         page_obj = paginator.get_page(page_number)
         return render(request,'admin/category_list.html',{'page_obj': page_obj})
     else:
-        return render(request, 'admin/login.html')
+        return redirect('admin_login')
 
 class UpdateCategoryView(View):
     @method_decorator(never_cache)
@@ -89,7 +95,7 @@ class UpdateCategoryView(View):
         else:
             return redirect('admin_login')
 
-
+@never_cache
 def deletecategory(request):
     if 'username' in request.session:
         uid=request.GET['uid']

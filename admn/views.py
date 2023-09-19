@@ -57,7 +57,7 @@ class AdminLoginView(View):
         else:
             return render(request, 'admin/login.html')
         
-        
+@never_cache     
 def admindashboard(request):
     if 'username' in request.session:
         # Calculate the start and end dates for the last month
@@ -118,6 +118,7 @@ def admin_userdetails(request):
     else:
         return render(request, 'admin/login.html')
 
+@never_cache
 def admin_deleteuser(request):
     if 'username' in request.session:
         u_id=request.GET['uid']
@@ -126,6 +127,7 @@ def admin_deleteuser(request):
     else:
         return redirect('admin_login')
 
+@never_cache
 def admin_blockuser(request):
     if 'username' in request.session:
         u_id=request.GET['uid']
@@ -141,7 +143,7 @@ def admin_blockuser(request):
     else:
         return redirect('admin_login')
     
-      
+@never_cache    
 def admin_bannerlist(request):
     if 'username' in request.session:
         if 'search' in request.GET:
@@ -156,7 +158,7 @@ def admin_bannerlist(request):
     else:
         return redirect('admin_login')
         
-    
+@never_cache
 def update_banner(request):
     if 'username' in request.session:
         bid = request.GET['bid']
@@ -177,6 +179,7 @@ def update_banner(request):
         return redirect('admin_login')
 
 class AdminAddBannerView(View):
+    @method_decorator(never_cache)
     def get(self, request):
         if 'username' in request.session:
             form = BannerForm()
@@ -184,6 +187,7 @@ class AdminAddBannerView(View):
         else:
             return redirect('admin_login')
            
+    @method_decorator(never_cache)
     def post(self, request):
         form = BannerForm(request.POST, request.FILES)
         if form.is_valid():
@@ -199,7 +203,7 @@ class AdminAddBannerView(View):
         else:
             return render(request, 'admin/add_banner.html', {'form': form})
 
-  
+@never_cache
 def delete_banner(request):
     if 'username' in request.session:
         bid=request.GET['bid']
@@ -208,7 +212,7 @@ def delete_banner(request):
     else:
         return redirect('admin_login')
 
-
+@never_cache
 def admin_couponlist(request):
     if 'username' in request.session:
         if 'search' in request.GET:
@@ -222,7 +226,8 @@ def admin_couponlist(request):
         return render(request,'admin/coupon_list.html',{'page_obj': page_obj})
     else:
         return redirect('admin_login') 
-    
+
+@never_cache
 def add_coupon(request):
     if 'username' in request.session:     
         if request.method == 'POST':
@@ -243,6 +248,7 @@ def add_coupon(request):
     else:
         return redirect('admin_login') 
 
+@never_cache
 def delete_coupon(request):
     if 'username' in request.session:
         c_id=request.GET['uid']
@@ -251,6 +257,7 @@ def delete_coupon(request):
     else:
         return redirect('admin_login')
 
+@never_cache
 def update_coupon(request):
     if 'username' in request.session:
         try:
@@ -271,7 +278,7 @@ def update_coupon(request):
         return redirect('admin_login')
     
     
-    
+@never_cache
 def admin_user_couponlist(request):
     if 'username' in request.session:
         # uid=request.GET['uid']
@@ -288,7 +295,8 @@ def admin_user_couponlist(request):
         return render(request,'admin/user_couponlist.html',{'page_obj': page_obj,})
     else:
         return redirect('admin_login') 
-    
+
+@never_cache
 def add_user_coupon(request):
     if 'username' in request.session:     
         if request.method == 'POST':
@@ -311,6 +319,7 @@ def add_user_coupon(request):
     else:
         return redirect('admin_login') 
 
+@never_cache
 def delete_user_coupon(request):
     if 'username' in request.session:
         c_id=request.GET['uid']
@@ -319,7 +328,8 @@ def delete_user_coupon(request):
     else:
         return redirect('admin_login')
     
-    
+
+@never_cache
 def admin_orderlist(request):
     if 'username' in request.session:
         if 'search' in request.GET:
@@ -360,9 +370,6 @@ class OrderUpdateView(View):
                 return render(request, 'admin/update_orders.html', {'form': form,'ord':ord})
         else:
             return redirect('admin_login')
-
-
-
 
 
 def generate_pdf_report(orders, start_date, end_date):
@@ -422,7 +429,7 @@ def generate_pdf_report(orders, start_date, end_date):
 
 
 
-
+@never_cache
 def sales_report(request):
     if 'username' in request.session:
         if request.method == 'POST':

@@ -34,4 +34,4 @@ urlpatterns = [
     path('sales_report/', views.sales_report, name='sales_report'),
       
     # path('store/', include('store.urls'))
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

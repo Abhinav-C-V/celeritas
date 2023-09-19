@@ -15,17 +15,29 @@ class Product(models.Model):
     normal_price = models.IntegerField(default=0)
     image = models.ImageField(upload_to='product_gallery/')
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    # created_date = models.DateTimeField(auto_now_add=True)
+    product_discount = models.IntegerField(null=True, blank=True)  # Added product-specific discount
+    offer_active = models.BooleanField(default=False)
     
+    def get_best_discount(self):
+        # Get the discount for the associated category, default to 0 if no discount
+        category_discount = self.category.discount or 0
+        
+        # Get the product-specific discount, default to 0 if no discount
+        product_discount = self.product_discount or 0
+        
+        # Calculate the best discount for the product (either category discount or product-specific discount)
+        return max(category_discount, product_discount, 0)
+
     @property
     def price(self):
-        if self.category.discount is None:
-            return int(self.normal_price)
-        else:  
-            return int(self.normal_price) - int(self.category.discount)
-  
+        # Calculate the price after applying the best discount
+        best_discount = self.get_best_discount()
+        if int(self.normal_price) > best_discount:
+            return int(self.normal_price) - best_discount
+        return int(self.normal_price)
+
     def get_url(self):
-        return reverse('product_detail', args = [self.id,])
+        return reverse('product_detail', args=[self.id,])
 
     def __str__(self):
         return self.product_name

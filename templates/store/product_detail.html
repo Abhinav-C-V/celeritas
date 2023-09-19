@@ -56,7 +56,7 @@
 
 
 							<div class="mb-3">
-								{% if single_product.category.offer_active %}
+								{% if single_product.category.offer_active or single_product.offer_active %}
                     				<p class="font-weight-bold">Price: <s>₹ {{single_product.normal_price}}</s></p>
                     				<p class="text-primary font-weight-bold">Offer Price ₹ {{single_product.price}}</p>
                     			{% else %}

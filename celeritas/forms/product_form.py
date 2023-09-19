@@ -8,18 +8,22 @@ from django.core.exceptions import ValidationError
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['product_name', 'normal_price', 'description', 'image', 'category']
+        fields = ['product_name', 'normal_price', 'description', 'image', 'category', 'product_discount']
         widgets = {
             'product_name': forms.TextInput(attrs={'class': 'form-control'}),
             'normal_price': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'category': forms.Select(attrs={'class': 'form-control'}),
+            'product_discount': forms.NumberInput(attrs={'class': 'form-control'}),
+            
         }
         labels = {
             'product_name': 'Product Name',
             'normal_price': 'Normal Price',
             'description': 'Description',
             'category': 'Category',
+            'product_discount': 'Discount',
+            
         }
     
     def clean_normalprice(self):

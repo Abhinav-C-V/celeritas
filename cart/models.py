@@ -4,6 +4,7 @@ from home_store.models import UserDetail, Address
 from product.models import Product, Variation
 from django.db.models import Count, Sum
 from datetime import datetime, timedelta, date
+from django.utils import timezone 
 # Create your models here.
 
 
@@ -64,7 +65,7 @@ class Order(models.Model):
     product = models.ForeignKey(Variation, on_delete=models.CASCADE)
     amount = models.IntegerField(default=0)
     quantity = models.IntegerField(default=1)
-    ordered_date = models.DateTimeField(auto_now_add=True)
+    ordered_date = models.DateTimeField(default=timezone.now) 
     order_type = models.CharField(max_length=50, choices=TYPE_CHOICES, default='Cash on delivery')
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
     def __str__(self):

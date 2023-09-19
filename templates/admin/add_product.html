@@ -29,40 +29,27 @@
 
         <div class="form-row">
           <div class="form-group col-md-6">
+            <label for="image">{{ form.image.label }}</label>
+            {{ form.image }}
+            <small class="text-danger">{{ form.errors.image }}</small>
+          </div>
+          <div class="form-group col-md-6">
             <label for="normal_price">{{ form.normal_price.label }}</label>
             {{ form.normal_price }}
             <small class="text-danger">{{ form.errors.normal_price }}</small>
           </div>
-          <div class="form-group col-md-6">
-            <label for="stock">{{ form.stock.label }}</label>
-            {{ form.stock }}
-            <small class="text-danger">{{ form.errors.stock }}</small>
-          </div>
         </div>
-
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label for="image">{{ form.image.label }}</label>
-          {{ form.image }}
-          <small class="text-danger">{{ form.errors.image }}</small>
-        </div>
-        <div class="form-group col-md-6">
-          <label for="image">{{ form.size.label }}</label>
-          {{ form.size }}
-          <small class="text-danger">{{ form.errors.size }}</small>
-        </div>
-      </div>
 
         <div class="form-row">
           <div class="form-group col-md-6">
-            <label for="user_password">{{ form.category.label }}</label>
+            <label for="category">{{ form.category.label }}</label>
             {{ form.category }}
             <small class="text-danger">{{ form.errors.category }}</small>
           </div>
           <div class="form-group col-md-6">
-            <label for="user_password">{{ form.colour.label }}</label>
-            {{ form.colour }}
-            <small class="text-danger">{{ form.errors.colour }}</small>
+            <label for="discount">{{ form.product_discount.label }}</label>
+            {{ form.product_discount }}
+            <small class="text-danger">{{ form.errors.product_discount }}</small>
           </div>
         </div>
         

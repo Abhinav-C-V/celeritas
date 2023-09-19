@@ -76,6 +76,7 @@ def wishlist(request):
     else:
         return redirect('user_login')
 
+@never_cache
 def remove_wishlist(request, id):
     if 'user_email' in request.session:
         Wishlist.objects.filter(id=id).delete()
@@ -84,6 +85,7 @@ def remove_wishlist(request, id):
         return redirect('user_login')
     
 # @transaction.atomic
+@never_cache
 def add_to_cart(request):
     if 'user_email' in request.session:
         user_email = request.session['user_email']
@@ -190,7 +192,8 @@ def cart(request):
         return render(request, 'store/cart.html',context)
 
     return redirect('user_login')
-    
+
+@never_cache
 def remove_cart_item(request):
     if 'user_email' in request.session:
         id=request.GET['id']
@@ -199,7 +202,7 @@ def remove_cart_item(request):
     else:
         return redirect('user_login')
     
-
+@never_cache
 def increment_cart_item(request):
     if 'user_email' in request.session:
         cart_id = request.GET.get('cart_id')
@@ -229,7 +232,7 @@ def increment_cart_item(request):
     else:
         return redirect('user_login')
 
-
+@never_cache
 def decrement_cart_item(request):
     if 'user_email' in request.session:
         cart_id = request.GET.get('cart_id')
@@ -335,7 +338,7 @@ def proceed_to_checkout(request):
     else:
         return redirect('user_login')
 
-
+@never_cache
 def select_address(request):
     if 'user_email' in request.session:
         user =UserDetail.objects.get(user_email=request.session['user_email'])
@@ -352,8 +355,6 @@ def select_address(request):
         return redirect('proceed_to_checkout')
     else:
         return redirect('user_login')
-
-
 
 
     
@@ -411,7 +412,7 @@ def cash_on_delivery(request):
         return redirect('user_login')
     
 
-
+@never_cache
 def r_razorpay(request):
     if 'user_email' in request.session:
         user_email = request.session['user_email']

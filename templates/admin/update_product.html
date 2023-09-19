@@ -44,9 +44,14 @@
 
         <div class="form-row">
           <div class="form-group col-md-6">
-            <label for="user_password">{{ form.category.label }}</label>
+            <label for="category">{{ form.category.label }}</label>
             {{ form.category }}
             <small class="text-danger">{{ form.errors.category }}</small>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="discount">{{ form.product_discount.label }}</label>
+            {{ form.product_discount }}
+            <small class="text-danger">{{ form.errors.product_discount }}</small>
           </div>
         </div>
 

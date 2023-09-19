@@ -47,9 +47,6 @@ import os
 from twilio.rest import Client
 # from twilio.rest import Client
 
-# import uuid  
-
-
 
 
 # Create your views here.
@@ -125,6 +122,7 @@ class UserLoginView(View):
 
 
 class UserSignupView(View):
+    @method_decorator(never_cache)
     def get(self, request):
         if 'user_email' in request.session:
             return redirect('home_store')
@@ -132,6 +130,7 @@ class UserSignupView(View):
         cat=Category.objects.all()
         return render(request, 'accounts/user_register.html', {'form': form, 'cat': cat})
     
+    @method_decorator(never_cache)
     def post(self, request):
         if 'user_email' in request.session:
             return redirect('home_store')
@@ -166,6 +165,7 @@ class UserSignupView(View):
         
 
 class SignupOTPView(View):
+    @method_decorator(never_cache)
     def get(self, request):
         if 'u_otp' in request.session:
             # Redirect the user to the registration page if registration data is not in the session
@@ -173,7 +173,8 @@ class SignupOTPView(View):
             return render(request, 'accounts/signup_otp.html',{'cat':cat})
         else:
             return redirect('user_signup')
-
+        
+    @method_decorator(never_cache)
     def post(self, request):
         if 'u_otp' not in request.session:
             return redirect('user_signup')
@@ -244,7 +245,7 @@ def userhome(request):
     else:
          return redirect('user_login')
      
-     
+@never_cache
 def userstore_filter(request):
     if 'user_email' in request.session:
         cat = Category.objects.all()
@@ -337,7 +338,14 @@ def product_detail(request, id):
     # if 'user_email' in request.session:
     try:
         single_product = get_object_or_404(Product, id=id)
-        # print(single_product)
+        
+        print(single_product.product_discount)
+        print(single_product.price)
+        print(single_product.category.offer_active)
+        print(single_product.offer_active)
+        
+        
+        
         reviews = ReviewRating.objects.filter(product=single_product)
         cat=Category.objects.all()
         # print(id,single_product)
@@ -391,7 +399,7 @@ def product_detail(request, id):
         }
     return render(request, 'store/product_detail.html', context)
 
-
+@never_cache
 def user_dashboard(request):
     if 'user_email' in request.session:
         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
@@ -412,7 +420,7 @@ def user_dashboard(request):
         return redirect('user_login')
 
 
-
+@never_cache
 def user_profile_info(request):
     if 'user_email' in request.session:
         user_email = request.session['user_email']
@@ -429,7 +437,7 @@ def user_profile_info(request):
         return render(request, 'accounts/user_profile_information.html',context)
     else:
         return redirect('user_login')
-
+@never_cache
 def edit_personal_info(request):
     if 'user_email' in request.session:
         if request.method == 'POST':
@@ -445,7 +453,7 @@ def edit_personal_info(request):
     else:
         return redirect('user_login')
 
-        
+@never_cache
 def edit_email(request):
     if 'user_email' in request.session:
         if request.method == 'POST':
@@ -465,6 +473,7 @@ def edit_email(request):
 
 
 class EmailChangeVerification(View):
+    @method_decorator(never_cache)
     def get(self, request):
         if 'new_email' and 'user_email' in request.session:
             user_email = request.session['user_email']
@@ -479,7 +488,8 @@ class EmailChangeVerification(View):
             return render(request, 'accounts/change_email_verification.html',context)
         else:
             return redirect('edit_email')
-
+        
+    @method_decorator(never_cache)
     def post(self, request):
         if 'new_email' and 'user_email' not in request.session:
             return redirect('edit_email')
@@ -504,7 +514,7 @@ class EmailChangeVerification(View):
             return redirect('verify_edit_email')
         
         
-        
+@never_cache
 def edit_phone(request):
     if 'user_email' in request.session:
         if request.method == 'POST':
@@ -519,7 +529,7 @@ def edit_phone(request):
     else:
         return redirect('user_login')
     
-    
+@never_cache
 def edit_image(request):
     if 'user_email' in request.session:
         if request.method == 'POST':
@@ -548,7 +558,7 @@ def edit_image(request):
         return redirect('user_login')
         
         
-
+@never_cache
 def user_manage_address(request):
     if 'user_email' in request.session:
         user_detail = UserDetail.objects.get(user_email=request.session['user_email'])
@@ -565,7 +575,7 @@ def user_manage_address(request):
         return render(request, 'accounts/user_mange_address.html', context)
     else:
         return redirect('user_login')
-    
+@never_cache
 def add_address(request):
     if 'user_email' in request.session:
         if request.method=='POST':
@@ -595,7 +605,7 @@ def add_address(request):
     else:
         return redirect('user_login')
     
-    
+@never_cache
 def edit_address(request, id):
     if 'user_email' in request.session:
         adrs = Address.objects.get(id=id)
@@ -613,7 +623,7 @@ def edit_address(request, id):
     else:
         return redirect('user_login')
 
-
+@never_cache
 def delete_address(request):
     if 'user_email' in request.session:
         aid=request.GET['aid']
@@ -624,6 +634,7 @@ def delete_address(request):
 
 
 class ChangePasswordView(View):
+    @method_decorator(never_cache)
     def get(self, request):
         if 'user_email' in request.session:
             user_email = request.session['user_email']
@@ -636,7 +647,8 @@ class ChangePasswordView(View):
              }
             return render(request,'accounts/change_password.html',context)
         else:
-            return redirect('user_login')   
+            return redirect('user_login')
+    @method_decorator(never_cache) 
     def post(self, request):
         if 'user_email' in request.session:
             user = UserDetail.objects.get(user_email=request.session['user_email'])
@@ -658,7 +670,7 @@ class ChangePasswordView(View):
         else:
             return redirect('user_login')
         
-
+@never_cache
 def forgot_password(request):
     if 'user_email' in request.session:
         if request.method == 'POST':
@@ -709,7 +721,7 @@ def forgot_password(request):
     else:
         return redirect('user_login')
     
-    
+@never_cache
 def forgot_pass_logout_user(request):
     if request.method == 'POST':
         try:
@@ -754,7 +766,7 @@ def forgot_pass_logout_user(request):
         return render(request,'accounts/forgot_password_out.html',context)
 
         
-        
+@never_cache
 def orders(request):
     if 'user_email' in request.session:
         user_email = request.session['user_email']
@@ -779,7 +791,7 @@ def orders(request):
             return render(request,'accounts/orders.html',context)
     else:
         return redirect('user_login')
-    
+@never_cache
 def view_order(request,id):
     if 'user_email' in request.session:
         try:
@@ -799,6 +811,7 @@ def view_order(request,id):
     else:
         return redirect('user_login')
     
+@never_cache
 def cancel_order(request,id):
     if 'user_email' in request.session: 
         Order.objects.filter(id=id).update(status='Cancel Requested')
@@ -806,6 +819,7 @@ def cancel_order(request,id):
     else:
         return redirect('user_login')
 
+@never_cache
 def return_order(request,id):
     if 'user_email' in request.session: 
         Order.objects.filter(id=id).update(status='Return Requested')
@@ -813,7 +827,7 @@ def return_order(request,id):
     else:
         return redirect('user_login')
     
-    
+@never_cache
 def coupons(request):
     if 'user_email' in request.session:
         user_email = request.session['user_email']
@@ -893,7 +907,7 @@ def apply_coupon(request):
     else:
         return redirect('admin_login')
     
-    
+@never_cache
 def cancelcoupon(request):
     if 'user_email' in request.session:
         user_email = request.session['user_email']
@@ -903,8 +917,7 @@ def cancelcoupon(request):
     else:
         return redirect('user_login')
 
-
-
+@never_cache
 def generate_invoice(request):
     if 'user_email' in request.session:
         user = UserDetail.objects.get(user_email=request.session['user_email'])
@@ -945,7 +958,7 @@ def generate_invoice(request):
     else:
         return redirect('user_login')
     
-
+@never_cache
 def generateOTP() :
     digits = "0123456789"
     OTP = ""
@@ -953,6 +966,7 @@ def generateOTP() :
         OTP += digits[math.floor(random.random() * 10)]
     return OTP
 
+@never_cache
 def otp_login(request):
     if request.method == 'POST':
         try:
@@ -991,7 +1005,7 @@ def otp_login(request):
     else:
         return render(request ,"accounts/user_otplogin.html")
 
-
+@never_cache
 def otp_verification(request):
     if request.method == 'POST':
         otp = request.POST.get('otp')
@@ -1018,7 +1032,7 @@ def otp_verification(request):
         messages.warning(request,'Something went wrong please try agin')
         return redirect('otp_login')
     
- 
+@never_cache
 def submit_review(request,id):
     if 'user_email' in request.session:
         url = request.META.get('HTTP_REFERER')
@@ -1047,7 +1061,7 @@ def submit_review(request,id):
     else:
         return redirect('user_login')
                     
-                    
+@never_cache             
 def handle_not_found(request,exception):
     return render(request,'not_found.html')
                     

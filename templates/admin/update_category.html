@@ -16,13 +16,12 @@
 
         <div class="form-row">
           <div class="col form-group">
-            <label for="product_name">{{ form.category_name.label }}</label>
+            <label for="category_name">{{ form.category_name.label }}</label>
             {{ form.category_name }}
             <small class="text-danger">{{ form.errors.category_name }}</small>
           </div>
           <div class="col form-group">
-            <label for="description">{{ form.offer_active.label }}: _____</label>
-           
+            <label for="offer_active">{{ form.offer_active.label }}: _____</label>
             {{ form.offer_active }}
             <small class="text-danger">{{ form.errors.offer_active }}</small>
           </div>
@@ -30,7 +29,7 @@
 
         <div class="form-row">
           <div class="form-group col-md-6">
-            <label for="normal_price">{{ form.discount.label }}</label>
+            <label for="discount">{{ form.discount.label }}</label>
             {{ form.discount }}
             <small class="text-danger">{{ form.errors.discount }}</small>
           </div>
