@@ -1,5 +1,7 @@
 from django import forms
 from home_store.models import UserDetail, Address
+from cart.models import Wallet
+
 import re
 from django.core.exceptions import ValidationError
 
@@ -137,4 +139,20 @@ class UserAddressForm(forms.ModelForm):
         if not name.isalpha():
             raise forms.ValidationError("name must only contain alphabetic characters.")
         return name
-    
+
+class WalletForm(forms.ModelForm):
+    class Meta:
+        model = Wallet
+        fields = ['balance', 'currency', 'is_active', 'type']
+        widgets = {
+            'balance': forms.TextInput(attrs={'class': 'form-control'}),
+            'currency': forms.Select(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'type': forms.Select(attrs={'class': 'form-control'}),
+        }
+        labels={
+            'balance':'Balance',
+            'currency':'Currency',
+            'is_active':'Status',
+            'type':'Deposited Type',
+        }

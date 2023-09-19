@@ -9,7 +9,7 @@ from celeritas.forms.product_form import ReviewForm
 
 from category.models import Category
 from product.models import Product, ProductGallery, Variation, Size, Color, ReviewRating
-from cart.models import Wishlist, Cart, CartItem, Coupon, UserCoupon
+from cart.models import Wishlist, Cart, CartItem, Coupon, UserCoupon, Wallet
 from .models import UserDetail, Address
 from admn.models import  Banner
 
@@ -813,17 +813,35 @@ def view_order(request,id):
     
 @never_cache
 def cancel_order(request,id):
-    if 'user_email' in request.session: 
-        Order.objects.filter(id=id).update(status='Cancel Requested')
-        return redirect('orders')
+    if 'user_email' in request.session:
+        wallet = Wallet.objects.get(user__user_email = request.session['user_email'])
+        order = Order.objects.filter(id=id).first()
+        if order.order_type == 'Cash on delivery':
+            Order.objects.filter(id=id).update(status='Cancel Requested')
+            return redirect('orders')
+        if wallet.is_active:
+            Order.objects.filter(id=id).update(status='Cancel Requested')
+            return redirect('orders')
+        else:
+            messages.warning(request,'You need to activate your wallet applying for cancellation.')
+            return redirect('orders')
     else:
         return redirect('user_login')
 
 @never_cache
 def return_order(request,id):
-    if 'user_email' in request.session: 
-        Order.objects.filter(id=id).update(status='Return Requested')
-        return redirect('orders')
+    if 'user_email' in request.session:
+        wallet = Wallet.objects.get(user__user_email = request.session['user_email'])
+        order = Order.objects.filter(id=id).first()
+        if order.order_type == 'Cash on delivery':
+            Order.objects.filter(id=id).update(status='Return Requested')
+            return redirect('orders')
+        if wallet.is_active:
+            Order.objects.filter(id=id).update(status='Return Requested')
+            return redirect('orders')
+        else:
+            messages.warning(request,'You need to activate your wallet for apply return.')
+            return redirect('orders')
     else:
         return redirect('user_login')
     

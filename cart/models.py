@@ -5,6 +5,7 @@ from product.models import Product, Variation
 from django.db.models import Count, Sum
 from datetime import datetime, timedelta, date
 from django.utils import timezone 
+from decimal import Decimal
 # Create your models here.
 
 
@@ -71,5 +72,32 @@ class Order(models.Model):
     def __str__(self):
         return str(self.id)
     
-
     
+class Wallet(models.Model):
+    user = models.ForeignKey(UserDetail, on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=200, choices=[('INR', 'Indian Rupee'), ('INR', 'Indian Rupee')], default='INR')
+    is_active = models.BooleanField(default=False)
+    type = models.CharField(max_length=200, choices=[('deposit', 'Deposit'), ('refund', 'Refund')], default='refund')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def deposit(self, amount):
+        if self.is_active:
+            self.balance += Decimal(str(amount))
+            self.save()
+        else:
+            raise Exception("Need to activate your wallet")
+
+    def withdraw(self, amount):
+        if self.is_active:
+            if self.balance >= amount:
+                self.balance -= Decimal(str(amount))
+                self.save()
+            else:
+                raise Exception("Insufficient balance")
+        else:
+            raise Exception("Need to activate your wallet")
+    
+    def __str__(self):
+        return f"Wallet ID: {self.id} | User: {self.user} | Balance: {self.balance} | Currency: {self.currency} | Status: {self.is_active}"

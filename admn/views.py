@@ -27,7 +27,7 @@ from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 import pandas as pd
 import openpyxl
-from cart.models import Order 
+from cart.models import Order, Wallet
 
 from io import BytesIO
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
@@ -364,6 +364,12 @@ class OrderUpdateView(View):
             form = OrderForm(request.POST, request.FILES, instance=ord)
             if form.is_valid():
                 form.save()
+                if ord.status == 'Returned' or ord.status == 'Cancelled':
+                    try:
+                        wallet = Wallet.objects.get(user = ord.user)
+                        wallet.deposit(ord.amount)
+                    except Wallet.DoesNotExist:
+                        pass
                 messages.success(request,'Order updated successfully')
                 return redirect('admin_orderlist')
             else:
