@@ -143,14 +143,18 @@ class UserAddressForm(forms.ModelForm):
 class WalletTransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['amount', 'currency', 'type']
+        fields = ['amount', 'currency']
         widgets = {
             'amount': forms.TextInput(attrs={'class': 'form-control'}),
             'currency': forms.Select(attrs={'class': 'form-control'}),
-            'type': forms.Select(attrs={'class': 'form-control'}),
         }
         labels={
             'amount':'Amount',
             'currency':'Currency',
-            'type':'Deposited Type',
         }
+        
+    def clean_amount(self):
+        amount = self.cleaned_data['amount']
+        if amount <= 0:
+            raise forms.ValidationError('The amount must be greater than 0.')
+        return amount

@@ -27,7 +27,7 @@ from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 import pandas as pd
 import openpyxl
-from cart.models import Order, Wallet
+from cart.models import Order, Wallet, Transaction
 
 from io import BytesIO
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
@@ -330,6 +330,49 @@ def delete_user_coupon(request):
     
 
 @never_cache
+def deactivate_user_wallet(request):
+    if 'username' in request.session:
+        w_id=request.GET['id']
+        block_check=Wallet.objects.filter(id=w_id)
+        for wallet in block_check:
+            if wallet.is_active:
+                Wallet.objects.filter(id=w_id).update(is_active=False)
+                messages.warning(request, f'{wallet.user} s wallet is blocked')
+            else:
+                Wallet.objects.filter(id=w_id).update(is_active=True)
+                messages.success(request, f'{wallet.user} s wallet is unblocked')
+        return redirect('admin_user_wallet')
+    else:
+        return redirect('admin_login')
+    
+@never_cache
+def admin_deletewallet(request):
+    if 'username' in request.session:
+        w_id=request.GET['id']
+        Wallet.objects.filter(id=w_id).delete()
+        return redirect('admin_user_wallet')
+    else:
+        return redirect('admin_login')
+    
+@never_cache
+def admin_user_wallet(request):
+    if 'username' in request.session:
+        if 'search' in request.GET:
+            search=request.GET['search']
+            wallet=Wallet.objects.filter(Q(user__user_firstname__icontains=search)|Q(id__icontains=search)).order_by('-id')
+        else:
+            wallet=Wallet.objects.all().order_by('id')
+        print(wallet)
+        paginator = Paginator(wallet, 15)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(request,'admin/user_wallet.html', {'page_obj': page_obj})
+    else:
+        return redirect('admin_login')
+        
+
+
+@never_cache
 def admin_orderlist(request):
     if 'username' in request.session:
         if 'search' in request.GET:
@@ -342,7 +385,7 @@ def admin_orderlist(request):
         page_obj = paginator.get_page(page_number)
         return render(request,'admin/order_list.html', {'page_obj': page_obj})
     else:
-        return render('admin_login')
+        return redirect('admin_login')
     
 class OrderUpdateView(View):
     def get(self, request, id):
@@ -363,15 +406,25 @@ class OrderUpdateView(View):
             ord = Order.objects.get(id=id)
             form = OrderForm(request.POST, request.FILES, instance=ord)
             if form.is_valid():
-                form.save()
-                if ord.status == 'Returned' or ord.status == 'Cancelled':
+                status = form.cleaned_data['status']
+                if status == 'Returned' or status == 'Cancelled':
                     try:
                         wallet = Wallet.objects.get(user = ord.user)
-                        wallet.deposit(ord.amount)
+                        if wallet.is_active:
+                            wallet.deposit(ord.amount,currency='INR')
+                            Transaction.objects.filter(wallet = wallet).update(type='Refund')
+                            form.save()
+                            messages.success(request,'Order updated successfully')
+                            return redirect('admin_orderlist')
+                        messages.warning(request, 'User Wallet is not activated')
+                        return redirect('admin_updateorder',id=id)
                     except Wallet.DoesNotExist:
-                        pass
-                messages.success(request,'Order updated successfully')
-                return redirect('admin_orderlist')
+                        messages.warning(request, 'No Wallet for user.')
+                        return redirect('admin_updateorder',id=id)
+                else:
+                    form.save()
+                    messages.success(request,'Order updated successfully')
+                    return redirect('admin_orderlist')
             else:
                 return render(request, 'admin/update_orders.html', {'form': form,'ord':ord})
         else:

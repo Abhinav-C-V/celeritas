@@ -79,22 +79,26 @@ class Wallet(models.Model):
     is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Wallet ID: {self.id} | User: {self.user} | Balance: {self.balance} | Status: {self.is_active}"
         
-    def deposit(self, amount,type,currency):
+    def deposit(self,amount,currency):
         if self.is_active:
             self.balance += Decimal(str(amount))
             self.save()
-            transaction = Transaction(wallet=self, amount=amount,type=type,currency=currency)
+            transaction = Transaction(wallet=self, amount=amount,currency=currency)
+            print(transaction.wallet)
             transaction.save()
         else:
             raise Exception("Need to activate your wallet")
 
-    def withdraw(self, amount,type,currency):
+    def withdraw(self, amount,currency):
         if self.is_active:
             if self.balance >= amount:
                 self.balance -= Decimal(str(amount))
                 self.save()
-                transaction = Transaction(wallet=self, amount=-amount,type=type,currency=currency)
+                transaction = Transaction(wallet=self, amount=-amount,currency=currency)
                 transaction.save()
             else:
                 raise Exception("Insufficient balance")
@@ -104,14 +108,13 @@ class Wallet(models.Model):
     def get_transaction_history(self):
         return Transaction.objects.filter(wallet=self).order_by('-timestamp')
     
-    def __str__(self):
-        return f"Wallet ID: {self.id} | User: {self.user} | Balance: {self.balance} | Status: {self.is_active}"
+    
 
 class Transaction(models.Model):
     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=200, choices=[('INR', 'Indian Rupee'), ('INR', 'Indian Rupee')], default='INR')
-    type = models.CharField(max_length=200, choices=[('deposit', 'Deposit'), ('refund', 'Refund')], default='Transfer')
+    type = models.CharField(max_length=200, choices=[('Deposit', 'Deposit'), ('Refund', 'Refund')], default='Deposit')
     # type = models.CharField(max_length=200,null=True,default='Transfer')
     timestamp = models.DateTimeField(auto_now=True)
     

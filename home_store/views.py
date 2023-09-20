@@ -4,7 +4,7 @@ from django.http import FileResponse, HttpResponse ,Http404
 from django.core.paginator import Paginator
 from django.contrib.auth.models import User
 from django.views.generic import View
-from celeritas.forms.user_form import UserSignupForm, UserLoginForm, UserAddressForm
+from celeritas.forms.user_form import UserSignupForm, UserLoginForm, UserAddressForm, WalletTransactionForm
 from celeritas.forms.product_form import ReviewForm
 
 from category.models import Category
@@ -838,12 +838,9 @@ def cancel_order(request,id):
 def return_order(request,id):
     if 'user_email' in request.session:
         user_email = request.session['user_email']
-        order = Order.objects.filter(id=id).first()
-        if order.order_type == 'Cash on delivery':
-            Order.objects.filter(id=id).update(status='Return Requested')
-            return redirect('view_order', id=id)
         try:
-            wallet = Wallet.objects.get(user__user_email = user_email )
+            user = UserDetail.objects.get(user_email = user_email)
+            wallet = Wallet.objects.get(user=user)
         except Wallet.DoesNotExist:
             messages.warning(request,'Please activate your wallet to apply for return')
             return redirect('view_order', id=id)
@@ -987,7 +984,6 @@ def generate_invoice(request):
     else:
         return redirect('user_login')
     
-@never_cache
 def generateOTP() :
     digits = "0123456789"
     OTP = ""
@@ -1006,7 +1002,8 @@ def otp_login(request):
             messages.warning(request,'No user is registered with this mobile number')
             return redirect('otp_login')
         print(phone)
-        o=generateOTP()
+        o=str(user.user_firstname)+generateOTP()
+        print(o)
         request.session['otp'] = o
         request.session['random _data'] = phone
         print('otp is ',o)
@@ -1090,6 +1087,124 @@ def submit_review(request,id):
     else:
         return redirect('user_login')
                     
+
+def my_wallet(request):
+    if 'user_email' in request.session:
+        try:
+            user = UserDetail.objects.get(user_email = request.session['user_email'])
+        except UserDetail.DoesNotExist:
+            messages.warning(request,'User Not Found')
+            return redirect('my_wallet')
+        wallet = Wallet.objects.filter(user=user)
+        if wallet.exists():
+            wallet = wallet.first()
+            if wallet.is_active:
+                print(wallet.is_active)
+            else:
+                print('not activated')
+            cat = Category.objects.all()
+            context = {
+                'cat':cat,
+                'user_firstname': user.user_firstname,
+                'user_image': user.user_image,
+                'user':user,
+                'wallet':wallet,
+                }
+            return render(request, 'accounts/my_wallet.html',context)
+        else:
+            Wallet.objects.create(user=user)
+            print("Wallet not exists")
+            return redirect('my_wallet')
+        
+    else:
+        return redirect('user_login')
+    
+    
+    
+def add_wallet(request):
+    if 'user_email' in request.session:
+        try:
+            user_email = request.session['user_email']
+            user = UserDetail.objects.get(user_email=user_email)
+        except UserDetail.DoesNotExist:
+            messages.warning(request, 'User Not Found')
+            return redirect('my_wallet')
+
+        wallet = Wallet.objects.get(user=user)
+
+        if request.method == 'POST':
+            form = WalletTransactionForm(request.POST, request.FILES)
+            pass1 = request.POST.get('password')
+            pass2 = request.POST.get('c_password')
+
+            if form.is_valid():
+                if pass1 == pass2:
+                    if check_password(pass1, user.user_password):
+                        amount = form.cleaned_data['amount']
+                        currency = form.cleaned_data['currency']
+                        # form.save()
+                        wallet.deposit(amount, currency)
+                        messages.success(request, "Amount added to your wallet")
+                        return redirect('my_wallet')
+                    else:
+                        messages.warning(request, "Wrong Password")
+                        return redirect('add_wallet')
+                else:
+                    messages.warning(request, "Passwords not matching")
+                    return redirect('add_wallet')
+            else:
+                messages.warning(request, "Form is not valid")
+                return redirect('add_wallet')
+        else:
+            form = WalletTransactionForm()
+
+        context = {
+            'user_firstname': user.user_firstname,
+            'user_image': user.user_image,
+            'user': user,
+            'form': form,
+        }
+
+        return render(request, "accounts/add_wallet.html", context)
+    else:
+        return redirect('user_login')
+
+
+def activate_wallet(request):
+    if 'user_email' in request.session:
+        try:
+            user_email = request.session['user_email']
+            user = UserDetail.objects.get(user_email=user_email)
+        except UserDetail.DoesNotExist:
+            messages.warning(request, 'User Not Found')
+            return redirect('activate_wallet')
+        if request.method == 'POST':
+            password = request.POST.get('password')
+            c_password = request.POST.get('c_password')
+            if password == c_password:
+                if check_password(password,user.user_password):
+                    Wallet.objects.filter(user=user).update(is_active=True)
+                    messages.success(request, "Successfully activated your wallet and you have 200 bonus wallet amount.")
+                    return redirect('my_wallet')
+                else:
+                    messages.warning(request, "Wrong Password.")
+                    return redirect('activate_wallet')
+            else:
+                messages.warning(request, "Passwords not matching")
+                return redirect('activate_wallet')
+        else:
+            cat = Category.objects.all()
+            context = {
+                'user_firstname': user.user_firstname,
+                'user_image': user.user_image,
+                'user': user,
+                'cat': cat,
+            }
+            return render(request,'accounts/activate_wallet.html',context)
+    else:
+        return redirect('user_login')
+                    
+
 @never_cache             
 def handle_not_found(request,exception):
     return render(request,'not_found.html')

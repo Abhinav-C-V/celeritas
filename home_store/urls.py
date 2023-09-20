@@ -47,6 +47,11 @@ urlpatterns = [
     path('apply_coupon/', views.apply_coupon, name='apply_coupon'),
     path('cancel_coupon/', views.cancelcoupon, name='cancel_coupon'),
     
+    path('add_wallet/', views.add_wallet, name='add_wallet'),
+    path('my_wallet/', views.my_wallet, name='my_wallet'),
+    path('activate_wallet/', views.activate_wallet, name='activate_wallet'),
+    
+    
     path('submit_review/<int:id>/', views.submit_review, name='submit_review'),
     
     

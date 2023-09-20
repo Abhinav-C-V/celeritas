@@ -4,11 +4,11 @@
 <!-- Header-->
 <div class="messages-container">
     {% if messages %}
-    <div class="messages">
+      <div class="messages">
         {% for message in messages %}
-        <div class="alert alert-warning">{{ message }}</div>
+          <div class="alert alert-warning">{{ message }}</div>
         {% endfor %}
-    </div>
+      </div>
     {% endif %}
 </div>
 <div class="breadcrumbs">
@@ -26,11 +26,8 @@
                     <div class="page-title">
                         <ol class="breadcrumb text-right">
                             <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
-                            <li><a href="{% url 'admin_userdetails' %}">User Details</a></li>
-                            <li class="active">User Details</li>
-                        </ol>
-                        <ol class="breadcrumb text-right" >
-                            <a  href="{% url 'add_user_coupon' %}"><i class="menu-icon fa fa-plus"></i>Add coupon for user</a>
+                            <li><a href="{% url 'admin_userdetails' %}">User</a></li>
+                            <li class="active"><a href="{% url 'admin_user_wallet' %}">User Wallet</a></li>
                         </ol>
                     </div>
                 </div>
@@ -45,9 +42,9 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{% url 'admin_userdetails' %}" ><strong class="card-title">User Details</strong></a>
+                        <a href="{% url 'admin_user_wallet' %}" ><strong class="card-title">User Wallet</strong></a>
                         <div class="float-md-right">
-                            <form action="{% url 'admin_userdetails' %}" class="search-form">
+                            <form action="{% url 'admin_user_wallet' %}" class="search-form">
                                 <div class="input-group">
                                     <input class="form-control search-input" type="text" placeholder="Search Name" name="search" aria-label="Search">
                                     <div class="input-group-append">
@@ -63,48 +60,41 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>First Name</th>
-                                    <th>Last Name</th>
-                                    <th>Email Address</th>
-                                    <th>Mob No.</th>
-                                    {% comment %} <th>Password</th> {% endcomment %}
+                                    <th>User</th>
+                                    <th>Image</th>
+                                    <th>Balance Rs.</th>
                                     <th>Is Active</th>
-                                    <th>Photo</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for user in page_obj %}
+                                {% for wallet in page_obj %}
                                     <tr>
-                                        <td>{{ user.id }}</td>
-                                        <td>{{ user.user_firstname }}</td>
-                                        <td>{{ user.user_lastname }}</td>
-                                        <td>{{ user.user_email }}</td>
-                                        <td>{{ user.user_phone }}</td>
-                                        {% comment %} <td>{{ user.user_password }}</td> {% endcomment %}
-                                        <td>{{ user.user_is_active }}</td>
+                                        <td>{{ wallet.id }}</td>
+                                        <td>{{ wallet.user }}</td>
                                         <td>
-                                            {% if user.user_image %}
-                                                <img src="{{ user.user_image.url }}" class="rounded-circle" width="40" height="40">
+                                            {% if wallet.user.user_image %}
+                                                <img src="{{ wallet.user.user_image.url }}" class="rounded-circle" width="40" height="40">
                                             {% endif %}
                                         </td>
-                                        <td>
-                                            <div class="dropdown">
-                                                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    <i class="menu-icon fa fa-glass"></i>Actions
-                                                </a>
-                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                                    {% if user.user_is_active %}
-                                                    <a class="dropdown-item" href="{% url 'admin_blockuser' %}?uid={{ user.id }}"><i class="menu-icon fa fa-sign-in"></i>Block</a>
-                                                    {% else %}
-                                                    <a class="dropdown-item" href="{% url 'admin_blockuser' %}?uid={{ user.id }}"><i class="menu-icon fa fa-sign-in"></i>Unblock</a>
-                                                    {% endif %}
-                                                    <a class="dropdown-item" href="{% url 'admin_deleteuser' %}?uid={{ user.id }}"><i class="menu-icon fa fa-trash"></i>Delete</a>
-                                                    <a class="dropdown-item" href="{% url 'admin_user_couponlist' %}?uid={{ user.id }}"><i class="menu-icon fa fa-tags"></i>Coupons</a>
-                                                    {% comment %} <a class="dropdown-item" href="{% url 'admin_user_wallet' %}?uid={{ user.id }}"><i class="menu-icon fa fa-tags"></i>Wallet</a> {% endcomment %}
+                                        <td>{{ wallet.balance }}</td>
+                                        <td>{{ wallet.is_active }}</td>
 
+                                            <td><div class="dropdown">
+                                                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <i class="menu-icon fa fa-glass"></i>Actions
+                                                    </a>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                                    {% if wallet.is_active %}
+                                                        <a class="dropdown-item" href="{% url 'deactivate_user_wallet' %}?id={{ wallet.id }} "><i class="menu-icon fa fa-sign-in"></i>Deactivate</a>
+                                                    {% else %}
+                                                        <a class="dropdown-item" href="{% url 'deactivate_user_wallet' %}?id={{ wallet.id }} "><i class="menu-icon fa fa-sign-in"></i>Activate</a>
+                                                    {% endif %}
+                                                    <a class="dropdown-item" href="{% url 'admin_deletewallet' %}?id={{ wallet.id }}"><i class="menu-icon fa fa-trash"></i>Delete</a>
+                                                    {% comment %} <a class="dropdown-item" href="{% url 'admin_product_variantlist' %}?prod_id={{ prod.id }}"><i class="menu-icon fa fa-th"></i>Product Variant List</a> {% endcomment %}
                                                 </div>
-                                            </div>
+                                            </div></td>
+
                                         </td>
                                     </tr>
                                 {% endfor %}

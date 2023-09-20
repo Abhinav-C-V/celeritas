@@ -1,0 +1,64 @@
+{% extends 'user_dashboard_base.html' %}
+
+{% block content %}
+
+{% comment %} <section class="section-conten padding-y bg"> {% endcomment %}
+<main class="col-md-9">
+  
+  <!-- Content for the main section goes here -->
+  <!-- You can add your content here -->
+
+  {% include 'includes/alerts.html' %}
+  <div class="container">
+    <div class="row">
+      <main class="col-md-9">
+        <article class="card">
+          <header class="card-header">
+            <strong class="d-inline-block mr-3">Confirm Password</strong>
+          </header> 
+          <div class="card-body">
+			<div class="row">
+			<div class="col-md-12">
+				<form action="{% url 'activate_wallet' %}" method="POST">
+					{% csrf_token %}
+                    <div class="form-row">
+                        <div class="col form-group">
+                            <label>Enter password</label>
+                            <input type="password" name="password" placeholder="Enter password" class="form-control" required>
+                        </div>
+                        <div class="col form-group">
+                            <label>Confirm password</label>
+                            <input type="password" name="c_password" placeholder="Confirm password" class="form-control" required>
+                        </div>
+                    </div>
+
+					<input type="submit" value="Submit" class="btn btn-primary">
+					
+				</form>
+				{% comment %} <div class="form-group "> {% endcomment %}
+					<a href="{% url 'otp_login' %}" class="float-right">Forgot password?</a>
+	  
+				{% comment %} </div> <!-- form-group form-check .// --> {% endcomment %}
+				
+			</div>
+
+			</div> <!-- row.// -->
+		</div> <!-- card-body .// -->
+
+        </article> <!-- order-group.// -->
+      </main>
+    </div> <!-- row.// -->
+  </div>
+
+
+
+
+</section>
+</main>
+
+</div> <!-- row.// -->
+</div> <!-- container.// -->
+
+</body>
+</html>
+{% endblock %}

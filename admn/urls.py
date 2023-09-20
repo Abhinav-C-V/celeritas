@@ -28,6 +28,11 @@ urlpatterns = [
     path('add_user_coupon/', views.add_user_coupon, name='add_user_coupon'),
     path('delete_user_coupon/', views.delete_user_coupon, name='delete_user_coupon'),
     
+    path('admin_user_wallet/', views.admin_user_wallet, name='admin_user_wallet'),
+    path('deactivate_user_wallet/', views.deactivate_user_wallet, name='deactivate_user_wallet'),
+    path('admin_deletewallet/', views.admin_deletewallet, name='admin_deletewallet'),
+    
+    
     path('admin_orderlist/', views.admin_orderlist, name='admin_orderlist'),
     path('admin_updateorder/<int:id>/', OrderUpdateView.as_view(), name='admin_updateorder'),
     
