@@ -75,29 +75,47 @@ class Order(models.Model):
     
 class Wallet(models.Model):
     user = models.ForeignKey(UserDetail, on_delete=models.CASCADE)
-    balance = models.DecimalField(max_digits=10, decimal_places=2)
-    currency = models.CharField(max_length=200, choices=[('INR', 'Indian Rupee'), ('INR', 'Indian Rupee')], default='INR')
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=200)
     is_active = models.BooleanField(default=False)
-    type = models.CharField(max_length=200, choices=[('deposit', 'Deposit'), ('refund', 'Refund')], default='refund')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    def deposit(self, amount):
+        
+    def deposit(self, amount,type,currency):
         if self.is_active:
             self.balance += Decimal(str(amount))
             self.save()
+            transaction = Transaction(wallet=self, amount=amount,type=type,currency=currency)
+            transaction.save()
         else:
             raise Exception("Need to activate your wallet")
 
-    def withdraw(self, amount):
+    def withdraw(self, amount,type,currency):
         if self.is_active:
             if self.balance >= amount:
                 self.balance -= Decimal(str(amount))
                 self.save()
+                transaction = Transaction(wallet=self, amount=-amount,type=type,currency=currency)
+                transaction.save()
             else:
                 raise Exception("Insufficient balance")
         else:
             raise Exception("Need to activate your wallet")
     
+    def get_transaction_history(self):
+        return Transaction.objects.filter(wallet=self).order_by('-timestamp')
+    
     def __str__(self):
-        return f"Wallet ID: {self.id} | User: {self.user} | Balance: {self.balance} | Currency: {self.currency} | Status: {self.is_active}"
+        return f"Wallet ID: {self.id} | User: {self.user} | Balance: {self.balance} | Status: {self.is_active}"
+
+class Transaction(models.Model):
+    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=200, choices=[('INR', 'Indian Rupee'), ('INR', 'Indian Rupee')], default='INR')
+    type = models.CharField(max_length=200, choices=[('deposit', 'Deposit'), ('refund', 'Refund')], default='Transfer')
+    # type = models.CharField(max_length=200,null=True,default='Transfer')
+    timestamp = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Transaction ID: {self.id} | Wallet: {self.wallet} | Amount: {self.amount} | Currency: {self.currency} | Type: {self.type}"
+    
+    

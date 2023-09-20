@@ -152,6 +152,7 @@ class UserSignupView(View):
                 if otp_email:
                     print('otp send to mail',u_otp)
                     user.save()
+                    Wallet.objects.create(user=user)
                     request.session['u_otp'] = user.u_otp
                     return redirect('signup_otp')
 
@@ -814,34 +815,44 @@ def view_order(request,id):
 @never_cache
 def cancel_order(request,id):
     if 'user_email' in request.session:
-        wallet = Wallet.objects.get(user__user_email = request.session['user_email'])
+        user_email = request.session['user_email'] 
         order = Order.objects.filter(id=id).first()
         if order.order_type == 'Cash on delivery':
             Order.objects.filter(id=id).update(status='Cancel Requested')
-            return redirect('orders')
+            return redirect('view_order', id=id)
+        try:
+            wallet = Wallet.objects.get(user__user_email = user_email )
+        except Wallet.DoesNotExist:
+            messages.warning(request,'Please activate your wallet to apply for cancellation')
+            return redirect('view_order', id=id)
         if wallet.is_active:
             Order.objects.filter(id=id).update(status='Cancel Requested')
-            return redirect('orders')
+            return redirect('view_order', id=id)
         else:
-            messages.warning(request,'You need to activate your wallet applying for cancellation.')
-            return redirect('orders')
+            messages.warning(request,'Complete your wallet activation to applying for cancellation.')
+            return redirect('view_order', id=id)
     else:
         return redirect('user_login')
 
 @never_cache
 def return_order(request,id):
     if 'user_email' in request.session:
-        wallet = Wallet.objects.get(user__user_email = request.session['user_email'])
+        user_email = request.session['user_email']
         order = Order.objects.filter(id=id).first()
         if order.order_type == 'Cash on delivery':
             Order.objects.filter(id=id).update(status='Return Requested')
-            return redirect('orders')
+            return redirect('view_order', id=id)
+        try:
+            wallet = Wallet.objects.get(user__user_email = user_email )
+        except Wallet.DoesNotExist:
+            messages.warning(request,'Please activate your wallet to apply for return')
+            return redirect('view_order', id=id)
         if wallet.is_active:
             Order.objects.filter(id=id).update(status='Return Requested')
-            return redirect('orders')
+            return redirect('view_order', id=id)
         else:
-            messages.warning(request,'You need to activate your wallet for apply return.')
-            return redirect('orders')
+            messages.warning(request,'Complete your wallet activation for apply return.')
+            return redirect('view_order', id=id)
     else:
         return redirect('user_login')
     
