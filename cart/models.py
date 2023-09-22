@@ -83,11 +83,11 @@ class Wallet(models.Model):
     def __str__(self):
         return f"Wallet ID: {self.id} | User: {self.user} | Balance: {self.balance} | Status: {self.is_active}"
         
-    def deposit(self,amount,currency):
+    def deposit(self,amount,currency,type):
         if self.is_active:
             self.balance += Decimal(str(amount))
             self.save()
-            transaction = Transaction(wallet=self, amount=amount,currency=currency)
+            transaction = Transaction(wallet=self, amount=amount,currency=currency,type=type)
             print(transaction.wallet)
             transaction.save()
         else:

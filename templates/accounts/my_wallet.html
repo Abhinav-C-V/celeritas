@@ -16,31 +16,31 @@
           <header class="card-header">
             <strong class="d-inline-block mr-3">Logged in as:</strong>
             <span>{{user.user_firstname}} {{user.user_lastname}}</span>
-          </header> 
+          </header>
           <div class="card-body">
             <div class="row">
-
               <div class="col-md-6">
                 <h3 class="card-title">My Wallet</h3>
-
+        
                 {% if wallet.is_active %}
-                <p class="card-text">Your wallet balance is: ₹ {{wallet.balance}}</p>
-                <a href="{% url 'add_wallet' %}" class="btn btn-primary">Add Amount</a>
+                  <p class="card-text">Your wallet balance is:<strong> ₹ {{wallet.balance}}</strong></p>
+                  <a href="{% url 'add_wallet' %}" class="btn btn-primary">Add Amount</a>
                 {% else %}
-                <p class="card-text">You need to activate your wallet first.</p>
-                <a href="{% url 'activate_wallet' %}" class="btn btn-primary">Activate Wallet</a>
+                  <p class="card-text">You need to activate your wallet first.</p>
+                  <a href="{% url 'activate_wallet' %}" class="btn btn-primary">Activate Wallet</a>
                 {% endif %}
+              </div>
+        
+              <div class="col-md-6 transaction-history d-flex justify-content-end">
+                <p class="card-text"><a href="{% url 'show_trans_history' %}" class="">Transaction History</a></p>
               </div>
             </div> <!-- row.// -->
           </div> <!-- card-body .// -->
-
         </article> <!-- order-group.// -->
+        
       </main>
     </div> <!-- row.// -->
   </div>
-
-
-
 
 </section>
 </main>

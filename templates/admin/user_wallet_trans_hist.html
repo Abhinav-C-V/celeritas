@@ -26,8 +26,8 @@
                     <div class="page-title">
                         <ol class="breadcrumb text-right">
                             <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
-                            <li><a href="{% url 'admin_userdetails' %}">User</a></li>
-                            <li class="active"><a href="{% url 'admin_user_wallet' %}">User Wallet</a></li>
+                            <li><a href="{% url 'admin_user_wallet' %}">User Wallet</a></li>
+                            <li class="active"><a href="">Transaction History</a></li>
                         </ol>
                     </div>
                 </div>
@@ -42,9 +42,9 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{% url 'admin_user_wallet' %}" ><strong class="card-title">User Wallet</strong></a>
+                        <a href="" ><strong class="card-title">Transaction History</strong></a>
                         <div class="float-md-right">
-                            <form action="{% url 'admin_user_wallet' %}" class="search-form">
+                            <form action="" class="search-form">
                                 <div class="input-group">
                                     <input class="form-control search-input" type="text" placeholder="Search Name" name="search" aria-label="Search">
                                     <div class="input-group-append">
@@ -60,42 +60,33 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>User</th>
-                                    <th>Image</th>
-                                    <th>Balance Rs.</th>
-                                    <th>Is Active</th>
-                                    <th>Actions</th>
+                                    <th>Amount</th>
+                                    <th>Currency</th>
+                                    <th>Type</th>
+                                    <th>Timestamp</th>
+                                    {% comment %} <th>Actions</th> {% endcomment %}
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for wallet in page_obj %}
+                                {% for transaction in page_obj %}
                                     <tr>
-                                        <td>{{ wallet.id }}</td>
-                                        <td>{{ wallet.user }}</td>
-                                        <td>
-                                            {% if wallet.user.user_image %}
-                                                <img src="{{ wallet.user.user_image.url }}" class="rounded-circle" width="40" height="40">
-                                            {% endif %}
-                                        </td>
-                                        <td>{{ wallet.balance }}</td>
-                                        <td>{{ wallet.is_active }}</td>
+                                        <td>{{transaction.id}}</td>
+                                        <td>{{transaction.amount}}</td>
+                                        <td>{{transaction.currency}}</td>
+                                        <td>{{transaction.type}}</td>
+                                        <td>{{transaction.timestamp}}</td>
 
-                                            <td><div class="dropdown">
-                                                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="menu-icon fa fa-glass"></i>Actions
-                                                    </a>
+                                        {% comment %} <td>
+                                            <div class="dropdown">
+                                                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="menu-icon fa fa-glass"></i>Actions
+                                                </a>
                                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                                    {% if wallet.is_active %}
-                                                        <a class="dropdown-item" href="{% url 'deactivate_user_wallet' %}?id={{ wallet.id }} "><i class="menu-icon fa fa-sign-in"></i>Deactivate</a>
-                                                    {% else %}
-                                                        <a class="dropdown-item" href="{% url 'deactivate_user_wallet' %}?id={{ wallet.id }} "><i class="menu-icon fa fa-sign-in"></i>Activate</a>
-                                                    {% endif %}
-                                                    <a class="dropdown-item" href="{% url 'admin_deletewallet' %}?id={{ wallet.id }}"><i class="menu-icon fa fa-trash"></i>Delete</a>
-                                                    <a class="dropdown-item" href="{% url 'admin_userwallet_trans' id=wallet.id %}"><i class="menu-icon fa fa-history"></i>Transaction History</a>
+                                                    <a class="dropdown-item" href="{% url 'update_trans' id=size.id  %}"><i class="menu-icon fa fa-sign-in"></i>Update</a>
+                                                    <a class="dropdown-item" href="{% url 'delete_trans' %}?uid={{ size.id }}"><i class="menu-icon fa fa-trash"></i>Delete</a>
                                                 </div>
-                                            </div></td>
-
-                                        </td>
+                                            </div>
+                                        </td> {% endcomment %}
                                     </tr>
                                 {% endfor %}
                             </tbody>

@@ -12,6 +12,7 @@ from product.models import Product, ProductGallery, Variation, Size, Color, Revi
 from cart.models import Wishlist, Cart, CartItem, Coupon, UserCoupon, Wallet
 from .models import UserDetail, Address
 from admn.models import  Banner
+# from cart.models import  Transaction
 
 from django.db.models import Q, F
 from django.http import JsonResponse, HttpRequest
@@ -1143,7 +1144,7 @@ def add_wallet(request):
                         amount = form.cleaned_data['amount']
                         currency = form.cleaned_data['currency']
                         # form.save()
-                        wallet.deposit(amount, currency)
+                        wallet.deposit(amount, currency,type='Deposit')
                         messages.success(request, "Amount added to your wallet")
                         return redirect('my_wallet')
                     else:
@@ -1203,7 +1204,34 @@ def activate_wallet(request):
             return render(request,'accounts/activate_wallet.html',context)
     else:
         return redirect('user_login')
-                    
+
+@never_cache
+def show_trans_history(request):
+    if 'user_email' in request.session:
+        user_email = request.session['user_email']
+        try:
+            wallet = Wallet.objects.get(user__user_email=user_email)
+        except Wallet.DoesNotExist:
+            messages.warning(request,'No wallet found')
+            return redirect('my_wallet')
+        trans_hist = wallet.get_transaction_history()
+        cat = Category.objects.all()
+        
+        paginator = Paginator(trans_hist, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        # print(trans_hist)
+        context = {
+            'user_firstname': wallet.user.user_firstname,
+            'user_image': wallet.user.user_image,
+            'user': wallet.user,
+            'cat': cat,
+            'trans_hist': trans_hist,
+            'page_obj' : page_obj,
+        }
+        return render(request, 'accounts/transaction_history.html',context)
+    else:
+        return redirect('user_login')                  
 
 @never_cache             
 def handle_not_found(request,exception):

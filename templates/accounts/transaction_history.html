@@ -1,0 +1,102 @@
+{% extends 'user_dashboard_base.html' %}
+
+{% block content %}
+
+{% comment %} <section class="section-conten padding-y bg"> {% endcomment %}
+<main class="col-md-9">
+
+<!-- Content for the main section goes here -->
+<!-- You can add your content here -->
+
+{% include 'includes/alerts.html' %}
+<div class="container">
+    <div class="row">
+        <main class="col-md-9">
+            <article class="card">
+                <header class="card-header">
+                    <strong class="d-inline-block mr-3">Logged in as:</strong>
+                    <span>{{user.user_firstname}} {{user.user_lastname}}</span>
+                </header>
+                <div class="card-body">
+                <div class="row">
+                    <div class=" col-md transaction-history flex-container">
+                        <h5>Transaction History</h5>
+                    {% if page_obj %}
+                        {% comment %} {% if trans_hist %} {% endcomment %}
+                        <table class="table flex-item">
+                            <thead>
+                                <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Currency</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for transaction in page_obj %}
+                            <tr>
+                            <td>00{{transaction.id}}</td>
+                            <td>{{transaction.amount}}</td>
+                            <td>{{transaction.currency}}</td>
+                            <td>{{transaction.type}}</td>
+                            <td>{{transaction.timestamp}}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <h6>No Transaction yone yet.</h6>
+                        {% endif %}
+                    </div>
+                </div> <!-- row.// -->
+                </div> <!-- card-body .// -->
+                {% if page_obj %}
+                <div class="pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">&laquo; First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div> <!-- .paginator -->
+                {% else %}
+                <div style="margin-top: 20px; ">
+                    {% include 'includes/alerts.html' %}
+                </div>
+
+                {% endif %}
+
+            </article> <!-- order-group.// -->
+        </main>
+    </div> <!-- row.// -->
+</div>
+
+</section>
+</main>
+
+</div> <!-- row.// -->
+</div> <!-- container.// -->
+
+</body>
+</html>
+{% endblock %}

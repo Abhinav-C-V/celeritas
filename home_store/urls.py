@@ -51,6 +51,7 @@ urlpatterns = [
     path('my_wallet/', views.my_wallet, name='my_wallet'),
     path('activate_wallet/', views.activate_wallet, name='activate_wallet'),
     
+    path('show_trans_history/', views.show_trans_history, name='show_trans_history'),
     
     path('submit_review/<int:id>/', views.submit_review, name='submit_review'),
     

@@ -31,7 +31,7 @@ urlpatterns = [
     path('admin_user_wallet/', views.admin_user_wallet, name='admin_user_wallet'),
     path('deactivate_user_wallet/', views.deactivate_user_wallet, name='deactivate_user_wallet'),
     path('admin_deletewallet/', views.admin_deletewallet, name='admin_deletewallet'),
-    
+    path('admin_userwallet_trans/<int:id>/', views.admin_userwallet_trans, name='admin_userwallet_trans'),
     
     path('admin_orderlist/', views.admin_orderlist, name='admin_orderlist'),
     path('admin_updateorder/<int:id>/', OrderUpdateView.as_view(), name='admin_updateorder'),

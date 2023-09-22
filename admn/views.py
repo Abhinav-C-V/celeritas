@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib import messages
 from django.views.generic import View
 from django.contrib.auth import authenticate, login
@@ -12,6 +12,8 @@ from celeritas.forms.product_form import BannerForm, CouponForm, UserCouponForm,
 from django.core.paginator import Paginator
 from home_store.models import UserDetail
 from .models import Banner
+from celeritas.forms.user_form import WalletTransactionForm
+
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from cart.models import Coupon, UserCoupon, Order
@@ -327,7 +329,23 @@ def delete_user_coupon(request):
         return redirect('admin_userdetails')
     else:
         return redirect('admin_login')
-    
+
+
+def admin_userwallet_trans(request, id):
+    if 'username' in request.session:
+        try:
+            wallet = get_object_or_404(Wallet, id=id)
+            transaction_history = wallet.get_transaction_history()
+        except Wallet.DoesNotExist:
+            messages.warning(request, 'Wallet not found')
+            return redirect('admin_user_wallet')
+
+        paginator = Paginator(transaction_history, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(request, 'admin/user_wallet_trans_hist.html', {'page_obj': page_obj,})
+    else:
+        return render(request, 'admin/login.html')
 
 @never_cache
 def deactivate_user_wallet(request):
@@ -369,7 +387,6 @@ def admin_user_wallet(request):
         return render(request,'admin/user_wallet.html', {'page_obj': page_obj})
     else:
         return redirect('admin_login')
-        
 
 
 @never_cache
@@ -387,7 +404,9 @@ def admin_orderlist(request):
     else:
         return redirect('admin_login')
     
+
 class OrderUpdateView(View):
+    @method_decorator
     def get(self, request, id):
         if 'username' in request.session:
             try:
@@ -401,6 +420,7 @@ class OrderUpdateView(View):
         else:
             return redirect('admin_login')
 
+    @method_decorator
     def post(self, request, id):
         if 'username' in request.session:
             ord = Order.objects.get(id=id)
@@ -409,9 +429,9 @@ class OrderUpdateView(View):
                 status = form.cleaned_data['status']
                 if status == 'Returned' or status == 'Cancelled':
                     try:
-                        wallet = Wallet.objects.get(user = ord.user)
+                        wallet = Wallet.objects.get(user=ord.user)
                         if wallet.is_active:
-                            wallet.deposit(ord.amount,currency='INR')
+                            wallet.deposit(ord.amount,currency='INR',type='Refund')
                             Transaction.objects.filter(wallet = wallet).update(type='Refund')
                             form.save()
                             messages.success(request,'Order updated successfully')
